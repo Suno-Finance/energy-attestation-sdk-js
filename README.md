@@ -254,7 +254,7 @@ await sdk.attestations.overwriteAttestation({
 
 ### Correcting a previous attestation
 
-If readings were wrong, submit a **replacement**. This is a **single transaction** — the resolver's `onAttest` hook detects the non-zero `refUID`, validates that the period is identical, and calls `recordReplacement` on the registry atomically. The original attestation is marked as replaced on-chain; totals are updated in the same transaction.
+If readings were wrong, submit a **replacement**. This is a **two-transaction flow** handled automatically by the SDK — first the replacement attestation is submitted (the resolver's `onAttest` hook detects the non-zero `refUID`, validates the period is identical, and records the replacement atomically), then the old attestation is revoked on EAS so it appears as revoked on EAS explorer. The original attestation is marked as replaced on-chain; totals are updated in the same first transaction.
 
 ```typescript
 const { uid: newUid } = await sdk.attestations.overwriteAttestation({
