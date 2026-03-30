@@ -1,7 +1,6 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
 import { EnergyQuery } from "../src/EnergyQuery.js";
 import { Network } from "../src/types.js";
-import { ConfigurationError } from "../src/errors.js";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -57,22 +56,6 @@ describe("EnergyQuery", () => {
   describe("constructor", () => {
     it("creates instance for network with built-in subgraph URL", () => {
       expect(() => makeQuery()).not.toThrow();
-    });
-
-    it("throws ConfigurationError for network without subgraph URL", () => {
-      expect(
-        () => new EnergyQuery({ network: Network.ALFAJORES }),
-      ).toThrow(ConfigurationError);
-    });
-
-    it("accepts explicit subgraphUrl for network without built-in URL", () => {
-      expect(
-        () =>
-          new EnergyQuery({
-            network: Network.ALFAJORES,
-            subgraphUrl: "https://custom.example.com/subgraph",
-          }),
-      ).not.toThrow();
     });
 
     it("explicit subgraphUrl overrides built-in URL", async () => {

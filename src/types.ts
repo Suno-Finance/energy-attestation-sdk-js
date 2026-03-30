@@ -4,7 +4,6 @@ export enum Network {
   POLYGON = "polygon",
   AMOY = "amoy",
   CELO = "celo",
-  ALFAJORES = "alfajores",
 }
 
 /** Common reading interval presets, expressed in minutes. */

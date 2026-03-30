@@ -1,7 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { getEASAddress, getNetworkConfig, CHAIN_IDS } from "../src/networks.js";
 import { Network } from "../src/types.js";
-import { ConfigurationError } from "../src/errors.js";
 
 describe("getEASAddress", () => {
   it("returns correct address for Polygon", () => {
@@ -16,10 +15,6 @@ describe("getEASAddress", () => {
     expect(getEASAddress(Network.CELO)).toBe("0x72E1d8ccf5299fb36fEfD8CC4394B8ef7e98Af92");
   });
 
-  it("throws ConfigurationError for Alfajores (no EAS deployed)", () => {
-    expect(() => getEASAddress(Network.ALFAJORES)).toThrow(ConfigurationError);
-    expect(() => getEASAddress(Network.ALFAJORES)).toThrow("not yet deployed");
-  });
 });
 
 describe("getNetworkConfig", () => {
@@ -54,14 +49,6 @@ describe("getNetworkConfig", () => {
     expect(config.defaultRpcUrl).toBe("https://forno.celo.org");
   });
 
-  it("returns empty EAS and null registry for Alfajores", () => {
-    const config = getNetworkConfig(Network.ALFAJORES);
-    expect(config.eas).toBe("");
-    expect(config.registry).toBeNull();
-    expect(config.schemaUID).toBeNull();
-    expect(config.defaultRpcUrl).toBeTruthy();
-  });
-
   it("returns a default RPC URL for every network", () => {
     for (const network of Object.values(Network)) {
       const config = getNetworkConfig(network);
@@ -89,10 +76,6 @@ describe("CHAIN_IDS", () => {
 
   it("contains correct chain ID for Celo", () => {
     expect(CHAIN_IDS[Network.CELO]).toBe(42220);
-  });
-
-  it("contains correct chain ID for Alfajores", () => {
-    expect(CHAIN_IDS[Network.ALFAJORES]).toBe(44787);
   });
 
   it("has an entry for every Network value", () => {

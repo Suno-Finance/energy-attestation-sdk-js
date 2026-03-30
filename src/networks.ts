@@ -1,5 +1,4 @@
 import { Network } from "./types.js";
-import { ConfigurationError } from "./errors.js";
 
 export interface NetworkConfig {
   /** EAS core contract address */
@@ -56,15 +55,6 @@ const NETWORK_CONFIG: Record<Network, NetworkConfig> = {
       "https://gateway.thegraph.com/api/subgraphs/id/9BM6kQzg7jtcbnphW7UXCGMmvJ2QtDkxnU8fqDYinUx1",
     chainId: 42220,
   },
-  [Network.ALFAJORES]: {
-    eas: "",
-    schemaRegistry: "",
-    registry: null,
-    schemaUID: null,
-    defaultRpcUrl: "https://alfajores-forno.celo-testnet.org",
-    subgraphUrl: null,
-    chainId: 44787,
-  },
 };
 
 /** Returns the full network configuration for a given network. */
@@ -81,7 +71,6 @@ export const CHAIN_IDS: Record<Network, number> = {
   [Network.AMOY]: 80002,
   [Network.POLYGON]: 137,
   [Network.CELO]: 42220,
-  [Network.ALFAJORES]: 44787,
 };
 
 /**
@@ -89,11 +78,5 @@ export const CHAIN_IDS: Record<Network, number> = {
  * Throws if EAS is not deployed on the given network.
  */
 export function getEASAddress(network: Network): string {
-  const config = NETWORK_CONFIG[network];
-  if (!config.eas) {
-    throw new ConfigurationError(
-      `EAS is not yet deployed on ${network}. Provide an explicit easAddress in your config.`,
-    );
-  }
-  return config.eas;
+  return NETWORK_CONFIG[network].eas;
 }

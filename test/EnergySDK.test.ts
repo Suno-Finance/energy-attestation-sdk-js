@@ -12,7 +12,8 @@ describe("EnergySDK.fromPrivateKey", () => {
         network: Network.AMOY,
       });
       expect(sdk).toBeDefined();
-      expect(sdk.address).toBeDefined();
+      expect(sdk.address).toBe(new Wallet(PRIVATE_KEY).address);
+      expect(sdk.signer).toBeDefined();
       expect(sdk.watchers).toBeDefined();
       expect(sdk.projects).toBeDefined();
       expect(sdk.attesters).toBeDefined();
@@ -32,31 +33,36 @@ describe("EnergySDK.fromPrivateKey", () => {
 
   describe("networks without full deployment", () => {
     it("creates SDK with just privateKey and network for Polygon", async () => {
+      const spy = vi.spyOn(JsonRpcProvider.prototype, "getNetwork").mockResolvedValue({
+        chainId: 137n,
+        name: "matic",
+      } as Awaited<ReturnType<JsonRpcProvider["getNetwork"]>>);
       const sdk = await EnergySDK.fromPrivateKey({
         privateKey: PRIVATE_KEY,
         network: Network.POLYGON,
       });
       expect(sdk).toBeDefined();
+      spy.mockRestore();
     });
 
     it("creates SDK with just privateKey and network for Celo", async () => {
+      const spy = vi.spyOn(JsonRpcProvider.prototype, "getNetwork").mockResolvedValue({
+        chainId: 42220n,
+        name: "celo",
+      } as Awaited<ReturnType<JsonRpcProvider["getNetwork"]>>);
       const sdk = await EnergySDK.fromPrivateKey({
         privateKey: PRIVATE_KEY,
         network: Network.CELO,
       });
       expect(sdk).toBeDefined();
-    });
-
-    it("throws for Alfajores without registryAddress (contracts not deployed)", async () => {
-      await expect(
-        EnergySDK.fromPrivateKey({
-          privateKey: PRIVATE_KEY,
-          network: Network.ALFAJORES,
-        }),
-      ).rejects.toThrow(ConfigurationError);
+      spy.mockRestore();
     });
 
     it("accepts Polygon with custom registryAddress and schemaUID", async () => {
+      const spy = vi.spyOn(JsonRpcProvider.prototype, "getNetwork").mockResolvedValue({
+        chainId: 137n,
+        name: "matic",
+      } as Awaited<ReturnType<JsonRpcProvider["getNetwork"]>>);
       const sdk = await EnergySDK.fromPrivateKey({
         privateKey: PRIVATE_KEY,
         network: Network.POLYGON,
@@ -64,9 +70,14 @@ describe("EnergySDK.fromPrivateKey", () => {
         schemaUID: "0x" + "cd".repeat(32),
       });
       expect(sdk).toBeDefined();
+      spy.mockRestore();
     });
 
     it("accepts Celo with custom registryAddress and schemaUID", async () => {
+      const spy = vi.spyOn(JsonRpcProvider.prototype, "getNetwork").mockResolvedValue({
+        chainId: 42220n,
+        name: "celo",
+      } as Awaited<ReturnType<JsonRpcProvider["getNetwork"]>>);
       const sdk = await EnergySDK.fromPrivateKey({
         privateKey: PRIVATE_KEY,
         network: Network.CELO,
@@ -74,19 +85,9 @@ describe("EnergySDK.fromPrivateKey", () => {
         schemaUID: "0x" + "cd".repeat(32),
       });
       expect(sdk).toBeDefined();
+      spy.mockRestore();
     });
 
-    it("accepts Alfajores with all custom addresses", async () => {
-      const sdk = await EnergySDK.fromPrivateKey({
-        privateKey: PRIVATE_KEY,
-        network: Network.ALFAJORES,
-        rpcUrl: "https://alfajores-forno.celo-testnet.org",
-        registryAddress: "0xA02034E7BA757370a022df7D7Ad7191fcB788281",
-        schemaUID: "0x" + "cd".repeat(32),
-        easAddress: "0x72E1d8ccf5299fb36fEfD8CC4394B8ef7e98Af92",
-      });
-      expect(sdk).toBeDefined();
-    });
   });
 
   describe("custom overrides on supported networks", () => {
@@ -100,12 +101,17 @@ describe("EnergySDK.fromPrivateKey", () => {
     });
 
     it("uses custom registryAddress when provided", async () => {
+      const spy = vi.spyOn(JsonRpcProvider.prototype, "getNetwork").mockResolvedValue({
+        chainId: 80002n,
+        name: "amoy",
+      } as Awaited<ReturnType<JsonRpcProvider["getNetwork"]>>);
       const sdk = await EnergySDK.fromPrivateKey({
         privateKey: PRIVATE_KEY,
         network: Network.AMOY,
         registryAddress: "0x72E1d8ccf5299fb36fEfD8CC4394B8ef7e98Af92",
       });
       expect(sdk).toBeDefined();
+      spy.mockRestore();
     });
 
     it("uses custom schemaUID when provided", async () => {
@@ -294,12 +300,17 @@ describe("EnergySDK.fromSigner", () => {
 
     it("works with Celo network", async () => {
       const provider = new JsonRpcProvider("https://forno.celo.org");
+      const spy = vi.spyOn(provider, "getNetwork").mockResolvedValue({
+        chainId: 42220n,
+        name: "celo",
+      } as Awaited<ReturnType<JsonRpcProvider["getNetwork"]>>);
       const signer = new Wallet(PRIVATE_KEY, provider);
       const sdk = await EnergySDK.fromSigner({
         signer,
         network: Network.CELO,
       });
       expect(sdk).toBeDefined();
+      spy.mockRestore();
     });
   });
 
@@ -384,15 +395,5 @@ describe("EnergySDK.fromSigner", () => {
       spy.mockRestore();
     });
 
-    it("throws for Alfajores without registryAddress", async () => {
-      const provider = new JsonRpcProvider("https://alfajores-forno.celo-testnet.org");
-      const signer = new Wallet(PRIVATE_KEY, provider);
-      await expect(
-        EnergySDK.fromSigner({
-          signer,
-          network: Network.ALFAJORES,
-        }),
-      ).rejects.toThrow(ConfigurationError);
-    });
   });
 });
