@@ -1,0 +1,10 @@
+node_modules/
+dist/
+coverage/
+.env
+.env.*
+*.tsbuildinfo
+.DS_Store
+
+# CI test report
+junit.xml
