@@ -7,6 +7,10 @@ const PRIVATE_KEY = "0x" + "ab".repeat(32);
 describe("EnergySDK.fromPrivateKey", () => {
   describe("minimal init (auto-resolved config)", () => {
     it("creates SDK with just privateKey and network for Amoy", async () => {
+      const spy = vi.spyOn(JsonRpcProvider.prototype, "getNetwork").mockResolvedValue({
+        chainId: 80002n,
+        name: "amoy",
+      } as Awaited<ReturnType<JsonRpcProvider["getNetwork"]>>);
       const sdk = await EnergySDK.fromPrivateKey({
         privateKey: PRIVATE_KEY,
         network: Network.AMOY,
@@ -19,15 +23,21 @@ describe("EnergySDK.fromPrivateKey", () => {
       expect(sdk.attesters).toBeDefined();
       expect(sdk.attestations).toBeDefined();
       expect(sdk.read).toBeDefined();
+      spy.mockRestore();
     });
 
     it("auto-resolves rpcUrl, registryAddress, schemaUID, and easAddress for Amoy", async () => {
+      const spy = vi.spyOn(JsonRpcProvider.prototype, "getNetwork").mockResolvedValue({
+        chainId: 80002n,
+        name: "amoy",
+      } as Awaited<ReturnType<JsonRpcProvider["getNetwork"]>>);
       const sdk = await EnergySDK.fromPrivateKey({
         privateKey: PRIVATE_KEY,
         network: Network.AMOY,
       });
       expect(sdk).toBeDefined();
       expect(sdk.provider).toBeDefined();
+      spy.mockRestore();
     });
   });
 
