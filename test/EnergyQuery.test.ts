@@ -1,0 +1,690 @@
+import { describe, it, expect, vi, afterEach } from "vitest";
+import { EnergyQuery } from "../src/EnergyQuery.js";
+import { Network } from "../src/types.js";
+import { ConfigurationError } from "../src/errors.js";
+
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+
+function makeFetchResponse(body: unknown, status = 200) {
+  return {
+    ok: status >= 200 && status < 300,
+    status,
+    statusText: status === 200 ? "OK" : "Error",
+    json: vi.fn().mockResolvedValue(body),
+  };
+}
+
+function mockFetch(data: unknown) {
+  return vi.fn().mockResolvedValue(makeFetchResponse({ data }));
+}
+
+function mockFetchHttpError(status: number) {
+  return vi.fn().mockResolvedValue(makeFetchResponse({}, status));
+}
+
+function mockFetchGraphQLError(...messages: string[]) {
+  const errors = messages.map((message) => ({ message }));
+  return vi.fn().mockResolvedValue(makeFetchResponse({ errors }));
+}
+
+function mockFetchNetworkError(message = "Network failure") {
+  return vi.fn().mockRejectedValue(new Error(message));
+}
+
+function mockFetchEmptyData() {
+  return vi.fn().mockResolvedValue(makeFetchResponse({}));
+}
+
+function makeQuery(overrides: { apiKey?: string; subgraphUrl?: string } = {}) {
+  return new EnergyQuery({ network: Network.AMOY, ...overrides });
+}
+
+// ---------------------------------------------------------------------------
+// Tests
+// ---------------------------------------------------------------------------
+
+describe("EnergyQuery", () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  // -------------------------------------------------------------------------
+  // Constructor
+  // -------------------------------------------------------------------------
+
+  describe("constructor", () => {
+    it("creates instance for network with built-in subgraph URL", () => {
+      expect(() => makeQuery()).not.toThrow();
+    });
+
+    it("throws ConfigurationError for network without subgraph URL", () => {
+      expect(
+        () => new EnergyQuery({ network: Network.ALFAJORES }),
+      ).toThrow(ConfigurationError);
+    });
+
+    it("accepts explicit subgraphUrl for network without built-in URL", () => {
+      expect(
+        () =>
+          new EnergyQuery({
+            network: Network.ALFAJORES,
+            subgraphUrl: "https://custom.example.com/subgraph",
+          }),
+      ).not.toThrow();
+    });
+
+    it("explicit subgraphUrl overrides built-in URL", async () => {
+      const fetch = mockFetch({ protocol: null });
+      vi.stubGlobal("fetch", fetch);
+
+      const q = new EnergyQuery({
+        network: Network.AMOY,
+        subgraphUrl: "https://custom.example.com/subgraph",
+      });
+      await q.getProtocol();
+
+      expect(fetch).toHaveBeenCalledWith(
+        "https://custom.example.com/subgraph",
+        expect.anything(),
+      );
+    });
+
+    it("sets Authorization header when apiKey is provided", async () => {
+      const fetch = mockFetch({ protocol: null });
+      vi.stubGlobal("fetch", fetch);
+
+      const q = makeQuery({ apiKey: "my-api-key" });
+      await q.getProtocol();
+
+      const [, options] = fetch.mock.calls[0];
+      expect(options.headers["Authorization"]).toBe("Bearer my-api-key");
+    });
+
+    it("does not set Authorization header when apiKey is omitted", async () => {
+      const fetch = mockFetch({ protocol: null });
+      vi.stubGlobal("fetch", fetch);
+
+      await makeQuery().getProtocol();
+
+      const [, options] = fetch.mock.calls[0];
+      expect(options.headers["Authorization"]).toBeUndefined();
+    });
+
+    it("always sets Content-Type header", async () => {
+      const fetch = mockFetch({ protocol: null });
+      vi.stubGlobal("fetch", fetch);
+
+      await makeQuery().getProtocol();
+
+      const [, options] = fetch.mock.calls[0];
+      expect(options.headers["Content-Type"]).toBe("application/json");
+    });
+  });
+
+  // -------------------------------------------------------------------------
+  // Error handling
+  // -------------------------------------------------------------------------
+
+  describe("error handling", () => {
+    it("throws on network failure", async () => {
+      vi.stubGlobal("fetch", mockFetchNetworkError("ECONNREFUSED"));
+      await expect(makeQuery().getProtocol()).rejects.toThrow(
+        "Subgraph request failed",
+      );
+    });
+
+    it("throws on HTTP error status", async () => {
+      vi.stubGlobal("fetch", mockFetchHttpError(500));
+      await expect(makeQuery().getProtocol()).rejects.toThrow(
+        "Subgraph HTTP error: 500",
+      );
+    });
+
+    it("throws on GraphQL errors in response", async () => {
+      vi.stubGlobal("fetch", mockFetchGraphQLError("store error", "timeout"));
+      await expect(makeQuery().getProtocol()).rejects.toThrow(
+        "Subgraph query error: store error, timeout",
+      );
+    });
+
+    it("throws when response has no data field", async () => {
+      vi.stubGlobal("fetch", mockFetchEmptyData());
+      await expect(makeQuery().getProtocol()).rejects.toThrow(
+        "Subgraph returned empty data",
+      );
+    });
+  });
+
+  // -------------------------------------------------------------------------
+  // getProtocol
+  // -------------------------------------------------------------------------
+
+  describe("getProtocol", () => {
+    it("returns protocol object", async () => {
+      const protocol = {
+        totalWatchers: 5,
+        totalProjects: 12,
+        totalAttestations: 300,
+        totalGeneratedWh: "1000000",
+        totalConsumedWh: "500000",
+        energyTypeAdmin: "0xadmin",
+      };
+      vi.stubGlobal("fetch", mockFetch({ protocol }));
+
+      const result = await makeQuery().getProtocol();
+      expect(result).toEqual(protocol);
+    });
+
+    it("returns null when protocol entity does not exist yet", async () => {
+      vi.stubGlobal("fetch", mockFetch({ protocol: null }));
+      expect(await makeQuery().getProtocol()).toBeNull();
+    });
+  });
+
+  // -------------------------------------------------------------------------
+  // getEnergyTypes
+  // -------------------------------------------------------------------------
+
+  describe("getEnergyTypes", () => {
+    it("returns array of energy types", async () => {
+      const energyTypes = [
+        { id: "1", name: "solar_pv", registered: true, totalGeneratedWh: "9000" },
+        { id: "2", name: "wind", registered: true, totalGeneratedWh: "3000" },
+      ];
+      vi.stubGlobal("fetch", mockFetch({ energyTypes }));
+
+      const result = await makeQuery().getEnergyTypes();
+      expect(result).toEqual(energyTypes);
+      expect(result).toHaveLength(2);
+    });
+
+    it("returns empty array when no energy types registered", async () => {
+      vi.stubGlobal("fetch", mockFetch({ energyTypes: [] }));
+      expect(await makeQuery().getEnergyTypes()).toEqual([]);
+    });
+  });
+
+  // -------------------------------------------------------------------------
+  // getWatcher
+  // -------------------------------------------------------------------------
+
+  describe("getWatcher", () => {
+    const watcher = {
+      id: "1",
+      name: "Solar Watcher",
+      owner: "0xowner",
+      registered: true,
+      totalGeneratedWh: "5000",
+      totalConsumedWh: "0",
+      projectCount: 2,
+      createdAt: "1700000000",
+      createdAtBlock: "1000",
+      projects: [],
+      watcherAttesters: [],
+      ownershipHistory: [],
+    };
+
+    it("returns watcher detail", async () => {
+      vi.stubGlobal("fetch", mockFetch({ watcher }));
+      const result = await makeQuery().getWatcher("1");
+      expect(result).toEqual(watcher);
+    });
+
+    it("returns null for non-existent watcher", async () => {
+      vi.stubGlobal("fetch", mockFetch({ watcher: null }));
+      expect(await makeQuery().getWatcher("999")).toBeNull();
+    });
+
+    it("passes watcher ID as variable", async () => {
+      const fetch = mockFetch({ watcher });
+      vi.stubGlobal("fetch", fetch);
+
+      await makeQuery().getWatcher("42");
+
+      const body = JSON.parse(fetch.mock.calls[0][1].body);
+      expect(body.variables).toMatchObject({ id: "42" });
+    });
+  });
+
+  // -------------------------------------------------------------------------
+  // getWatchers
+  // -------------------------------------------------------------------------
+
+  describe("getWatchers", () => {
+    const watcherList = [
+      {
+        id: "1",
+        name: "W1",
+        owner: "0xowner1",
+        registered: true,
+        totalGeneratedWh: "1000",
+        totalConsumedWh: "0",
+        projectCount: 1,
+        createdAt: "1700000000",
+        createdAtBlock: "100",
+      },
+    ];
+
+    it("returns list of watchers", async () => {
+      vi.stubGlobal("fetch", mockFetch({ watchers: watcherList }));
+      const result = await makeQuery().getWatchers();
+      expect(result).toEqual(watcherList);
+    });
+
+    it("applies default pagination variables", async () => {
+      const fetch = mockFetch({ watchers: [] });
+      vi.stubGlobal("fetch", fetch);
+
+      await makeQuery().getWatchers();
+
+      const body = JSON.parse(fetch.mock.calls[0][1].body);
+      expect(body.variables).toMatchObject({ first: 100, skip: 0 });
+    });
+
+    it("passes registered filter", async () => {
+      const fetch = mockFetch({ watchers: [] });
+      vi.stubGlobal("fetch", fetch);
+
+      await makeQuery().getWatchers({ registered: false });
+
+      const body = JSON.parse(fetch.mock.calls[0][1].body);
+      expect(body.variables.where).toMatchObject({ registered: false });
+    });
+
+    it("lowercases owner filter", async () => {
+      const fetch = mockFetch({ watchers: [] });
+      vi.stubGlobal("fetch", fetch);
+
+      await makeQuery().getWatchers({ owner: "0xOWNER" });
+
+      const body = JSON.parse(fetch.mock.calls[0][1].body);
+      expect(body.variables.where.owner).toBe("0xowner");
+    });
+
+    it("passes custom pagination", async () => {
+      const fetch = mockFetch({ watchers: [] });
+      vi.stubGlobal("fetch", fetch);
+
+      await makeQuery().getWatchers({ first: 10, skip: 20 });
+
+      const body = JSON.parse(fetch.mock.calls[0][1].body);
+      expect(body.variables).toMatchObject({ first: 10, skip: 20 });
+    });
+  });
+
+  // -------------------------------------------------------------------------
+  // getWatcherOwnershipHistory
+  // -------------------------------------------------------------------------
+
+  describe("getWatcherOwnershipHistory", () => {
+    it("returns ownership transfer history", async () => {
+      const transfers = [
+        {
+          id: "0xtx-0",
+          previousOwner: "0xold",
+          newOwner: "0xnew",
+          timestamp: "1700000000",
+          blockNumber: "100",
+          txHash: "0xtx",
+          watcher: { id: "1", name: "W1" },
+        },
+      ];
+      vi.stubGlobal("fetch", mockFetch({ watcherOwnershipTransfers: transfers }));
+
+      const result = await makeQuery().getWatcherOwnershipHistory("1");
+      expect(result).toEqual(transfers);
+    });
+
+    it("passes watcherId as variable", async () => {
+      const fetch = mockFetch({ watcherOwnershipTransfers: [] });
+      vi.stubGlobal("fetch", fetch);
+
+      await makeQuery().getWatcherOwnershipHistory("5");
+
+      const body = JSON.parse(fetch.mock.calls[0][1].body);
+      expect(body.variables).toMatchObject({ watcherId: "5" });
+    });
+  });
+
+  // -------------------------------------------------------------------------
+  // getProject
+  // -------------------------------------------------------------------------
+
+  describe("getProject", () => {
+    const project = {
+      id: "3",
+      name: "Solar Farm",
+      registered: true,
+      totalGeneratedWh: "9999",
+      totalConsumedWh: "0",
+      lastToTimestamp: "1700003600",
+      metadataURI: "ipfs://Qmtest",
+      attestationCount: 5,
+      createdAt: "1700000000",
+      createdAtBlock: "200",
+      watcher: { id: "1", name: "W1" },
+      energyType: { id: "1", name: "solar_pv" },
+    };
+
+    it("returns project", async () => {
+      vi.stubGlobal("fetch", mockFetch({ project }));
+      expect(await makeQuery().getProject("3")).toEqual(project);
+    });
+
+    it("returns null for non-existent project", async () => {
+      vi.stubGlobal("fetch", mockFetch({ project: null }));
+      expect(await makeQuery().getProject("999")).toBeNull();
+    });
+
+    it("passes project ID as variable", async () => {
+      const fetch = mockFetch({ project });
+      vi.stubGlobal("fetch", fetch);
+
+      await makeQuery().getProject("3");
+
+      const body = JSON.parse(fetch.mock.calls[0][1].body);
+      expect(body.variables).toMatchObject({ id: "3" });
+    });
+  });
+
+  // -------------------------------------------------------------------------
+  // getProjects
+  // -------------------------------------------------------------------------
+
+  describe("getProjects", () => {
+    it("returns list of projects", async () => {
+      const projects = [{ id: "1", name: "P1" }];
+      vi.stubGlobal("fetch", mockFetch({ projects }));
+      expect(await makeQuery().getProjects()).toEqual(projects);
+    });
+
+    it("passes watcherId filter", async () => {
+      const fetch = mockFetch({ projects: [] });
+      vi.stubGlobal("fetch", fetch);
+
+      await makeQuery().getProjects({ watcherId: "2" });
+
+      const body = JSON.parse(fetch.mock.calls[0][1].body);
+      expect(body.variables.where).toMatchObject({ watcher: "2" });
+    });
+
+    it("maps energyTypeId '0' to null in where clause (consumer projects)", async () => {
+      const fetch = mockFetch({ projects: [] });
+      vi.stubGlobal("fetch", fetch);
+
+      await makeQuery().getProjects({ energyTypeId: "0" });
+
+      const body = JSON.parse(fetch.mock.calls[0][1].body);
+      expect(body.variables.where.energyType).toBeNull();
+    });
+
+    it("passes non-zero energyTypeId as-is", async () => {
+      const fetch = mockFetch({ projects: [] });
+      vi.stubGlobal("fetch", fetch);
+
+      await makeQuery().getProjects({ energyTypeId: "1" });
+
+      const body = JSON.parse(fetch.mock.calls[0][1].body);
+      expect(body.variables.where.energyType).toBe("1");
+    });
+
+    it("passes registered filter", async () => {
+      const fetch = mockFetch({ projects: [] });
+      vi.stubGlobal("fetch", fetch);
+
+      await makeQuery().getProjects({ registered: true });
+
+      const body = JSON.parse(fetch.mock.calls[0][1].body);
+      expect(body.variables.where).toMatchObject({ registered: true });
+    });
+  });
+
+  // -------------------------------------------------------------------------
+  // getAttestation
+  // -------------------------------------------------------------------------
+
+  describe("getAttestation", () => {
+    const attestation = {
+      id: "0xuid",
+      fromTimestamp: "1700000000",
+      toTimestamp: "1700003600",
+      energyWh: "1000",
+      attester: "0xattester",
+      metadataURI: null,
+      readings: ["500", "500"],
+      replaced: false,
+      replacedBy: null,
+      replaces: null,
+      blockTimestamp: "1700001000",
+      blockNumber: "300",
+      txHash: "0xtx",
+      project: { id: "1", name: "P1" },
+      energyType: { id: "1", name: "solar_pv" },
+    };
+
+    it("returns attestation", async () => {
+      vi.stubGlobal("fetch", mockFetch({ energyAttestation: attestation }));
+      expect(await makeQuery().getAttestation("0xuid")).toEqual(attestation);
+    });
+
+    it("returns null for non-existent UID", async () => {
+      vi.stubGlobal("fetch", mockFetch({ energyAttestation: null }));
+      expect(await makeQuery().getAttestation("0xunknown")).toBeNull();
+    });
+
+    it("passes uid as id variable", async () => {
+      const fetch = mockFetch({ energyAttestation: attestation });
+      vi.stubGlobal("fetch", fetch);
+
+      await makeQuery().getAttestation("0xuid");
+
+      const body = JSON.parse(fetch.mock.calls[0][1].body);
+      expect(body.variables).toMatchObject({ id: "0xuid" });
+    });
+  });
+
+  // -------------------------------------------------------------------------
+  // getAttestations
+  // -------------------------------------------------------------------------
+
+  describe("getAttestations", () => {
+    it("returns list of attestations", async () => {
+      const energyAttestations = [{ id: "0xabc" }];
+      vi.stubGlobal("fetch", mockFetch({ energyAttestations }));
+      expect(await makeQuery().getAttestations()).toEqual(energyAttestations);
+    });
+
+    it("passes projectId filter", async () => {
+      const fetch = mockFetch({ energyAttestations: [] });
+      vi.stubGlobal("fetch", fetch);
+
+      await makeQuery().getAttestations({ projectId: "5" });
+
+      const body = JSON.parse(fetch.mock.calls[0][1].body);
+      expect(body.variables.where).toMatchObject({ project: "5" });
+    });
+
+    it("lowercases attester filter", async () => {
+      const fetch = mockFetch({ energyAttestations: [] });
+      vi.stubGlobal("fetch", fetch);
+
+      await makeQuery().getAttestations({ attester: "0xATTESTER" });
+
+      const body = JSON.parse(fetch.mock.calls[0][1].body);
+      expect(body.variables.where.attester).toBe("0xattester");
+    });
+
+    it("passes replaced filter", async () => {
+      const fetch = mockFetch({ energyAttestations: [] });
+      vi.stubGlobal("fetch", fetch);
+
+      await makeQuery().getAttestations({ replaced: false });
+
+      const body = JSON.parse(fetch.mock.calls[0][1].body);
+      expect(body.variables.where).toMatchObject({ replaced: false });
+    });
+
+    it("passes timestamp range filters", async () => {
+      const fetch = mockFetch({ energyAttestations: [] });
+      vi.stubGlobal("fetch", fetch);
+
+      await makeQuery().getAttestations({
+        fromTimestamp_gte: "1700000000",
+        fromTimestamp_lte: "1700100000",
+      });
+
+      const body = JSON.parse(fetch.mock.calls[0][1].body);
+      expect(body.variables.where).toMatchObject({
+        fromTimestamp_gte: "1700000000",
+        fromTimestamp_lte: "1700100000",
+      });
+    });
+  });
+
+  // -------------------------------------------------------------------------
+  // getDailySnapshots
+  // -------------------------------------------------------------------------
+
+  describe("getDailySnapshots", () => {
+    const snapshots = [
+      {
+        id: "1-2024-01-01",
+        date: "2024-01-01",
+        timestamp: "1704067200",
+        generatedWh: "5000",
+        consumedWh: "0",
+        attestationCount: 1,
+        project: { id: "1", name: "P1" },
+      },
+    ];
+
+    it("returns daily snapshots for a project", async () => {
+      vi.stubGlobal("fetch", mockFetch({ dailyEnergySnapshots: snapshots }));
+      const result = await makeQuery().getDailySnapshots({ projectId: "1" });
+      expect(result).toEqual(snapshots);
+    });
+
+    it("passes projectId in where clause", async () => {
+      const fetch = mockFetch({ dailyEnergySnapshots: [] });
+      vi.stubGlobal("fetch", fetch);
+
+      await makeQuery().getDailySnapshots({ projectId: "7" });
+
+      const body = JSON.parse(fetch.mock.calls[0][1].body);
+      expect(body.variables.where).toMatchObject({ project: "7" });
+    });
+
+    it("passes dateFrom and dateTo filters", async () => {
+      const fetch = mockFetch({ dailyEnergySnapshots: [] });
+      vi.stubGlobal("fetch", fetch);
+
+      await makeQuery().getDailySnapshots({
+        projectId: "1",
+        dateFrom: "2024-01-01",
+        dateTo: "2024-01-31",
+      });
+
+      const body = JSON.parse(fetch.mock.calls[0][1].body);
+      expect(body.variables.where).toMatchObject({
+        date_gte: "2024-01-01",
+        date_lte: "2024-01-31",
+      });
+    });
+
+    it("uses default first=365", async () => {
+      const fetch = mockFetch({ dailyEnergySnapshots: [] });
+      vi.stubGlobal("fetch", fetch);
+
+      await makeQuery().getDailySnapshots({ projectId: "1" });
+
+      const body = JSON.parse(fetch.mock.calls[0][1].body);
+      expect(body.variables).toMatchObject({ first: 365 });
+    });
+  });
+
+  // -------------------------------------------------------------------------
+  // getProjectAttesters
+  // -------------------------------------------------------------------------
+
+  describe("getProjectAttesters", () => {
+    const attesters = [
+      {
+        id: "1-0xaddr",
+        attester: "0xaddr",
+        active: true,
+        addedAt: "1700000000",
+        addedAtBlock: "100",
+        project: { id: "1", name: "P1" },
+      },
+    ];
+
+    it("returns project attesters", async () => {
+      vi.stubGlobal("fetch", mockFetch({ projectAttesters: attesters }));
+      expect(await makeQuery().getProjectAttesters("1")).toEqual(attesters);
+    });
+
+    it("passes projectId in where clause", async () => {
+      const fetch = mockFetch({ projectAttesters: [] });
+      vi.stubGlobal("fetch", fetch);
+
+      await makeQuery().getProjectAttesters("3");
+
+      const body = JSON.parse(fetch.mock.calls[0][1].body);
+      expect(body.variables.where).toMatchObject({ project: "3" });
+    });
+
+    it("passes active filter", async () => {
+      const fetch = mockFetch({ projectAttesters: [] });
+      vi.stubGlobal("fetch", fetch);
+
+      await makeQuery().getProjectAttesters("1", { active: false });
+
+      const body = JSON.parse(fetch.mock.calls[0][1].body);
+      expect(body.variables.where).toMatchObject({ active: false });
+    });
+  });
+
+  // -------------------------------------------------------------------------
+  // getWatcherAttesters
+  // -------------------------------------------------------------------------
+
+  describe("getWatcherAttesters", () => {
+    const attesters = [
+      {
+        id: "1-0xaddr",
+        attester: "0xaddr",
+        active: true,
+        addedAt: "1700000000",
+        addedAtBlock: "100",
+        watcher: { id: "1", name: "W1" },
+      },
+    ];
+
+    it("returns watcher attesters", async () => {
+      vi.stubGlobal("fetch", mockFetch({ watcherAttesters: attesters }));
+      expect(await makeQuery().getWatcherAttesters("1")).toEqual(attesters);
+    });
+
+    it("passes watcherId in where clause", async () => {
+      const fetch = mockFetch({ watcherAttesters: [] });
+      vi.stubGlobal("fetch", fetch);
+
+      await makeQuery().getWatcherAttesters("2");
+
+      const body = JSON.parse(fetch.mock.calls[0][1].body);
+      expect(body.variables.where).toMatchObject({ watcher: "2" });
+    });
+
+    it("passes active filter", async () => {
+      const fetch = mockFetch({ watcherAttesters: [] });
+      vi.stubGlobal("fetch", fetch);
+
+      await makeQuery().getWatcherAttesters("1", { active: true });
+
+      const body = JSON.parse(fetch.mock.calls[0][1].body);
+      expect(body.variables.where).toMatchObject({ active: true });
+    });
+  });
+});
