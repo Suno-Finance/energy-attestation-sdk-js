@@ -44,7 +44,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://gitlab.com/suno-finance/energy-attestation-sdk-js"
+    "url": "https://github.com/Suno-Finance/energy-attestation-sdk-js"
   },
   "engines": {
     "node": ">=18"
