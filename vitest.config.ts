@@ -7,5 +7,11 @@ export default defineConfig({
     outputFile: {
       junit: "junit.xml",
     },
+    coverage: {
+      provider: "v8",
+      include: ["src/**/*.ts"],
+      exclude: ["src/abi/**", "src/index.ts"],
+      reporter: process.env.CI ? ["lcov"] : ["text", "lcov"],
+    },
   },
 });
