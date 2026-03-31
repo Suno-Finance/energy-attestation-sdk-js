@@ -191,7 +191,14 @@ export class AttestationModule {
 
   async estimateOverwriteAttestationGas(params: OverwriteAttestParams): Promise<bigint> {
     await validateOverwriteParams(this.ctx, params);
-    return estimateAttestGas(this.ctx, params, params.refUID);
+    const [attestGas, revokeGas] = await Promise.all([
+      estimateAttestGas(this.ctx, params, params.refUID),
+      this.ctx.eas.revoke.estimateGas({
+        schema: this.ctx.schemaUID,
+        data: { uid: params.refUID, value: 0n },
+      }).catch(() => 0n),
+    ]);
+    return attestGas + revokeGas;
   }
 
   async attestBatch(paramsList: AttestParams[]): Promise<BatchAttestResult> {
