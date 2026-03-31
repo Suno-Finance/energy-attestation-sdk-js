@@ -168,10 +168,21 @@ export class AttestationModule {
 
   async overwriteAttestation(params: OverwriteAttestParams): Promise<AttestResult> {
     await validateOverwriteParams(this.ctx, params);
-    // Single transaction: the resolver's onAttest hook detects the non-zero refUID,
-    // validates the period, revokes the original internally, and records the replacement.
-    // Direct EAS revocation is blocked by the resolver (DirectRevocationBlocked).
-    return submitAttestation(this.ctx, params, params.refUID);
+    // Step 1: submit the replacement attestation (refUID triggers the resolver's replacement logic)
+    const result = await submitAttestation(this.ctx, params, params.refUID);
+    // Step 2: revoke the old attestation on EAS so it shows as revoked on EAS explorer.
+    // The resolver's onRevoke now allows revocation of already-replaced attestations.
+    try {
+      const overrides = await getTxOverrides(this.ctx);
+      const revokeTx = await this.ctx.eas.revoke({
+        schema: this.ctx.schemaUID,
+        data: { uid: params.refUID, value: 0n },
+      }, overrides);
+      await revokeTx.wait();
+    } catch (error) {
+      throw decodeContractError(error, this.ctx.registryInterface, this.ctx.resolverInterface);
+    }
+    return result;
   }
 
   async estimateAttestGas(params: AttestParams): Promise<bigint> {

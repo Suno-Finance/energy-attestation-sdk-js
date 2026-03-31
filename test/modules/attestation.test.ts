@@ -9,6 +9,7 @@ import {
   getMock,
   encodeRegistryError,
   encodeResolverError,
+  mockSuccessfulTx,
 } from "../helpers/mocks.js";
 import { ConfigurationError, ContractRevertError } from "../../src/errors.js";
 import { Interval } from "../../src/types.js";
@@ -247,11 +248,13 @@ describe("AttestationModule", () => {
       });
       // Registry reports no replacement by default
       getMock(ctx.registry, "getReplacementUID").mockResolvedValue(ZeroHash);
+      // Revoke succeeds by default (overwriteAttestation revokes the old UID after replacement)
+      getMock(ctx.eas, "revoke").mockResolvedValue(mockSuccessfulTx());
     }
 
     // --- Happy path ---
 
-    it("submits a single attest transaction with refUID — no separate revoke", async () => {
+    it("submits a replacement attest then revokes the old UID", async () => {
       const ctx = createMockContext();
       mockOriginalAttestation(ctx);
       getMock(ctx.eas, "attest").mockResolvedValue(createMockTx(createMockAttestReceipt()));
@@ -260,7 +263,11 @@ describe("AttestationModule", () => {
       await mod.overwriteAttestation({ ...VALID_PARAMS, refUID });
 
       expect(getMock(ctx.eas, "attest")).toHaveBeenCalledOnce();
-      expect(getMock(ctx.eas, "revoke")).not.toHaveBeenCalled();
+      expect(getMock(ctx.eas, "revoke")).toHaveBeenCalledOnce();
+      expect(getMock(ctx.eas, "revoke")).toHaveBeenCalledWith(
+        expect.objectContaining({ data: expect.objectContaining({ uid: refUID }) }),
+        expect.anything(),
+      );
     });
 
     it("accepts same period with corrected reading values", async () => {
@@ -540,6 +547,20 @@ describe("AttestationModule", () => {
       await expect(mod.overwriteAttestation({ ...VALID_PARAMS, refUID })).rejects.toThrow(
         "network timeout",
       );
+    });
+
+    it("decodes contract revert from revoke step into ContractRevertError", async () => {
+      const ctx = createMockContext();
+      mockOriginalAttestation(ctx);
+      getMock(ctx.eas, "attest").mockResolvedValue(createMockTx(createMockAttestReceipt()));
+      // Replacement attest succeeds but the subsequent EAS revoke fails
+      const data = encodeRegistryError("DirectRevocationBlocked", [1]);
+      getMock(ctx.eas, "revoke").mockRejectedValue({ data });
+
+      const mod = new AttestationModule(ctx);
+      const err = await mod.overwriteAttestation({ ...VALID_PARAMS, refUID }).catch((e) => e);
+      expect(err).toBeInstanceOf(ContractRevertError);
+      expect((err as ContractRevertError).errorName).toBe("DirectRevocationBlocked");
     });
   });
 });

@@ -37,6 +37,7 @@ Website: [attest.energy](https://attest.energy)
 - [Gas Estimation](#gas-estimation)
 - [Error Handling](#error-handling)
   - [Error types](#error-types)
+  - [ConfigurationError conditions](#configurationerror-conditions)
   - [Common contract errors](#common-contract-errors)
 - [Energy Types](#energy-types)
 - [Utilities](#utilities)
@@ -254,7 +255,7 @@ await sdk.attestations.overwriteAttestation({
 
 ### Correcting a previous attestation
 
-If readings were wrong, submit a **replacement**. This is a **single transaction** — the resolver's `onAttest` hook detects the non-zero `refUID`, validates that the period is identical, and calls `recordReplacement` on the registry atomically. The original attestation is marked as replaced on-chain; totals are updated in the same transaction.
+If readings were wrong, submit a **replacement**. This is a **two-transaction flow** handled automatically by the SDK — first the replacement attestation is submitted (the resolver's `onAttest` hook detects the non-zero `refUID`, validates the period is identical, and records the replacement atomically), then the old attestation is revoked on EAS so it appears as revoked on EAS explorer. The original attestation is marked as replaced on-chain; totals are updated in the same first transaction.
 
 ```typescript
 const { uid: newUid } = await sdk.attestations.overwriteAttestation({
@@ -386,10 +387,12 @@ The SDK supports two initialization methods:
 | `privateKey`      | `string`  | Yes      | Hex-encoded private key (with or without 0x)                   |
 | `network`         | `Network` | Yes      | Target network — determines all default addresses and RPC      |
 | `rpcUrl`          | `string`  | No       | JSON-RPC endpoint URL. Defaults to the network's public RPC.   |
-| `registryAddress` | `string`  | No       | EnergyRegistry contract address. Auto-resolved if available.   |
+| `registryAddress` | `string`  | No       | EnergyRegistry **proxy** address. Auto-resolved if available.  |
 | `schemaUID`       | `string`  | No       | EAS schema UID (bytes32). Auto-resolved if available.          |
 | `easAddress`      | `string`  | No       | EAS core contract address. Auto-resolved if available.         |
 | `tx`              | `TxFeeConfig` | No   | Optional fee policy for write transactions (EIP-1559 overrides). |
+
+> **Note:** `registryAddress` must always point to the **proxy** address (the permanent address printed by `deploy.ts`), never the implementation address.
 
 ### `SignerSDKConfig`
 
@@ -397,12 +400,14 @@ The SDK supports two initialization methods:
 | ----------------- | ----------------- | -------- | -------------------------------------------------------------- |
 | `signer`          | `AbstractSigner`  | Yes      | An ethers.js signer with an attached provider                  |
 | `network`         | `Network`         | Yes      | Target network — determines all default addresses              |
-| `registryAddress` | `string`          | No       | EnergyRegistry contract address. Auto-resolved if available.   |
+| `registryAddress` | `string`          | No       | EnergyRegistry **proxy** address. Auto-resolved if available.  |
 | `schemaUID`       | `string`          | No       | EAS schema UID (bytes32). Auto-resolved if available.          |
 | `easAddress`      | `string`          | No       | EAS core contract address. Auto-resolved if available.         |
 | `tx`              | `TxFeeConfig`     | No       | Optional fee policy for write transactions (EIP-1559 overrides). |
 
 > `rpcUrl` is not needed for `fromSigner` — the signer carries its own provider.
+>
+> **Requirements:** The signer must have an attached provider (`signer.provider !== null`). If using a bare `Wallet` instance without a provider, attach one first: `wallet.connect(provider)`. Additionally, the signer's chain ID must match the configured `network` — if they differ, `fromSigner` throws a `ConfigurationError` immediately.
 
 ### `Transaction Fee Policy`
 
@@ -468,7 +473,7 @@ const query = new EnergyQuery({
 | ---------------------- | ----------------- | -------------------------------------------- | ---------------------------------------------------------------------- | -------- |
 | Celo Mainnet           | `Network.CELO`    | `0x644Dd384FCF5d94da98Bf8F6F10C448426974d29` | `0xbca196f2a002d6c29cddd85eb41637d2804d50c5c37faae85c15b375253844ef`   | ✅ Live  |
 | Polygon Mainnet        | `Network.POLYGON` | `0x644Dd384FCF5d94da98Bf8F6F10C448426974d29` | `0xbca196f2a002d6c29cddd85eb41637d2804d50c5c37faae85c15b375253844ef`   | ✅ Live  |
-| Polygon Amoy (testnet) | `Network.AMOY`    | `0xeD6fe3145c1a390114ebEeD03d24963D92c197B5` | `0x826d8672ade4ea0c0c2d7133e3095f010faa3b3dca331641835adbc7ac4384ce`   | ✅ Live  |
+| Polygon Amoy (testnet) | `Network.AMOY`    | `0x059D4655941204cf6aaC1cF578Aa9dc5D3ed6B39` | `0x4673141c77c3d54962edf6ef7f25a0c62656f9bd08138b4c4f9561413c235435`   | ✅ Live  |
 
 All three networks are fully supported — all addresses and subgraph URLs are auto-resolved, zero config needed.
 
@@ -605,6 +610,8 @@ Extends `AttestParams` with:
 ```
 
 `fromTimestamp` is auto-fetched from the project's last attested timestamp. The replacement can use any interval combination that covers the same total duration — for example, a `Interval.Daily` zero period can later be replaced with 24 hourly readings.
+
+> **Prerequisite:** The project must have at least one prior attestation. If `getProjectLastTimestamp()` returns `0` (no prior attestations), `attestZeroPeriod` throws a `ConfigurationError`. Submit a regular `attest()` call first to establish the chain.
 
 #### `BatchAttestResult`
 
@@ -930,21 +937,56 @@ try {
 | `ContractRevertError` | On-chain revert with decoded error name, args, and source contract |
 | `TransactionError`    | Transaction failure without decodable revert data                  |
 
+#### `ConfigurationError` conditions
+
+`ConfigurationError` is thrown before any transaction is sent. Common triggers:
+
+| Scenario | Method(s) | Message |
+| -------- | --------- | ------- |
+| Invalid Ethereum address passed as `attester` | `addAttester`, `removeAttester`, `addAttesters`, `removeAttesters`, `addWatcherAttester`, `removeWatcherAttester` | "Invalid address: ..." |
+| Invalid `newOwner` address | `transferWatcherOwnership` | "Invalid address: ..." |
+| `fromSigner` called with a signer that has no attached provider | `EnergySDK.fromSigner` | "Signer must have an attached provider" |
+| `fromSigner` signer's chain ID doesn't match the configured `network` | `EnergySDK.fromSigner` | "Signer chain ID ... does not match expected ..." |
+| `attestZeroPeriod` called when the project has no prior attestation (chain tip is 0) | `attestZeroPeriod`, `estimateAttestZeroPeriodGas` | "No prior attestation found for project ..." |
+| `overwriteAttestation` `refUID` doesn't exist on-chain | `overwriteAttestation`, `estimateOverwriteAttestationGas` | "Original attestation not found: ..." |
+| `overwriteAttestation` original was already replaced | `overwriteAttestation`, `estimateOverwriteAttestationGas` | "Original attestation has already been replaced" |
+| `overwriteAttestation` replacement period doesn't match original | `overwriteAttestation`, `estimateOverwriteAttestationGas` | "Period mismatch: ..." |
+
 ### Common contract errors
 
-| Error                        | Source   | Meaning                                                  |
-| ---------------------------- | -------- | -------------------------------------------------------- |
-| `UnauthorizedAttester`       | Resolver | Wallet is not whitelisted for this project               |
-| `ProjectNotRegistered`       | Both     | Project ID doesn't exist or was deregistered             |
-| `NonSequentialAttestation`   | Registry | `fromTimestamp` doesn't match the previous `toTimestamp` |
-| `PeriodAlreadyAttested`      | Registry | This exact time period already has an attestation        |
-| `InvalidReadingsLength`      | Resolver | `readings.length` doesn't match `readingCount`           |
-| `InvalidMethod`              | Resolver | Empty method string                                      |
-| `ReplacementPeriodMismatch`  | Both     | Replacement attestation covers a different period        |
-| `AttestationAlreadyReplaced` | Registry | The referenced attestation was already replaced once     |
-| `WatcherNotRegistered`       | Registry | Watcher ID doesn't exist                                 |
-| `UnauthorizedWatcherOwner`   | Registry | Caller is not the watcher's owner                        |
-| `InvalidTimestamps`          | Resolver | Derived `toTimestamp` is not after `fromTimestamp`       |
+| Error                          | Source   | Meaning                                                              |
+| ------------------------------ | -------- | -------------------------------------------------------------------- |
+| `UnauthorizedAttester`         | Resolver | Wallet is not whitelisted for this project                           |
+| `ProjectNotRegistered`         | Both     | Project ID doesn't exist or was deregistered                         |
+| `NonSequentialAttestation`     | Registry | `fromTimestamp` doesn't match the previous `toTimestamp`             |
+| `PeriodAlreadyAttested`        | Registry | This exact time period already has an attestation                    |
+| `PeriodStartAlreadyAttested`   | Registry | An attestation already starts at this `fromTimestamp`                |
+| `InvalidReadingsLength`        | Resolver | `readings.length` doesn't match `readingCount`                       |
+| `InvalidReadingCount`          | Resolver | Reading count is zero                                                |
+| `InvalidReadingInterval`       | Resolver | `readingIntervalMinutes` is zero                                     |
+| `InvalidMethod`                | Resolver | Empty method string                                                  |
+| `InvalidTimestamps`            | Resolver | Derived `toTimestamp` is not after `fromTimestamp`                   |
+| `ReplacementPeriodMismatch`    | Both     | Replacement attestation covers a different period than original      |
+| `ReplacementProjectMismatch`   | Resolver | Replacement references an attestation from a different project       |
+| `AttestationAlreadyReplaced`   | Registry | The referenced attestation was already replaced once                 |
+| `AttestationNotFound`          | Registry | The referenced `refUID` does not exist on-chain                      |
+| `DirectRevocationBlocked`      | Registry | Direct revocation is blocked; use `overwriteAttestation` instead     |
+| `WatcherNotRegistered`         | Registry | Watcher ID doesn't exist                                             |
+| `UnauthorizedWatcherOwner`     | Registry | Caller is not the watcher's owner                                    |
+| `AttesterAlreadyAuthorized`    | Registry | Attester is already whitelisted for this project                     |
+| `AttesterNotAuthorized`        | Registry | Attester is not whitelisted; cannot remove a wallet that isn't added |
+| `EmptyAttesterArray`           | Registry | Batch add/remove called with an empty array                          |
+| `EnergyTypeNotRegistered`      | Registry | The energy type ID passed to `createProject` is not registered       |
+| `InvalidEnergyType`            | Registry | Energy type ID is out of the valid range                             |
+| `UnauthorizedResolver`         | Registry | Caller is not an authorized resolver (registry-level guard)          |
+| `UnauthorizedEnergyTypeAdmin`  | Registry | Caller is not the energy type admin                                  |
+| `OwnableUnauthorizedAccount`   | Registry | Caller is not the contract owner (e.g. calling `upgradeToAndCall`)   |
+| `InsufficientValue`            | Resolver | Resolver requires ETH payment but none was sent                      |
+| `InvalidEAS`                   | Resolver | Invalid EAS address passed to resolver constructor                   |
+| `InvalidLength`                | Resolver | Encoded attestation data has wrong length                            |
+| `AccessDenied`                 | Resolver | Resolver access control check failed                                 |
+| `EnforcedPause`                | Resolver | Resolver is paused; attestations temporarily blocked                 |
+| `TimestampOverflow`            | Resolver | Timestamp arithmetic overflowed `uint64`                             |
 
 ---
 
@@ -1072,7 +1114,7 @@ The SDK exposes two independent entry points:
 
 **On-chain contracts:**
 
-- **EnergyRegistry** — Permanent state contract. Stores watchers, projects, attester whitelists, and cumulative energy totals. This contract persists across resolver upgrades — all data remains intact.
+- **EnergyRegistry** — Permanent state contract deployed behind a UUPS proxy. The **proxy address never changes** — always use the proxy address as `registryAddress` in SDK config. Stores watchers, projects, attester whitelists, and cumulative energy totals. Persists across both resolver and registry implementation upgrades.
 - **EnergyAttestationResolver** — EAS resolver that validates attestation data (readings, timestamps, authorization) and delegates state writes to the registry. Stateless and replaceable without data migration.
 
 **Key design decisions:**

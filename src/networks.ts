@@ -28,8 +28,8 @@ const NETWORK_CONFIG: Record<Network, NetworkConfig> = {
   [Network.AMOY]: {
     eas: "0xb101275a60d8bfb14529C421899aD7CA1Ae5B5Fc",
     schemaRegistry: "0x23c5701A1BDa89C61d181BD79E5203c730708AE7",
-    registry: "0xeD6fe3145c1a390114ebEeD03d24963D92c197B5",
-    schemaUID: "0x826d8672ade4ea0c0c2d7133e3095f010faa3b3dca331641835adbc7ac4384ce",
+    registry: "0x059D4655941204cf6aaC1cF578Aa9dc5D3ed6B39",
+    schemaUID: "0x4673141c77c3d54962edf6ef7f25a0c62656f9bd08138b4c4f9561413c235435",
     defaultRpcUrl: "https://rpc-amoy.polygon.technology",
     subgraphUrl:
       "https://gateway.thegraph.com/api/subgraphs/id/33b8nJcqxLyH96eSyyHC9vsdvHifUXejLzMEtqLeySBC",
