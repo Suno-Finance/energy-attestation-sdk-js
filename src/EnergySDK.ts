@@ -7,9 +7,9 @@ import {
   type AbstractSigner,
   type Provider,
 } from "ethers";
-import type { PrivateKeySDKConfig, SignerSDKConfig, SDKContext, TxFeeConfig } from "./types.js";
+import type { PrivateKeySDKConfig, SignerSDKConfig, SDKContext, TxFeeConfig, Network } from "./types.js";
 import { ConfigurationError } from "./errors.js";
-import { getNetworkConfig } from "./networks.js";
+import { getNetworkConfig, type NetworkConfig } from "./networks.js";
 import { ENERGY_REGISTRY_ABI } from "./abi/EnergyRegistry.js";
 import { ENERGY_ATTESTATION_RESOLVER_ABI } from "./abi/EnergyAttestationResolver.js";
 import { EAS_ABI } from "./abi/EAS.js";
@@ -29,14 +29,15 @@ const DEFAULT_TX_POLICY: Required<TxFeeConfig> = {
   // Celo validators often reject low tips from generic wallet defaults.
   minPriorityFeeGwei: 25,
   maxFeeMultiplier: 2,
+  retryCount: 0,
+  retryDelayMs: 1000,
 };
 
 function resolveAddresses(
   network: PrivateKeySDKConfig["network"],
+  networkConfig: NetworkConfig,
   overrides: { registryAddress?: string; schemaUID?: string; easAddress?: string },
 ): ResolvedAddresses {
-  const networkConfig = getNetworkConfig(network);
-
   const registryAddress = overrides.registryAddress ?? networkConfig.registry;
   if (!registryAddress) {
     throw new ConfigurationError(
@@ -77,6 +78,13 @@ function buildContext(
   addresses: ResolvedAddresses,
   txOverrides?: TxFeeConfig,
 ): SDKContext {
+  if (txOverrides?.maxFeeMultiplier !== undefined && txOverrides.maxFeeMultiplier < 1) {
+    throw new ConfigurationError("tx.maxFeeMultiplier must be >= 1");
+  }
+  if (txOverrides?.minPriorityFeeGwei !== undefined && txOverrides.minPriorityFeeGwei < 0) {
+    throw new ConfigurationError("tx.minPriorityFeeGwei must be >= 0");
+  }
+
   const registryInterface = new Interface(ENERGY_REGISTRY_ABI);
   const resolverInterface = new Interface(ENERGY_ATTESTATION_RESOLVER_ABI);
 
@@ -95,10 +103,26 @@ function buildContext(
   };
 }
 
+async function getNetworkWithTimeout(provider: Provider, timeoutMs = 2000): Promise<Awaited<ReturnType<Provider["getNetwork"]>>> {
+  return await Promise.race([
+    provider.getNetwork(),
+    new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error(`provider.getNetwork timeout after ${timeoutMs}ms`)), timeoutMs),
+    ),
+  ]);
+}
+
+function isTransportError(error: unknown): boolean {
+  return /network request failed|ECONNREFUSED|ETIMEDOUT|fetch failed|failed to fetch|ENOTFOUND|timeout/i.test(
+    String(error),
+  );
+}
+
 export class EnergySDK {
   readonly provider: Provider;
   readonly signer: AbstractSigner;
   readonly address: string;
+  readonly network: Network;
   readonly watchers: WatcherModule;
   readonly projects: ProjectModule;
   readonly attesters: AttesterModule;
@@ -109,16 +133,33 @@ export class EnergySDK {
     signer: AbstractSigner;
     provider: Provider;
     address: string;
+    network: Network;
     ctx: SDKContext;
   }) {
     this.signer = init.signer;
     this.provider = init.provider;
     this.address = init.address;
+    this.network = init.network;
     this.watchers = new WatcherModule(init.ctx);
     this.projects = new ProjectModule(init.ctx);
     this.attesters = new AttesterModule(init.ctx);
     this.attestations = new AttestationModule(init.ctx);
     this.read = new ReadModule(init.ctx);
+  }
+
+  /**
+   * Throws a ConfigurationError if the SDK's signer address does not match `expected`.
+   * Comparison is case-insensitive.
+   */
+  assertSignerAddress(expected: string): void {
+    if (!isAddress(expected)) {
+      throw new ConfigurationError("expected must be a valid Ethereum address");
+    }
+    if (this.address.toLowerCase() !== expected.toLowerCase()) {
+      throw new ConfigurationError(
+        `Signer address mismatch: ${this.address} !== ${expected}`,
+      );
+    }
   }
 
   /**
@@ -138,11 +179,11 @@ export class EnergySDK {
       );
     }
 
-    const addresses = resolveAddresses(config.network, config);
+    const addresses = resolveAddresses(config.network, networkConfig, config);
     const provider = new JsonRpcProvider(rpcUrl);
 
     try {
-      const network = await provider.getNetwork();
+      const network = await getNetworkWithTimeout(provider);
       const expectedChainId = BigInt(networkConfig.chainId);
       if (network.chainId !== expectedChainId) {
         throw new ConfigurationError(
@@ -152,13 +193,16 @@ export class EnergySDK {
       }
     } catch (error) {
       if (error instanceof ConfigurationError) throw error;
-      // RPC unreachable or provider error — skip chain ID validation
+      // Only swallow transport-level failures — re-throw anything else
+      if (!isTransportError(error)) {
+        throw error;
+      }
     }
 
     const wallet = new Wallet(config.privateKey, provider);
     const ctx = buildContext(wallet, provider, addresses, config.tx);
 
-    return new EnergySDK({ signer: wallet, provider, address: wallet.address, ctx });
+    return new EnergySDK({ signer: wallet, provider, address: wallet.address, network: config.network, ctx });
   }
 
   /**
@@ -178,7 +222,7 @@ export class EnergySDK {
 
     const networkConfig = getNetworkConfig(config.network);
     try {
-      const { chainId } = await config.signer.provider.getNetwork();
+      const { chainId } = await getNetworkWithTimeout(config.signer.provider);
       const expectedChainId = BigInt(networkConfig.chainId);
       if (chainId !== expectedChainId) {
         throw new ConfigurationError(
@@ -188,10 +232,13 @@ export class EnergySDK {
       }
     } catch (error) {
       if (error instanceof ConfigurationError) throw error;
-      // Provider unreachable — skip chain ID validation
+      // Only swallow transport-level failures — re-throw anything else
+      if (!isTransportError(error)) {
+        throw error;
+      }
     }
 
-    const addresses = resolveAddresses(config.network, config);
+    const addresses = resolveAddresses(config.network, networkConfig, config);
     const address = await config.signer.getAddress();
     const ctx = buildContext(config.signer, config.signer.provider, addresses, config.tx);
 
@@ -199,6 +246,7 @@ export class EnergySDK {
       signer: config.signer,
       provider: config.signer.provider,
       address,
+      network: config.network,
       ctx,
     });
   }

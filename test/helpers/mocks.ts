@@ -91,7 +91,7 @@ export function createMockContext(overrides?: Partial<SDKContext>): SDKContext {
     resolverInterface,
     signer: { getAddress: vi.fn() } as unknown as SDKContext["signer"],
     provider: { getFeeData: vi.fn().mockResolvedValue({}) } as unknown as SDKContext["provider"],
-    tx: { minPriorityFeeGwei: 25, maxFeeMultiplier: 2 },
+    tx: { minPriorityFeeGwei: 25, maxFeeMultiplier: 2, retryCount: 0, retryDelayMs: 1000 },
     ...overrides,
   };
 }

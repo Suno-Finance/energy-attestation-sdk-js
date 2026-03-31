@@ -239,6 +239,140 @@ describe("EnergySDK.fromPrivateKey", () => {
   });
 });
 
+describe("EnergySDK sdk.network", () => {
+  it("exposes network for fromPrivateKey with AMOY", async () => {
+    const spy = vi.spyOn(JsonRpcProvider.prototype, "getNetwork").mockResolvedValue({
+      chainId: 80002n,
+      name: "amoy",
+    } as Awaited<ReturnType<JsonRpcProvider["getNetwork"]>>);
+    const sdk = await EnergySDK.fromPrivateKey({ privateKey: PRIVATE_KEY, network: Network.AMOY });
+    expect(sdk.network).toBe(Network.AMOY);
+    spy.mockRestore();
+  });
+
+  it("exposes network for fromPrivateKey with POLYGON", async () => {
+    const spy = vi.spyOn(JsonRpcProvider.prototype, "getNetwork").mockResolvedValue({
+      chainId: 137n,
+      name: "matic",
+    } as Awaited<ReturnType<JsonRpcProvider["getNetwork"]>>);
+    const sdk = await EnergySDK.fromPrivateKey({ privateKey: PRIVATE_KEY, network: Network.POLYGON });
+    expect(sdk.network).toBe(Network.POLYGON);
+    spy.mockRestore();
+  });
+
+  it("exposes network for fromSigner", async () => {
+    const provider = new JsonRpcProvider("https://rpc-amoy.polygon.technology");
+    const signer = new Wallet(PRIVATE_KEY, provider);
+    const sdk = await EnergySDK.fromSigner({ signer, network: Network.AMOY });
+    expect(sdk.network).toBe(Network.AMOY);
+  });
+});
+
+describe("EnergySDK assertSignerAddress", () => {
+  it("does not throw when address matches (exact)", async () => {
+    const spy = vi.spyOn(JsonRpcProvider.prototype, "getNetwork").mockResolvedValue({
+      chainId: 80002n, name: "amoy",
+    } as Awaited<ReturnType<JsonRpcProvider["getNetwork"]>>);
+    const sdk = await EnergySDK.fromPrivateKey({ privateKey: PRIVATE_KEY, network: Network.AMOY });
+    expect(() => sdk.assertSignerAddress(sdk.address)).not.toThrow();
+    spy.mockRestore();
+  });
+
+  it("does not throw when address matches (different case)", async () => {
+    const spy = vi.spyOn(JsonRpcProvider.prototype, "getNetwork").mockResolvedValue({
+      chainId: 80002n, name: "amoy",
+    } as Awaited<ReturnType<JsonRpcProvider["getNetwork"]>>);
+    const sdk = await EnergySDK.fromPrivateKey({ privateKey: PRIVATE_KEY, network: Network.AMOY });
+    expect(() => sdk.assertSignerAddress(sdk.address.toLowerCase())).not.toThrow();
+    spy.mockRestore();
+  });
+
+  it("throws ConfigurationError when address does not match", async () => {
+    const spy = vi.spyOn(JsonRpcProvider.prototype, "getNetwork").mockResolvedValue({
+      chainId: 80002n, name: "amoy",
+    } as Awaited<ReturnType<JsonRpcProvider["getNetwork"]>>);
+    const sdk = await EnergySDK.fromPrivateKey({ privateKey: PRIVATE_KEY, network: Network.AMOY });
+    expect(() => sdk.assertSignerAddress("0x72E1d8ccf5299fb36fEfD8CC4394B8ef7e98Af92")).toThrow(ConfigurationError);
+    spy.mockRestore();
+  });
+
+  it("throws ConfigurationError when expected is not a valid address", async () => {
+    const spy = vi.spyOn(JsonRpcProvider.prototype, "getNetwork").mockResolvedValue({
+      chainId: 80002n, name: "amoy",
+    } as Awaited<ReturnType<JsonRpcProvider["getNetwork"]>>);
+    const sdk = await EnergySDK.fromPrivateKey({ privateKey: PRIVATE_KEY, network: Network.AMOY });
+    expect(() => sdk.assertSignerAddress("not-an-address")).toThrow(ConfigurationError);
+    spy.mockRestore();
+  });
+});
+
+describe("EnergySDK chain ID error handling", () => {
+  it("re-throws non-transport errors from provider.getNetwork()", async () => {
+    const spy = vi.spyOn(JsonRpcProvider.prototype, "getNetwork").mockRejectedValue(new SyntaxError("unexpected token"));
+    await expect(
+      EnergySDK.fromPrivateKey({ privateKey: PRIVATE_KEY, network: Network.AMOY }),
+    ).rejects.toThrow(SyntaxError);
+    spy.mockRestore();
+  });
+
+  it("still succeeds when provider.getNetwork() throws a transport error", async () => {
+    const spy = vi.spyOn(JsonRpcProvider.prototype, "getNetwork").mockRejectedValue(new Error("network request failed"));
+    const sdk = await EnergySDK.fromPrivateKey({ privateKey: PRIVATE_KEY, network: Network.AMOY });
+    expect(sdk).toBeDefined();
+    spy.mockRestore();
+  });
+});
+
+describe("EnergySDK TxFeeConfig validation", () => {
+  it("throws ConfigurationError when maxFeeMultiplier is 0", async () => {
+    await expect(
+      EnergySDK.fromPrivateKey({
+        privateKey: PRIVATE_KEY,
+        network: Network.AMOY,
+        tx: { maxFeeMultiplier: 0 },
+      }),
+    ).rejects.toThrow(ConfigurationError);
+  });
+
+  it("throws ConfigurationError when maxFeeMultiplier is 0.5", async () => {
+    await expect(
+      EnergySDK.fromPrivateKey({
+        privateKey: PRIVATE_KEY,
+        network: Network.AMOY,
+        tx: { maxFeeMultiplier: 0.5 },
+      }),
+    ).rejects.toThrow(ConfigurationError);
+  });
+
+  it("throws ConfigurationError when minPriorityFeeGwei is -1", async () => {
+    await expect(
+      EnergySDK.fromPrivateKey({
+        privateKey: PRIVATE_KEY,
+        network: Network.AMOY,
+        tx: { minPriorityFeeGwei: -1 },
+      }),
+    ).rejects.toThrow(ConfigurationError);
+  });
+
+  it("succeeds when maxFeeMultiplier is exactly 1", async () => {
+    const sdk = await EnergySDK.fromPrivateKey({
+      privateKey: PRIVATE_KEY,
+      network: Network.AMOY,
+      tx: { maxFeeMultiplier: 1 },
+    });
+    expect(sdk).toBeDefined();
+  });
+
+  it("succeeds when minPriorityFeeGwei is 0", async () => {
+    const sdk = await EnergySDK.fromPrivateKey({
+      privateKey: PRIVATE_KEY,
+      network: Network.AMOY,
+      tx: { minPriorityFeeGwei: 0 },
+    });
+    expect(sdk).toBeDefined();
+  });
+});
+
 describe("EnergySDK.fromSigner", () => {
   function createTestSigner(): Wallet {
     const provider = new JsonRpcProvider("https://rpc-amoy.polygon.technology");

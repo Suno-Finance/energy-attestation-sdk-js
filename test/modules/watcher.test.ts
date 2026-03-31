@@ -58,7 +58,9 @@ describe("WatcherModule", () => {
       getMock(ctx.registry, "registerWatcher").mockResolvedValue(mockTx);
 
       const mod = new WatcherModule(ctx);
-      await expect(mod.createWatcher("Test")).rejects.toThrow(ConfigurationError);
+      const err = await mod.createWatcher("Test").catch((e) => e);
+      expect(err).toBeInstanceOf(ConfigurationError);
+      expect(err.message).toContain("0xnoevent");
     });
 
     it("decodes contract revert into ContractRevertError", async () => {
