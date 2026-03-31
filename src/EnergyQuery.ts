@@ -17,6 +17,7 @@ import type {
   AttestationFilters,
   DailySnapshotFilters,
   AttesterFilters,
+  PageResult,
 } from "./query-types.js";
 
 export class EnergyQuery {
@@ -50,21 +51,28 @@ export class EnergyQuery {
     gql: string,
     variables?: Record<string, unknown>,
   ): Promise<T> {
+    const queryName = gql.match(/query\s+(\w+)/)?.[1] ?? "unknown";
     let response: Response;
+
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 30_000);
 
     try {
       response = await fetch(this.url, {
         method: "POST",
         headers: this.headers,
         body: JSON.stringify({ query: gql, variables }),
+        signal: controller.signal,
       });
     } catch (err) {
-      throw new Error(`Subgraph request failed: ${String(err)}`, { cause: err });
+      throw new Error(`Subgraph request failed (query: ${queryName}): ${String(err)}`, { cause: err });
+    } finally {
+      clearTimeout(timer);
     }
 
     if (!response.ok) {
       throw new Error(
-        `Subgraph HTTP error: ${response.status} ${response.statusText}`,
+        `Subgraph HTTP ${response.status} error for query ${queryName}: ${response.statusText}`,
       );
     }
 
@@ -75,12 +83,12 @@ export class EnergyQuery {
 
     if (json.errors?.length) {
       throw new Error(
-        `Subgraph query error: ${json.errors.map((e) => e.message).join(", ")}`,
+        `Subgraph query error (${queryName}): ${json.errors.map((e) => e.message).join(", ")}`,
       );
     }
 
     if (!json.data) {
-      throw new Error("Subgraph returned empty data");
+      throw new Error(`Subgraph returned empty data for query ${queryName}`);
     }
 
     return json.data;
@@ -181,7 +189,7 @@ export class EnergyQuery {
   }
 
   /** Returns a list of watchers with optional filtering and pagination. */
-  async getWatchers(filters: WatcherFilters = {}): Promise<SubgraphWatcher[]> {
+  async getWatchers(filters: WatcherFilters = {}): Promise<PageResult<SubgraphWatcher>> {
     const {
       first = 100,
       skip = 0,
@@ -209,9 +217,22 @@ export class EnergyQuery {
           createdAtBlock
         }
       }`,
-      { first, skip, orderBy, orderDirection, where },
+      { first: first + 1, skip, orderBy, orderDirection, where },
     );
-    return data.watchers;
+    const hasMore = data.watchers.length > first;
+    return { items: hasMore ? data.watchers.slice(0, first) : data.watchers, hasMore };
+  }
+
+  /** Async generator that pages through all watchers matching the given filters. */
+  async *iterateWatchers(filters: Omit<WatcherFilters, "skip"> = {}): AsyncGenerator<SubgraphWatcher> {
+    const first = filters.first ?? 100;
+    let skip = 0;
+    while (true) {
+      const result = await this.getWatchers({ ...filters, first, skip });
+      yield* result.items;
+      if (!result.hasMore) break;
+      skip += first;
+    }
   }
 
   /** Returns the full ownership transfer history for a watcher. */
@@ -270,7 +291,7 @@ export class EnergyQuery {
   }
 
   /** Returns a list of projects with optional filtering and pagination. */
-  async getProjects(filters: ProjectFilters = {}): Promise<SubgraphProject[]> {
+  async getProjects(filters: ProjectFilters = {}): Promise<PageResult<SubgraphProject>> {
     const {
       first = 100,
       skip = 0,
@@ -306,9 +327,22 @@ export class EnergyQuery {
           energyType { id name }
         }
       }`,
-      { first, skip, orderBy, orderDirection, where },
+      { first: first + 1, skip, orderBy, orderDirection, where },
     );
-    return data.projects;
+    const hasMore = data.projects.length > first;
+    return { items: hasMore ? data.projects.slice(0, first) : data.projects, hasMore };
+  }
+
+  /** Async generator that pages through all projects matching the given filters. */
+  async *iterateProjects(filters: Omit<ProjectFilters, "skip"> = {}): AsyncGenerator<SubgraphProject> {
+    const first = filters.first ?? 100;
+    let skip = 0;
+    while (true) {
+      const result = await this.getProjects({ ...filters, first, skip });
+      yield* result.items;
+      if (!result.hasMore) break;
+      skip += first;
+    }
   }
 
   // ---------------------------------------------------------------------------
@@ -349,7 +383,7 @@ export class EnergyQuery {
   /** Returns a list of energy attestations with optional filtering and pagination. */
   async getAttestations(
     filters: AttestationFilters = {},
-  ): Promise<SubgraphEnergyAttestation[]> {
+  ): Promise<PageResult<SubgraphEnergyAttestation>> {
     const {
       first = 100,
       skip = 0,
@@ -391,9 +425,25 @@ export class EnergyQuery {
           energyType { id name }
         }
       }`,
-      { first, skip, orderBy, orderDirection, where },
+      { first: first + 1, skip, orderBy, orderDirection, where },
     );
-    return data.energyAttestations;
+    const hasMore = data.energyAttestations.length > first;
+    return {
+      items: hasMore ? data.energyAttestations.slice(0, first) : data.energyAttestations,
+      hasMore,
+    };
+  }
+
+  /** Async generator that pages through all attestations matching the given filters. */
+  async *iterateAttestations(filters: Omit<AttestationFilters, "skip"> = {}): AsyncGenerator<SubgraphEnergyAttestation> {
+    const first = filters.first ?? 100;
+    let skip = 0;
+    while (true) {
+      const result = await this.getAttestations({ ...filters, first, skip });
+      yield* result.items;
+      if (!result.hasMore) break;
+      skip += first;
+    }
   }
 
   // ---------------------------------------------------------------------------

@@ -252,3 +252,8 @@ export interface AttesterFilters {
   /** Filter by active status */
   active?: boolean;
 }
+
+export interface PageResult<T> {
+  items: T[];
+  hasMore: boolean;
+}

@@ -16,6 +16,7 @@ describe("ProjectModule", () => {
   describe("createProject", () => {
     it("returns projectId from event", async () => {
       const ctx = createMockContext();
+      getMock(ctx.registry, "isEnergyTypeRegistered").mockResolvedValue(true);
       const log = createMockLog(registryInterface, "ProjectRegistered", [
         3n,
         1n,
@@ -35,6 +36,7 @@ describe("ProjectModule", () => {
 
     it("passes correct args to contract", async () => {
       const ctx = createMockContext();
+      getMock(ctx.registry, "isEnergyTypeRegistered").mockResolvedValue(true);
       const log = createMockLog(registryInterface, "ProjectRegistered", [1n, 2n, "Test", 0]);
       const receipt = createMockReceipt([log]);
       const mockTx = createMockTx(receipt);
@@ -53,6 +55,7 @@ describe("ProjectModule", () => {
 
     it("accepts numeric energyType", async () => {
       const ctx = createMockContext();
+      getMock(ctx.registry, "isEnergyTypeRegistered").mockResolvedValue(true);
       const log = createMockLog(registryInterface, "ProjectRegistered", [1n, 1n, "Wind", 2]);
       const receipt = createMockReceipt([log]);
       const mockTx = createMockTx(receipt);
@@ -71,16 +74,37 @@ describe("ProjectModule", () => {
 
     it("throws ConfigurationError when ProjectRegistered event not found in logs", async () => {
       const ctx = createMockContext();
+      getMock(ctx.registry, "isEnergyTypeRegistered").mockResolvedValue(true);
       const receipt = createMockReceipt([], "0xnoevent");
       const mockTx = createMockTx(receipt);
       getMock(ctx.registry, "registerProject").mockResolvedValue(mockTx);
 
       const mod = new ProjectModule(ctx);
-      await expect(mod.createProject(1, "Test", 0)).rejects.toThrow(ConfigurationError);
+      const err = await mod.createProject(1, "Test", 0).catch((e) => e);
+      expect(err).toBeInstanceOf(ConfigurationError);
+      expect(err.message).toContain("0xnoevent");
+    });
+
+    it("throws ConfigurationError when energy type is not registered", async () => {
+      const ctx = createMockContext();
+      getMock(ctx.registry, "isEnergyTypeRegistered").mockResolvedValue(false);
+
+      const mod = new ProjectModule(ctx);
+      await expect(mod.createProject(1, "Test", 99)).rejects.toThrow(ConfigurationError);
+    });
+
+    it("does not call registerProject when energy type check fails", async () => {
+      const ctx = createMockContext();
+      getMock(ctx.registry, "isEnergyTypeRegistered").mockResolvedValue(false);
+
+      const mod = new ProjectModule(ctx);
+      await mod.createProject(1, "Test", 99).catch(() => {});
+      expect(getMock(ctx.registry, "registerProject")).not.toHaveBeenCalled();
     });
 
     it("decodes contract revert into ContractRevertError", async () => {
       const ctx = createMockContext();
+      getMock(ctx.registry, "isEnergyTypeRegistered").mockResolvedValue(true);
       const data = encodeRegistryError("WatcherNotRegistered", [99]);
       getMock(ctx.registry, "registerProject").mockRejectedValue({ data });
 

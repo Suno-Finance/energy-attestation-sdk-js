@@ -164,4 +164,8 @@ export interface TxFeeConfig {
   minPriorityFeeGwei?: number;
   /** Multiplier applied to provider maxFeePerGas (or gasPrice fallback). */
   maxFeeMultiplier?: number;
+  /** Number of times to retry a failed transaction (default: 0). */
+  retryCount?: number;
+  /** Delay in ms between retries, doubles on each attempt (default: 1000). */
+  retryDelayMs?: number;
 }

@@ -37,7 +37,7 @@ export {
   sumReadings,
 } from "./encoding.js";
 
-export { ATTESTATION_SCHEMA, ENERGY_TYPE_NAMES } from "./constants.js";
+export { ATTESTATION_SCHEMA, ENERGY_TYPE_NAMES, DEFAULT_ZERO_PERIOD_METHOD } from "./constants.js";
 
 export { getNetworkConfig, CHAIN_IDS } from "./networks.js";
 export type { NetworkConfig } from "./networks.js";
@@ -60,4 +60,5 @@ export type {
   AttestationFilters,
   DailySnapshotFilters,
   AttesterFilters,
+  PageResult,
 } from "./query-types.js";

@@ -432,6 +432,8 @@ Optional config type:
 type TxFeeConfig = {
   minPriorityFeeGwei?: number; // minimum priority fee (tip) in gwei
   maxFeeMultiplier?: number;   // multiplier applied to provider maxFeePerGas (or gasPrice fallback)
+  retryCount?: number;         // retry attempts for send failures (default: 0)
+  retryDelayMs?: number;       // initial delay in ms; doubles each retry (default: 1000)
 };
 ```
 
@@ -536,6 +538,7 @@ Additionally, the SDK exposes the underlying ethers.js objects for advanced use:
 sdk.address; //  The signer's wallet address (string)
 sdk.signer; //   The ethers.js AbstractSigner instance
 sdk.provider; // The ethers.js Provider instance
+sdk.network; //  Resolved SDK network enum value
 ```
 
 ---
@@ -742,7 +745,8 @@ console.log(data.fromTimestamp); // 1700000000n
 | Method                                      | Returns                          | Description                                                   |
 | ------------------------------------------- | -------------------------------- | ------------------------------------------------------------- |
 | `getWatcher(id)`                            | `SubgraphWatcherDetail \| null`  | Single watcher with projects, attesters, and ownership history |
-| `getWatchers(filters?)`                     | `SubgraphWatcher[]`              | List watchers with optional filtering and pagination          |
+| `getWatchers(filters?)`                     | `PageResult<SubgraphWatcher>`    | Paged watcher list with `items` and `hasMore`                |
+| `iterateWatchers(filters?)`                 | `AsyncGenerator<SubgraphWatcher>`| Async iterator across all pages matching filters             |
 | `getWatcherOwnershipHistory(watcherId)`     | `SubgraphWatcherOwnershipTransfer[]` | Full ownership transfer history for a watcher            |
 
 #### `WatcherFilters`
@@ -761,7 +765,8 @@ console.log(data.fromTimestamp); // 1700000000n
 | Method              | Returns                   | Description                                         |
 | ------------------- | ------------------------- | --------------------------------------------------- |
 | `getProject(id)`    | `SubgraphProject \| null` | Single project with watcher and energy type info    |
-| `getProjects(filters?)` | `SubgraphProject[]`   | List projects with optional filtering and pagination |
+| `getProjects(filters?)` | `PageResult<SubgraphProject>` | Paged project list with `items` and `hasMore`      |
+| `iterateProjects(filters?)` | `AsyncGenerator<SubgraphProject>` | Async iterator across all pages matching filters |
 
 #### `ProjectFilters`
 
@@ -780,7 +785,8 @@ console.log(data.fromTimestamp); // 1700000000n
 | Method                      | Returns                             | Description                                        |
 | --------------------------- | ----------------------------------- | -------------------------------------------------- |
 | `getAttestation(uid)`       | `SubgraphEnergyAttestation \| null` | Single attestation by EAS UID (bytes32 hex)        |
-| `getAttestations(filters?)` | `SubgraphEnergyAttestation[]`       | List attestations with optional filtering and pagination |
+| `getAttestations(filters?)` | `PageResult<SubgraphEnergyAttestation>` | Paged attestation list with `items` and `hasMore` |
+| `iterateAttestations(filters?)` | `AsyncGenerator<SubgraphEnergyAttestation>` | Async iterator across all pages matching filters |
 
 #### `AttestationFilters`
 

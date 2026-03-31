@@ -11,6 +11,7 @@ import {
 } from "../helpers/mocks.js";
 import { ConfigurationError, ContractRevertError } from "../../src/errors.js";
 import { Interval } from "../../src/types.js";
+import { DEFAULT_ZERO_PERIOD_METHOD } from "../../src/constants.js";
 
 const PROJECT_ID = 1;
 const LAST_TIMESTAMP = 1700000000n;
@@ -109,7 +110,7 @@ describe("AttestationModule.attestZeroPeriod", () => {
     await mod.attestZeroPeriod({ projectId: PROJECT_ID, interval: Interval.Hourly });
 
     const decoded = decodeAttestData(ctx);
-    expect(decoded[5]).toBe("0 report");
+    expect(decoded[5]).toBe(DEFAULT_ZERO_PERIOD_METHOD);
   });
 
   it("uses provided method when supplied", async () => {

@@ -120,23 +120,35 @@ describe("EnergyQuery", () => {
 
     it("throws on HTTP error status", async () => {
       vi.stubGlobal("fetch", mockFetchHttpError(500));
-      await expect(makeQuery().getProtocol()).rejects.toThrow(
-        "Subgraph HTTP error: 500",
-      );
+      await expect(makeQuery().getProtocol()).rejects.toThrow(/Subgraph HTTP 500 error/);
     });
 
     it("throws on GraphQL errors in response", async () => {
       vi.stubGlobal("fetch", mockFetchGraphQLError("store error", "timeout"));
       await expect(makeQuery().getProtocol()).rejects.toThrow(
-        "Subgraph query error: store error, timeout",
+        /Subgraph query error.*store error, timeout/,
       );
     });
 
     it("throws when response has no data field", async () => {
       vi.stubGlobal("fetch", mockFetchEmptyData());
-      await expect(makeQuery().getProtocol()).rejects.toThrow(
-        "Subgraph returned empty data",
-      );
+      await expect(makeQuery().getProtocol()).rejects.toThrow(/Subgraph returned empty data/);
+    });
+
+    it("fetch receives an AbortSignal", async () => {
+      const fetch = mockFetch({ protocol: null });
+      vi.stubGlobal("fetch", fetch);
+
+      await makeQuery().getProtocol();
+
+      const [, options] = fetch.mock.calls[0];
+      expect(options.signal).toBeDefined();
+    });
+
+    it("throws when fetch is aborted (timeout)", async () => {
+      const err = new DOMException("The operation was aborted", "AbortError");
+      vi.stubGlobal("fetch", vi.fn().mockRejectedValue(err));
+      await expect(makeQuery().getProtocol()).rejects.toThrow(/Subgraph request failed/);
     });
   });
 
@@ -250,20 +262,45 @@ describe("EnergyQuery", () => {
       },
     ];
 
-    it("returns list of watchers", async () => {
+    it("returns items array and hasMore flag", async () => {
       vi.stubGlobal("fetch", mockFetch({ watchers: watcherList }));
       const result = await makeQuery().getWatchers();
-      expect(result).toEqual(watcherList);
+      expect(result.items).toEqual(watcherList);
+      expect(result.hasMore).toBe(false);
     });
 
-    it("applies default pagination variables", async () => {
+    it("requests first+1 items to detect hasMore", async () => {
+      const fetch = mockFetch({ watchers: [] });
+      vi.stubGlobal("fetch", fetch);
+
+      await makeQuery().getWatchers({ first: 10 });
+
+      const body = JSON.parse(fetch.mock.calls[0][1].body);
+      expect(body.variables.first).toBe(11);
+    });
+
+    it("sets hasMore true and slices when subgraph returns first+1 items", async () => {
+      const items = Array.from({ length: 11 }, (_, i) => ({ ...watcherList[0], id: String(i + 1) }));
+      vi.stubGlobal("fetch", mockFetch({ watchers: items }));
+      const result = await makeQuery().getWatchers({ first: 10 });
+      expect(result.hasMore).toBe(true);
+      expect(result.items).toHaveLength(10);
+    });
+
+    it("sets hasMore false when fewer than first+1 items returned", async () => {
+      vi.stubGlobal("fetch", mockFetch({ watchers: watcherList }));
+      const result = await makeQuery().getWatchers({ first: 10 });
+      expect(result.hasMore).toBe(false);
+    });
+
+    it("applies default skip=0", async () => {
       const fetch = mockFetch({ watchers: [] });
       vi.stubGlobal("fetch", fetch);
 
       await makeQuery().getWatchers();
 
       const body = JSON.parse(fetch.mock.calls[0][1].body);
-      expect(body.variables).toMatchObject({ first: 100, skip: 0 });
+      expect(body.variables).toMatchObject({ skip: 0 });
     });
 
     it("passes registered filter", async () => {
@@ -286,14 +323,14 @@ describe("EnergyQuery", () => {
       expect(body.variables.where.owner).toBe("0xowner");
     });
 
-    it("passes custom pagination", async () => {
+    it("passes custom skip", async () => {
       const fetch = mockFetch({ watchers: [] });
       vi.stubGlobal("fetch", fetch);
 
       await makeQuery().getWatchers({ first: 10, skip: 20 });
 
       const body = JSON.parse(fetch.mock.calls[0][1].body);
-      expect(body.variables).toMatchObject({ first: 10, skip: 20 });
+      expect(body.variables).toMatchObject({ skip: 20 });
     });
   });
 
@@ -377,10 +414,26 @@ describe("EnergyQuery", () => {
   // -------------------------------------------------------------------------
 
   describe("getProjects", () => {
-    it("returns list of projects", async () => {
+    it("returns items array and hasMore flag", async () => {
       const projects = [{ id: "1", name: "P1" }];
       vi.stubGlobal("fetch", mockFetch({ projects }));
-      expect(await makeQuery().getProjects()).toEqual(projects);
+      const result = await makeQuery().getProjects();
+      expect(result.items).toEqual(projects);
+      expect(result.hasMore).toBe(false);
+    });
+
+    it("sets hasMore true and slices when subgraph returns first+1 items", async () => {
+      const projects = Array.from({ length: 6 }, (_, i) => ({ id: String(i + 1), name: `P${i + 1}` }));
+      vi.stubGlobal("fetch", mockFetch({ projects }));
+      const result = await makeQuery().getProjects({ first: 5 });
+      expect(result.hasMore).toBe(true);
+      expect(result.items).toHaveLength(5);
+    });
+
+    it("sets hasMore false when fewer than first+1 items returned", async () => {
+      vi.stubGlobal("fetch", mockFetch({ projects: [{ id: "1", name: "P1" }] }));
+      const result = await makeQuery().getProjects({ first: 5 });
+      expect(result.hasMore).toBe(false);
     });
 
     it("passes watcherId filter", async () => {
@@ -473,10 +526,26 @@ describe("EnergyQuery", () => {
   // -------------------------------------------------------------------------
 
   describe("getAttestations", () => {
-    it("returns list of attestations", async () => {
+    it("returns items array and hasMore flag", async () => {
       const energyAttestations = [{ id: "0xabc" }];
       vi.stubGlobal("fetch", mockFetch({ energyAttestations }));
-      expect(await makeQuery().getAttestations()).toEqual(energyAttestations);
+      const result = await makeQuery().getAttestations();
+      expect(result.items).toEqual(energyAttestations);
+      expect(result.hasMore).toBe(false);
+    });
+
+    it("sets hasMore true and slices when subgraph returns first+1 items", async () => {
+      const energyAttestations = Array.from({ length: 6 }, (_, i) => ({ id: `0x${i}` }));
+      vi.stubGlobal("fetch", mockFetch({ energyAttestations }));
+      const result = await makeQuery().getAttestations({ first: 5 });
+      expect(result.hasMore).toBe(true);
+      expect(result.items).toHaveLength(5);
+    });
+
+    it("sets hasMore false when fewer than first+1 items returned", async () => {
+      vi.stubGlobal("fetch", mockFetch({ energyAttestations: [{ id: "0xabc" }] }));
+      const result = await makeQuery().getAttestations({ first: 5 });
+      expect(result.hasMore).toBe(false);
     });
 
     it("passes projectId filter", async () => {
@@ -668,6 +737,124 @@ describe("EnergyQuery", () => {
 
       const body = JSON.parse(fetch.mock.calls[0][1].body);
       expect(body.variables.where).toMatchObject({ active: true });
+    });
+  });
+
+  // -------------------------------------------------------------------------
+  // Pagination generators
+  // -------------------------------------------------------------------------
+
+  describe("iterateWatchers", () => {
+    it("yields all items from a single page", async () => {
+      const watchers = [{ id: "1" }, { id: "2" }];
+      vi.stubGlobal("fetch", mockFetch({ watchers }));
+
+      const results = [];
+      for await (const w of makeQuery().iterateWatchers({ first: 10 })) {
+        results.push(w);
+      }
+      expect(results).toHaveLength(2);
+    });
+
+    it("paginates across multiple pages", async () => {
+      const page1 = Array.from({ length: 3 }, (_, i) => ({ id: String(i + 1) }));
+      const page2 = [{ id: "4" }];
+      const fetch = vi
+        .fn()
+        .mockResolvedValueOnce(makeFetchResponse({ data: { watchers: page1 } }))
+        .mockResolvedValueOnce(makeFetchResponse({ data: { watchers: page2 } }));
+      vi.stubGlobal("fetch", fetch);
+
+      const results = [];
+      for await (const w of makeQuery().iterateWatchers({ first: 2 })) {
+        results.push(w);
+      }
+      expect(results).toHaveLength(3);
+    });
+
+    it("yields nothing for empty results", async () => {
+      vi.stubGlobal("fetch", mockFetch({ watchers: [] }));
+      const results = [];
+      for await (const w of makeQuery().iterateWatchers()) {
+        results.push(w);
+      }
+      expect(results).toHaveLength(0);
+    });
+  });
+
+  describe("iterateProjects", () => {
+    it("yields all items from a single page", async () => {
+      const projects = [{ id: "1" }, { id: "2" }];
+      vi.stubGlobal("fetch", mockFetch({ projects }));
+
+      const results = [];
+      for await (const p of makeQuery().iterateProjects({ first: 10 })) {
+        results.push(p);
+      }
+      expect(results).toHaveLength(2);
+    });
+
+    it("paginates across multiple pages", async () => {
+      const page1 = Array.from({ length: 3 }, (_, i) => ({ id: String(i + 1) }));
+      const page2 = [{ id: "4" }];
+      const fetch = vi
+        .fn()
+        .mockResolvedValueOnce(makeFetchResponse({ data: { projects: page1 } }))
+        .mockResolvedValueOnce(makeFetchResponse({ data: { projects: page2 } }));
+      vi.stubGlobal("fetch", fetch);
+
+      const results = [];
+      for await (const p of makeQuery().iterateProjects({ first: 2 })) {
+        results.push(p);
+      }
+      expect(results).toHaveLength(3);
+    });
+
+    it("yields nothing for empty results", async () => {
+      vi.stubGlobal("fetch", mockFetch({ projects: [] }));
+      const results = [];
+      for await (const p of makeQuery().iterateProjects()) {
+        results.push(p);
+      }
+      expect(results).toHaveLength(0);
+    });
+  });
+
+  describe("iterateAttestations", () => {
+    it("yields all items from a single page", async () => {
+      const energyAttestations = [{ id: "0x1" }, { id: "0x2" }];
+      vi.stubGlobal("fetch", mockFetch({ energyAttestations }));
+
+      const results = [];
+      for await (const a of makeQuery().iterateAttestations({ first: 10 })) {
+        results.push(a);
+      }
+      expect(results).toHaveLength(2);
+    });
+
+    it("paginates across multiple pages", async () => {
+      const page1 = Array.from({ length: 3 }, (_, i) => ({ id: `0x${i}` }));
+      const page2 = [{ id: "0x3" }];
+      const fetch = vi
+        .fn()
+        .mockResolvedValueOnce(makeFetchResponse({ data: { energyAttestations: page1 } }))
+        .mockResolvedValueOnce(makeFetchResponse({ data: { energyAttestations: page2 } }));
+      vi.stubGlobal("fetch", fetch);
+
+      const results = [];
+      for await (const a of makeQuery().iterateAttestations({ first: 2 })) {
+        results.push(a);
+      }
+      expect(results).toHaveLength(3);
+    });
+
+    it("yields nothing for empty results", async () => {
+      vi.stubGlobal("fetch", mockFetch({ energyAttestations: [] }));
+      const results = [];
+      for await (const a of makeQuery().iterateAttestations()) {
+        results.push(a);
+      }
+      expect(results).toHaveLength(0);
     });
   });
 });

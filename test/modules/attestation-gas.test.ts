@@ -84,15 +84,28 @@ describe("AttestationModule — gas estimation", () => {
       getMock(ctx.registry, "getReplacementUID").mockResolvedValue(ZeroHash);
     }
 
-    it("returns estimated gas as bigint", async () => {
+    it("returns attest + revoke gas when both succeed", async () => {
       const ctx = createMockContext();
       mockOriginalAttestation(ctx);
       getMock(ctx.eas, "attest").estimateGas.mockResolvedValue(130000n);
+      getMock(ctx.eas, "revoke").estimateGas.mockResolvedValue(40000n);
 
       const mod = new AttestationModule(ctx);
       const gas = await mod.estimateOverwriteAttestationGas({ ...VALID_PARAMS, refUID });
 
-      expect(gas).toBe(130000n);
+      expect(gas).toBe(170000n);
+    });
+
+    it("falls back to 50_000n when revoke estimation fails", async () => {
+      const ctx = createMockContext();
+      mockOriginalAttestation(ctx);
+      getMock(ctx.eas, "attest").estimateGas.mockResolvedValue(130000n);
+      getMock(ctx.eas, "revoke").estimateGas.mockRejectedValue(new Error("gas estimation failed"));
+
+      const mod = new AttestationModule(ctx);
+      const gas = await mod.estimateOverwriteAttestationGas({ ...VALID_PARAMS, refUID });
+
+      expect(gas).toBe(180000n); // 130000n + 50_000n fallback
     });
 
     it("calls eas.attest.estimateGas with provided refUID", async () => {
