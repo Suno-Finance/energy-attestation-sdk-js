@@ -1,5 +1,12 @@
 # energy-attestation-sdk
 
+[![npm version](https://img.shields.io/npm/v/energy-attestation-sdk?color=blue)](https://www.npmjs.com/package/energy-attestation-sdk)
+[![npm downloads](https://img.shields.io/npm/dm/energy-attestation-sdk)](https://www.npmjs.com/package/energy-attestation-sdk)
+[![CI](https://img.shields.io/github/actions/workflow/status/Suno-Finance/energy-attestation-sdk-js/publish.yml?label=CI)](https://github.com/Suno-Finance/energy-attestation-sdk-js/actions)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+[![Node >=18](https://img.shields.io/badge/node-%3E%3D18-brightgreen)](https://nodejs.org)
+[![ethers v6](https://img.shields.io/badge/peer%20dep-ethers%20v6-purple)](https://docs.ethers.org/v6/)
+
 TypeScript SDK for the **Energy Attestation Service** — an on-chain public good that enables any energy project to publicly attest energy data using the [Ethereum Attestation Service (EAS)](https://attest.org).
 
 Website: [attest.energy](https://attest.energy)
