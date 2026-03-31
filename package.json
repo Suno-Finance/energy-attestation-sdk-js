@@ -42,10 +42,15 @@
   ],
   "author": "Suno",
   "license": "MIT",
+  "homepage": "https://attest.energy",
   "repository": {
     "type": "git",
     "url": "https://github.com/Suno-Finance/energy-attestation-sdk-js"
   },
+  "bugs": {
+    "url": "https://github.com/Suno-Finance/energy-attestation-sdk-js/issues"
+  },
+  "sideEffects": false,
   "engines": {
     "node": ">=18"
   },
