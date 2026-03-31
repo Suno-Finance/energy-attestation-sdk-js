@@ -25,6 +25,12 @@ jobs:
 
       - run: npm run typecheck
 
-      - run: npm test
+      - run: npm test -- --coverage
+
+      - uses: codecov/codecov-action@v5.4.0
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./coverage/lcov.info
+          fail_ci_if_error: false
 
       - run: npm run build
