@@ -548,5 +548,19 @@ describe("AttestationModule", () => {
         "network timeout",
       );
     });
+
+    it("decodes contract revert from revoke step into ContractRevertError", async () => {
+      const ctx = createMockContext();
+      mockOriginalAttestation(ctx);
+      getMock(ctx.eas, "attest").mockResolvedValue(createMockTx(createMockAttestReceipt()));
+      // Replacement attest succeeds but the subsequent EAS revoke fails
+      const data = encodeRegistryError("DirectRevocationBlocked", [1]);
+      getMock(ctx.eas, "revoke").mockRejectedValue({ data });
+
+      const mod = new AttestationModule(ctx);
+      const err = await mod.overwriteAttestation({ ...VALID_PARAMS, refUID }).catch((e) => e);
+      expect(err).toBeInstanceOf(ContractRevertError);
+      expect((err as ContractRevertError).errorName).toBe("DirectRevocationBlocked");
+    });
   });
 });

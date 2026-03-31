@@ -150,6 +150,14 @@ describe("AttesterModule", () => {
       const mod = new AttesterModule(ctx);
       await expect(mod.removeAttesters(1, ["not-valid"])).rejects.toThrow(ConfigurationError);
     });
+
+    it("decodes contract revert (AttesterNotAuthorized)", async () => {
+      const ctx = createMockContext();
+      const data = encodeRegistryError("AttesterNotAuthorized", [ADDR1, 1]);
+      getMock(ctx.registry, "removeAttesters").mockRejectedValue({ data });
+      const mod = new AttesterModule(ctx);
+      await expect(mod.removeAttesters(1, [ADDR1])).rejects.toThrow(ContractRevertError);
+    });
   });
 
   describe("addWatcherAttester", () => {
@@ -213,6 +221,14 @@ describe("AttesterModule", () => {
       const ctx = createMockContext();
       const mod = new AttesterModule(ctx);
       await expect(mod.removeWatcherAttester(1, "bad")).rejects.toThrow(ConfigurationError);
+    });
+
+    it("decodes contract revert (AttesterNotAuthorized)", async () => {
+      const ctx = createMockContext();
+      const data = encodeRegistryError("AttesterNotAuthorized", [ADDR1, 0]);
+      getMock(ctx.registry, "removeWatcherAttester").mockRejectedValue({ data });
+      const mod = new AttesterModule(ctx);
+      await expect(mod.removeWatcherAttester(1, ADDR1)).rejects.toThrow(ContractRevertError);
     });
   });
 });

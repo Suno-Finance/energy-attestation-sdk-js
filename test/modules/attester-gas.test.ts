@@ -126,6 +126,15 @@ describe("AttesterModule — gas estimation", () => {
         ADDR3,
       ]);
     });
+
+    it("decodes contract revert into ContractRevertError", async () => {
+      const ctx = createMockContext();
+      const data = encodeRegistryError("AttesterNotAuthorized", [ADDR1, 1]);
+      getMock(ctx.registry, "removeAttesters").estimateGas.mockRejectedValue({ data });
+
+      const mod = new AttesterModule(ctx);
+      await expect(mod.estimateRemoveAttestersGas(1, [ADDR1])).rejects.toThrow(ContractRevertError);
+    });
   });
 
   describe("estimateAddWatcherAttesterGas", () => {
@@ -181,6 +190,17 @@ describe("AttesterModule — gas estimation", () => {
       expect(getMock(ctx.registry, "removeWatcherAttester").estimateGas).toHaveBeenCalledWith(
         3n,
         ADDR2,
+      );
+    });
+
+    it("decodes contract revert into ContractRevertError", async () => {
+      const ctx = createMockContext();
+      const data = encodeRegistryError("AttesterNotAuthorized", [ADDR1, 0]);
+      getMock(ctx.registry, "removeWatcherAttester").estimateGas.mockRejectedValue({ data });
+
+      const mod = new AttesterModule(ctx);
+      await expect(mod.estimateRemoveWatcherAttesterGas(1, ADDR1)).rejects.toThrow(
+        ContractRevertError,
       );
     });
   });

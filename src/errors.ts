@@ -24,6 +24,11 @@ export const ContractErrorCode = {
   EnergyTypeNotRegistered: "EnergyTypeNotRegistered",
   InvalidEnergyType: "InvalidEnergyType",
   NonSequentialAttestation: "NonSequentialAttestation",
+  // UUPS proxy errors (registry)
+  InvalidInitialization: "InvalidInitialization",
+  UUPSUnauthorizedCallContext: "UUPSUnauthorizedCallContext",
+  ERC1967InvalidImplementation: "ERC1967InvalidImplementation",
+  // Ownable errors
   OwnableInvalidOwner: "OwnableInvalidOwner",
   OwnableUnauthorizedAccount: "OwnableUnauthorizedAccount",
   PeriodAlreadyAttested: "PeriodAlreadyAttested",
