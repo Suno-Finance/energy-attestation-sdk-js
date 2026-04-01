@@ -481,8 +481,8 @@ const query = new EnergyQuery({
 
 | Network                | Enum              | Registry                                     | Schema UID                                                             | Subgraph |
 | ---------------------- | ----------------- | -------------------------------------------- | ---------------------------------------------------------------------- | -------- |
-| Celo Mainnet           | `Network.CELO`    | `0x644Dd384FCF5d94da98Bf8F6F10C448426974d29` | `0xbca196f2a002d6c29cddd85eb41637d2804d50c5c37faae85c15b375253844ef`   | ✅ Live  |
-| Polygon Mainnet        | `Network.POLYGON` | `0x644Dd384FCF5d94da98Bf8F6F10C448426974d29` | `0xbca196f2a002d6c29cddd85eb41637d2804d50c5c37faae85c15b375253844ef`   | ✅ Live  |
+| Celo Mainnet           | `Network.CELO`    | `0xA5B5f895091d79d1f099531cDB8cb896F17ec4C1` | `0xb9c136082a935b39c6e276ea137ac489bdc090aac17a116347c7ea90442ef7e0`   | ✅ Live  |
+| Polygon Mainnet        | `Network.POLYGON` | `0xA5B5f895091d79d1f099531cDB8cb896F17ec4C1` | `0xb9c136082a935b39c6e276ea137ac489bdc090aac17a116347c7ea90442ef7e0`   | ✅ Live  |
 | Polygon Amoy (testnet) | `Network.AMOY`    | `0x059D4655941204cf6aaC1cF578Aa9dc5D3ed6B39` | `0x4673141c77c3d54962edf6ef7f25a0c62656f9bd08138b4c4f9561413c235435`   | ✅ Live  |
 
 All three networks are fully supported — all addresses and subgraph URLs are auto-resolved, zero config needed.

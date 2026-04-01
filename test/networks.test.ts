@@ -32,19 +32,19 @@ describe("getNetworkConfig", () => {
   it("returns full config for Polygon (officially supported)", () => {
     const config = getNetworkConfig(Network.POLYGON);
     expect(config.eas).toBe("0x5E634ef5355f45A855d02D66eCD687b1502AF790");
-    expect(config.registry).toBe("0x644Dd384FCF5d94da98Bf8F6F10C448426974d29");
+    expect(config.registry).toBe("0xA5B5f895091d79d1f099531cDB8cb896F17ec4C1");
     expect(config.schemaUID).toBe(
-      "0xbca196f2a002d6c29cddd85eb41637d2804d50c5c37faae85c15b375253844ef",
+      "0xb9c136082a935b39c6e276ea137ac489bdc090aac17a116347c7ea90442ef7e0",
     );
-    expect(config.defaultRpcUrl).toBe("https://polygon-rpc.com");
+    expect(config.defaultRpcUrl).toBe("https://polygon-bor-rpc.publicnode.com");
   });
 
   it("returns full config for Celo (officially supported)", () => {
     const config = getNetworkConfig(Network.CELO);
     expect(config.eas).toBe("0x72E1d8ccf5299fb36fEfD8CC4394B8ef7e98Af92");
-    expect(config.registry).toBe("0x644Dd384FCF5d94da98Bf8F6F10C448426974d29");
+    expect(config.registry).toBe("0xA5B5f895091d79d1f099531cDB8cb896F17ec4C1");
     expect(config.schemaUID).toBe(
-      "0xbca196f2a002d6c29cddd85eb41637d2804d50c5c37faae85c15b375253844ef",
+      "0xb9c136082a935b39c6e276ea137ac489bdc090aac17a116347c7ea90442ef7e0",
     );
     expect(config.defaultRpcUrl).toBe("https://forno.celo.org");
   });
