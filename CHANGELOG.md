@@ -7,6 +7,39 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.0.0] - 2026-04-01
+
+### Changed
+
+- **Updated Celo Mainnet contract addresses** — `EnergyRegistry` proxy (`0xA5B5f895091d79d1f099531cDB8cb896F17ec4C1`), `EnergyAttestationResolver` (`0x5d2f202cAE2D321C5f595baaE359956c3a9Ff02D`), and schema UID (`0xb9c136082a935b39c6e276ea137ac489bdc090aac17a116347c7ea90442ef7e0`) following fresh mainnet deployment.
+- **Updated Polygon Mainnet contract addresses** — same registry, resolver, and schema UID as Celo above, reflecting new mainnet deployment.
+- **Updated Polygon default RPC** — switched from `polygon-rpc.com` (deprecated) to `polygon-bor-rpc.publicnode.com`.
+
+---
+
+## [0.4.1] - 2026-03-31
+
+### Added
+
+- **Async pagination helpers** — `iterateWatchers`, `iterateProjects`, and `iterateAttestations` on `EnergyQuery` for cursor-based iteration over large result sets.
+- **`sdk.network` property** — exposed on the `EnergySDK` instance for downstream inspection.
+- **`retryCount` / `retryDelayMs` on `TxFeeConfig`** — configurable retry behaviour for transaction submission.
+- **`utils/events`** — internal event parsing utilities, now covered by tests.
+- **`utils/transaction`** — internal transaction helpers, now covered by tests.
+- **Extended test coverage** — `EnergyQuery`, `EnergySDK` init, event utils, and transaction utils all gain dedicated test suites.
+
+### Changed
+
+- **`EnergyQuery` list methods** return `PageResult<T>` with cursor metadata instead of bare arrays.
+- **`ReadModule` numeric normalisation** — all contract numeric outputs (IDs, totals, timestamps, arrays) are consistently normalised to `bigint`.
+- **Network preflight resilience** — `EnergySDK.fromPrivateKey` and `fromSigner` now wrap `provider.getNetwork()` in a timeout and treat DNS / connection failures as recoverable during chain-ID validation.
+
+### Fixed
+
+- **`estimateOverwriteAttestationGas`** — fixed fallback logic that could produce mixed-type runtime errors when revoke gas estimation fails.
+
+---
+
 ## [0.2.0] - 2026-03-31
 
 ### Added
