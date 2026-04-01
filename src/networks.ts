@@ -38,9 +38,9 @@ const NETWORK_CONFIG: Record<Network, NetworkConfig> = {
   [Network.POLYGON]: {
     eas: "0x5E634ef5355f45A855d02D66eCD687b1502AF790",
     schemaRegistry: "0x7876EEF51A891E737AF8ba5A5E0f0Fd29073D5a7",
-    registry: "0x644Dd384FCF5d94da98Bf8F6F10C448426974d29",
-    schemaUID: "0xbca196f2a002d6c29cddd85eb41637d2804d50c5c37faae85c15b375253844ef",
-    defaultRpcUrl: "https://polygon-rpc.com",
+    registry: "0xA5B5f895091d79d1f099531cDB8cb896F17ec4C1",
+    schemaUID: "0xb9c136082a935b39c6e276ea137ac489bdc090aac17a116347c7ea90442ef7e0",
+    defaultRpcUrl: "https://polygon-bor-rpc.publicnode.com",
     subgraphUrl:
       "https://gateway.thegraph.com/api/subgraphs/id/D8AgWoxUr3aDgWQCEy2hVeU8hnsrs5N3vmPSeGMphgEi",
     chainId: 137,
@@ -48,8 +48,8 @@ const NETWORK_CONFIG: Record<Network, NetworkConfig> = {
   [Network.CELO]: {
     eas: "0x72E1d8ccf5299fb36fEfD8CC4394B8ef7e98Af92",
     schemaRegistry: "0x5ece93bE4BDCF293Ed61FA78698B594F2135AF34",
-    registry: "0x644Dd384FCF5d94da98Bf8F6F10C448426974d29",
-    schemaUID: "0xbca196f2a002d6c29cddd85eb41637d2804d50c5c37faae85c15b375253844ef",
+    registry: "0xA5B5f895091d79d1f099531cDB8cb896F17ec4C1",
+    schemaUID: "0xb9c136082a935b39c6e276ea137ac489bdc090aac17a116347c7ea90442ef7e0",
     defaultRpcUrl: "https://forno.celo.org",
     subgraphUrl:
       "https://gateway.thegraph.com/api/subgraphs/id/9BM6kQzg7jtcbnphW7UXCGMmvJ2QtDkxnU8fqDYinUx1",
