@@ -49,6 +49,22 @@ describe("getTxOverrides", () => {
     expect(overrides.maxFeePerGas).toBe(75_000_000_000n);
   });
 
+  it("falls back to baseFee 0 when block has no baseFeePerGas (e.g. pre-merge block)", async () => {
+    const ctx = createMockContext({
+      gasStrategy: "eip1559",
+      tx: { minPriorityFeeGwei: 10, maxFeeMultiplier: 1, retryCount: 0, retryDelayMs: 0 },
+    });
+    (ctx.provider as unknown as { send: ReturnType<typeof vi.fn> }).send.mockResolvedValue(
+      {}, // no baseFeePerGas field
+    );
+
+    const overrides = await getTxOverrides(ctx);
+
+    // baseFee = 0, multiplier = 1, tip = 10 gwei => maxFeePerGas = 0 * 1 + 10 gwei = 10 gwei
+    expect(overrides.maxFeePerGas).toBe(10_000_000_000n);
+    expect(overrides.maxPriorityFeePerGas).toBe(10_000_000_000n);
+  });
+
   it("applies maxFeeMultiplier to gasPrice on legacy strategy", async () => {
     const ctx = createMockContext({
       gasStrategy: "legacy",

@@ -314,6 +314,20 @@ describe("EnergySDK assertSignerAddress", () => {
   });
 });
 
+describe("EnergySDK.fromSigner validation", () => {
+  it("throws ConfigurationError when signer is null", async () => {
+    await expect(
+      EnergySDK.fromSigner({ signer: null as never, network: Network.AMOY }),
+    ).rejects.toThrow(ConfigurationError);
+  });
+
+  it("throws ConfigurationError when signer is undefined", async () => {
+    await expect(
+      EnergySDK.fromSigner({ signer: undefined as never, network: Network.AMOY }),
+    ).rejects.toThrow(ConfigurationError);
+  });
+});
+
 describe("EnergySDK chain ID error handling", () => {
   it("re-throws non-transport errors from provider.getNetwork()", async () => {
     const spy = vi
