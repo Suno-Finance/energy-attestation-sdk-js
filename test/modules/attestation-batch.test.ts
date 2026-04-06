@@ -120,7 +120,7 @@ describe("AttestationModule.attestBatch", () => {
         PARAMS,
         {
           ...PARAMS2,
-          fromTimestamp: 18446744073709551000,
+          fromTimestamp: (1n << 64n) - 3600n, // just below uint64 max; adding one hourly interval overflows
           readings: [1000n],
           readingIntervalMinutes: 60,
         },

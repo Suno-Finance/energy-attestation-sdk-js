@@ -149,7 +149,7 @@ async function validateOverwriteParams(
     originalData.readingIntervalMinutes,
   );
   const replacementTo = computeToTimestamp(
-    params.fromTimestamp,
+    Number(params.fromTimestamp),
     params.readings.length,
     params.readingIntervalMinutes,
   );

@@ -222,7 +222,7 @@ describe("AttestationModule", () => {
       await expect(
         mod.attest({
           ...VALID_PARAMS,
-          fromTimestamp: 18446744073709551000,
+          fromTimestamp: (1n << 64n) - 3600n, // just below uint64 max; adding one hourly interval overflows
           readings: [1000n],
           readingIntervalMinutes: 60,
         }),
@@ -235,7 +235,7 @@ describe("AttestationModule", () => {
       const err = await mod
         .attest({
           ...VALID_PARAMS,
-          fromTimestamp: 18446744073709551000,
+          fromTimestamp: (1n << 64n) - 3600n, // just below uint64 max; adding one hourly interval overflows
           readings: [1000n],
           readingIntervalMinutes: 60,
         })
@@ -596,7 +596,7 @@ describe("AttestationModule", () => {
       await expect(
         mod.overwriteAttestation({
           ...VALID_PARAMS,
-          fromTimestamp: 18446744073709551000,
+          fromTimestamp: (1n << 64n) - 3600n, // just below uint64 max; adding one hourly interval overflows
           readings: [1000n],
           readingIntervalMinutes: 60,
           refUID,
