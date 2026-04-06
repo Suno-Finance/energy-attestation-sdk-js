@@ -419,7 +419,7 @@ The SDK supports two initialization methods:
 
 ### `Transaction Fee Policy`
 
-To avoid low-tip rejections on some RPCs/networks, the SDK applies a safe EIP-1559 policy to all write calls (`create*`, `attest*`, `revoke*`, etc.).
+To avoid low-tip rejections on some RPCs/networks, the SDK applies a safe fee policy to all write calls (`create*`, `attest*`, `revoke*`, etc.). All supported networks use EIP-1559 fee pricing — the SDK fetches the current base fee directly via `eth_getBlockByNumber` (not `eth_maxPriorityFeePerGas`) to avoid compatibility warnings with certain wallet providers (e.g. MetaMask on Celo).
 
 Default behavior:
 
@@ -430,8 +430,8 @@ Optional config type:
 
 ```typescript
 type TxFeeConfig = {
-  minPriorityFeeGwei?: number; // minimum priority fee (tip) in gwei
-  maxFeeMultiplier?: number; // multiplier applied to provider maxFeePerGas (or gasPrice fallback)
+  minPriorityFeeGwei?: number; // minimum priority fee (tip) in gwei — EIP-1559 networks only
+  maxFeeMultiplier?: number; // multiplier applied to the current base fee
   retryCount?: number; // retry attempts for send failures (default: 0)
   retryDelayMs?: number; // initial delay in ms; doubles each retry (default: 1000)
 };
@@ -593,9 +593,9 @@ sdk.network; //  Resolved SDK network enum value
 ```typescript
 {
   projectId: number;                     // The project to submit readings for
-  readings: bigint[];                    // Energy in Wh per interval
+  readings: bigint[];                    // Energy in Wh per interval (must be non-negative)
   readingIntervalMinutes: Interval | number; // Minutes between readings (e.g., Interval.Hourly or 60)
-  fromTimestamp: number;                 // Start of period (Unix seconds)
+  fromTimestamp: number | bigint;        // Start of period (Unix seconds)
   method: string;                        // "manual" | "iot" | "estimated"
   metadataURI?: string;                  // Optional IPFS/HTTPS link to evidence
 }
@@ -965,6 +965,8 @@ try {
 | `overwriteAttestation` `refUID` doesn't exist on-chain                               | `overwriteAttestation`, `estimateOverwriteAttestationGas`                                                         | "Original attestation not found: ..."             |
 | `overwriteAttestation` original was already replaced                                 | `overwriteAttestation`, `estimateOverwriteAttestationGas`                                                         | "Original attestation has already been replaced"  |
 | `overwriteAttestation` replacement period doesn't match original                     | `overwriteAttestation`, `estimateOverwriteAttestationGas`                                                         | "Period mismatch: ..."                            |
+| Any value in `readings` is negative                                                  | `attest`, `overwriteAttestation`, `attestBatch`, and their `estimate*` variants                                   | "readings[N] is negative ..."                     |
+| Computed `toTimestamp` would overflow `uint64` (`fromTimestamp + count × interval × 60 > uint64 max`) | `attest`, `overwriteAttestation`, `attestBatch`, and their `estimate*` variants              | "computed toTimestamp (...) exceeds uint64 max"   |
 
 ### Common contract errors
 
