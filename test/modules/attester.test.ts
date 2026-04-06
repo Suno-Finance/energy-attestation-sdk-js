@@ -34,25 +34,36 @@ describe("AttesterModule", () => {
       setupMock(ctx, "addAttester");
       const mod = new AttesterModule(ctx);
       await mod.addAttester(5n, ADDR2);
-      expect(getMock(ctx.registry, "addAttester")).toHaveBeenCalledWith(
-        5n,
-        ADDR2,
-        expect.anything(),
-      );
+      expect(getMock(ctx.registry, "addAttester")).toHaveBeenCalledWith(5n, ADDR2, expect.anything());
     });
 
     it("throws ConfigurationError for invalid attester address", async () => {
       const ctx = createMockContext();
-      const mod = new AttesterModule(ctx);
-      await expect(mod.addAttester(1, "not-an-address")).rejects.toThrow(ConfigurationError);
+      await expect(new AttesterModule(ctx).addAttester(1, "not-an-address")).rejects.toThrow(ConfigurationError);
     });
 
-    it("decodes contract revert (AttesterAlreadyAuthorized)", async () => {
+    it("decodes AttesterAlreadyAuthorized revert", async () => {
       const ctx = createMockContext();
-      const data = encodeRegistryError("AttesterAlreadyAuthorized", [ADDR1, 1]);
-      getMock(ctx.registry, "addAttester").mockRejectedValue({ data });
-      const mod = new AttesterModule(ctx);
-      await expect(mod.addAttester(1, ADDR1)).rejects.toThrow(ContractRevertError);
+      getMock(ctx.registry, "addAttester").mockRejectedValue({ data: encodeRegistryError("AttesterAlreadyAuthorized", [ADDR1, 1]) });
+      const err = await new AttesterModule(ctx).addAttester(1, ADDR1).catch((e) => e);
+      expect(err).toBeInstanceOf(ContractRevertError);
+      expect((err as ContractRevertError).errorName).toBe("AttesterAlreadyAuthorized");
+    });
+
+    it("decodes ProjectNotRegistered revert", async () => {
+      const ctx = createMockContext();
+      getMock(ctx.registry, "addAttester").mockRejectedValue({ data: encodeRegistryError("ProjectNotRegistered", [1]) });
+      const err = await new AttesterModule(ctx).addAttester(1, ADDR1).catch((e) => e);
+      expect(err).toBeInstanceOf(ContractRevertError);
+      expect((err as ContractRevertError).errorName).toBe("ProjectNotRegistered");
+    });
+
+    it("decodes UnauthorizedWatcherOwner revert", async () => {
+      const ctx = createMockContext();
+      getMock(ctx.registry, "addAttester").mockRejectedValue({ data: encodeRegistryError("UnauthorizedWatcherOwner", [ADDR1, 1]) });
+      const err = await new AttesterModule(ctx).addAttester(1, ADDR1).catch((e) => e);
+      expect(err).toBeInstanceOf(ContractRevertError);
+      expect((err as ContractRevertError).errorName).toBe("UnauthorizedWatcherOwner");
     });
   });
 
@@ -60,35 +71,44 @@ describe("AttesterModule", () => {
     it("returns txHash as object", async () => {
       const ctx = createMockContext();
       setupMock(ctx, "removeAttester", "0xremove");
-      const mod = new AttesterModule(ctx);
-      const result = await mod.removeAttester(1, ADDR1);
+      const result = await new AttesterModule(ctx).removeAttester(1, ADDR1);
       expect(result.txHash).toBe("0xremove");
     });
 
     it("passes correct args to contract", async () => {
       const ctx = createMockContext();
       setupMock(ctx, "removeAttester");
-      const mod = new AttesterModule(ctx);
-      await mod.removeAttester(3n, ADDR1);
-      expect(getMock(ctx.registry, "removeAttester")).toHaveBeenCalledWith(
-        3n,
-        ADDR1,
-        expect.anything(),
-      );
+      await new AttesterModule(ctx).removeAttester(3n, ADDR1);
+      expect(getMock(ctx.registry, "removeAttester")).toHaveBeenCalledWith(3n, ADDR1, expect.anything());
     });
 
     it("throws ConfigurationError for invalid attester address", async () => {
       const ctx = createMockContext();
-      const mod = new AttesterModule(ctx);
-      await expect(mod.removeAttester(1, "0xbad")).rejects.toThrow(ConfigurationError);
+      await expect(new AttesterModule(ctx).removeAttester(1, "0xbad")).rejects.toThrow(ConfigurationError);
     });
 
-    it("decodes contract revert (AttesterNotAuthorized)", async () => {
+    it("decodes AttesterNotAuthorized revert", async () => {
       const ctx = createMockContext();
-      const data = encodeRegistryError("AttesterNotAuthorized", [ADDR1, 1]);
-      getMock(ctx.registry, "removeAttester").mockRejectedValue({ data });
-      const mod = new AttesterModule(ctx);
-      await expect(mod.removeAttester(1, ADDR1)).rejects.toThrow(ContractRevertError);
+      getMock(ctx.registry, "removeAttester").mockRejectedValue({ data: encodeRegistryError("AttesterNotAuthorized", [ADDR1, 1]) });
+      const err = await new AttesterModule(ctx).removeAttester(1, ADDR1).catch((e) => e);
+      expect(err).toBeInstanceOf(ContractRevertError);
+      expect((err as ContractRevertError).errorName).toBe("AttesterNotAuthorized");
+    });
+
+    it("decodes ProjectNotRegistered revert", async () => {
+      const ctx = createMockContext();
+      getMock(ctx.registry, "removeAttester").mockRejectedValue({ data: encodeRegistryError("ProjectNotRegistered", [1]) });
+      const err = await new AttesterModule(ctx).removeAttester(1, ADDR1).catch((e) => e);
+      expect(err).toBeInstanceOf(ContractRevertError);
+      expect((err as ContractRevertError).errorName).toBe("ProjectNotRegistered");
+    });
+
+    it("decodes UnauthorizedWatcherOwner revert", async () => {
+      const ctx = createMockContext();
+      getMock(ctx.registry, "removeAttester").mockRejectedValue({ data: encodeRegistryError("UnauthorizedWatcherOwner", [ADDR1, 1]) });
+      const err = await new AttesterModule(ctx).removeAttester(1, ADDR1).catch((e) => e);
+      expect(err).toBeInstanceOf(ContractRevertError);
+      expect((err as ContractRevertError).errorName).toBe("UnauthorizedWatcherOwner");
     });
   });
 
@@ -96,35 +116,44 @@ describe("AttesterModule", () => {
     it("returns txHash as object", async () => {
       const ctx = createMockContext();
       setupMock(ctx, "addAttesters", "0xbatch");
-      const mod = new AttesterModule(ctx);
-      const result = await mod.addAttesters(1, [ADDR1, ADDR2]);
+      const result = await new AttesterModule(ctx).addAttesters(1, [ADDR1, ADDR2]);
       expect(result.txHash).toBe("0xbatch");
     });
 
     it("passes correct args to contract", async () => {
       const ctx = createMockContext();
       setupMock(ctx, "addAttesters");
-      const mod = new AttesterModule(ctx);
-      await mod.addAttesters(2, [ADDR1, ADDR2, ADDR3]);
-      expect(getMock(ctx.registry, "addAttesters")).toHaveBeenCalledWith(
-        2,
-        [ADDR1, ADDR2, ADDR3],
-        expect.anything(),
-      );
+      await new AttesterModule(ctx).addAttesters(2, [ADDR1, ADDR2, ADDR3]);
+      expect(getMock(ctx.registry, "addAttesters")).toHaveBeenCalledWith(2, [ADDR1, ADDR2, ADDR3], expect.anything());
     });
 
     it("throws ConfigurationError when any address is invalid", async () => {
       const ctx = createMockContext();
-      const mod = new AttesterModule(ctx);
-      await expect(mod.addAttesters(1, [ADDR1, "bad-address"])).rejects.toThrow(ConfigurationError);
+      await expect(new AttesterModule(ctx).addAttesters(1, [ADDR1, "bad-address"])).rejects.toThrow(ConfigurationError);
     });
 
-    it("decodes contract revert (EmptyAttesterArray)", async () => {
+    it("decodes EmptyAttesterArray revert", async () => {
       const ctx = createMockContext();
-      const data = encodeRegistryError("EmptyAttesterArray", []);
-      getMock(ctx.registry, "addAttesters").mockRejectedValue({ data });
-      const mod = new AttesterModule(ctx);
-      await expect(mod.addAttesters(1, [])).rejects.toThrow(ContractRevertError);
+      getMock(ctx.registry, "addAttesters").mockRejectedValue({ data: encodeRegistryError("EmptyAttesterArray", []) });
+      const err = await new AttesterModule(ctx).addAttesters(1, []).catch((e) => e);
+      expect(err).toBeInstanceOf(ContractRevertError);
+      expect((err as ContractRevertError).errorName).toBe("EmptyAttesterArray");
+    });
+
+    it("decodes ProjectNotRegistered revert", async () => {
+      const ctx = createMockContext();
+      getMock(ctx.registry, "addAttesters").mockRejectedValue({ data: encodeRegistryError("ProjectNotRegistered", [1]) });
+      const err = await new AttesterModule(ctx).addAttesters(1, [ADDR1]).catch((e) => e);
+      expect(err).toBeInstanceOf(ContractRevertError);
+      expect((err as ContractRevertError).errorName).toBe("ProjectNotRegistered");
+    });
+
+    it("decodes UnauthorizedWatcherOwner revert", async () => {
+      const ctx = createMockContext();
+      getMock(ctx.registry, "addAttesters").mockRejectedValue({ data: encodeRegistryError("UnauthorizedWatcherOwner", [ADDR1, 1]) });
+      const err = await new AttesterModule(ctx).addAttesters(1, [ADDR1]).catch((e) => e);
+      expect(err).toBeInstanceOf(ContractRevertError);
+      expect((err as ContractRevertError).errorName).toBe("UnauthorizedWatcherOwner");
     });
   });
 
@@ -132,35 +161,44 @@ describe("AttesterModule", () => {
     it("returns txHash as object", async () => {
       const ctx = createMockContext();
       setupMock(ctx, "removeAttesters", "0xbatchrm");
-      const mod = new AttesterModule(ctx);
-      const result = await mod.removeAttesters(1, [ADDR1]);
+      const result = await new AttesterModule(ctx).removeAttesters(1, [ADDR1]);
       expect(result.txHash).toBe("0xbatchrm");
     });
 
     it("passes correct args to contract", async () => {
       const ctx = createMockContext();
       setupMock(ctx, "removeAttesters");
-      const mod = new AttesterModule(ctx);
-      await mod.removeAttesters(4n, [ADDR2, ADDR3]);
-      expect(getMock(ctx.registry, "removeAttesters")).toHaveBeenCalledWith(
-        4n,
-        [ADDR2, ADDR3],
-        expect.anything(),
-      );
+      await new AttesterModule(ctx).removeAttesters(4n, [ADDR2, ADDR3]);
+      expect(getMock(ctx.registry, "removeAttesters")).toHaveBeenCalledWith(4n, [ADDR2, ADDR3], expect.anything());
     });
 
     it("throws ConfigurationError when any address is invalid", async () => {
       const ctx = createMockContext();
-      const mod = new AttesterModule(ctx);
-      await expect(mod.removeAttesters(1, ["not-valid"])).rejects.toThrow(ConfigurationError);
+      await expect(new AttesterModule(ctx).removeAttesters(1, ["not-valid"])).rejects.toThrow(ConfigurationError);
     });
 
-    it("decodes contract revert (AttesterNotAuthorized)", async () => {
+    it("decodes AttesterNotAuthorized revert", async () => {
       const ctx = createMockContext();
-      const data = encodeRegistryError("AttesterNotAuthorized", [ADDR1, 1]);
-      getMock(ctx.registry, "removeAttesters").mockRejectedValue({ data });
-      const mod = new AttesterModule(ctx);
-      await expect(mod.removeAttesters(1, [ADDR1])).rejects.toThrow(ContractRevertError);
+      getMock(ctx.registry, "removeAttesters").mockRejectedValue({ data: encodeRegistryError("AttesterNotAuthorized", [ADDR1, 1]) });
+      const err = await new AttesterModule(ctx).removeAttesters(1, [ADDR1]).catch((e) => e);
+      expect(err).toBeInstanceOf(ContractRevertError);
+      expect((err as ContractRevertError).errorName).toBe("AttesterNotAuthorized");
+    });
+
+    it("decodes ProjectNotRegistered revert", async () => {
+      const ctx = createMockContext();
+      getMock(ctx.registry, "removeAttesters").mockRejectedValue({ data: encodeRegistryError("ProjectNotRegistered", [1]) });
+      const err = await new AttesterModule(ctx).removeAttesters(1, [ADDR1]).catch((e) => e);
+      expect(err).toBeInstanceOf(ContractRevertError);
+      expect((err as ContractRevertError).errorName).toBe("ProjectNotRegistered");
+    });
+
+    it("decodes UnauthorizedWatcherOwner revert", async () => {
+      const ctx = createMockContext();
+      getMock(ctx.registry, "removeAttesters").mockRejectedValue({ data: encodeRegistryError("UnauthorizedWatcherOwner", [ADDR1, 1]) });
+      const err = await new AttesterModule(ctx).removeAttesters(1, [ADDR1]).catch((e) => e);
+      expect(err).toBeInstanceOf(ContractRevertError);
+      expect((err as ContractRevertError).errorName).toBe("UnauthorizedWatcherOwner");
     });
   });
 
@@ -168,35 +206,44 @@ describe("AttesterModule", () => {
     it("returns txHash as object", async () => {
       const ctx = createMockContext();
       setupMock(ctx, "addWatcherAttester", "0xwatcheradd");
-      const mod = new AttesterModule(ctx);
-      const result = await mod.addWatcherAttester(1, ADDR1);
+      const result = await new AttesterModule(ctx).addWatcherAttester(1, ADDR1);
       expect(result.txHash).toBe("0xwatcheradd");
     });
 
     it("passes correct args to contract", async () => {
       const ctx = createMockContext();
       setupMock(ctx, "addWatcherAttester");
-      const mod = new AttesterModule(ctx);
-      await mod.addWatcherAttester(10n, ADDR3);
-      expect(getMock(ctx.registry, "addWatcherAttester")).toHaveBeenCalledWith(
-        10n,
-        ADDR3,
-        expect.anything(),
-      );
+      await new AttesterModule(ctx).addWatcherAttester(10n, ADDR3);
+      expect(getMock(ctx.registry, "addWatcherAttester")).toHaveBeenCalledWith(10n, ADDR3, expect.anything());
     });
 
     it("throws ConfigurationError for invalid attester address", async () => {
       const ctx = createMockContext();
-      const mod = new AttesterModule(ctx);
-      await expect(mod.addWatcherAttester(1, "not-an-address")).rejects.toThrow(ConfigurationError);
+      await expect(new AttesterModule(ctx).addWatcherAttester(1, "not-an-address")).rejects.toThrow(ConfigurationError);
     });
 
-    it("decodes contract revert (WatcherNotRegistered)", async () => {
+    it("decodes WatcherNotRegistered revert", async () => {
       const ctx = createMockContext();
-      const data = encodeRegistryError("WatcherNotRegistered", [99]);
-      getMock(ctx.registry, "addWatcherAttester").mockRejectedValue({ data });
-      const mod = new AttesterModule(ctx);
-      await expect(mod.addWatcherAttester(99, ADDR1)).rejects.toThrow(ContractRevertError);
+      getMock(ctx.registry, "addWatcherAttester").mockRejectedValue({ data: encodeRegistryError("WatcherNotRegistered", [99]) });
+      const err = await new AttesterModule(ctx).addWatcherAttester(99, ADDR1).catch((e) => e);
+      expect(err).toBeInstanceOf(ContractRevertError);
+      expect((err as ContractRevertError).errorName).toBe("WatcherNotRegistered");
+    });
+
+    it("decodes UnauthorizedWatcherOwner revert", async () => {
+      const ctx = createMockContext();
+      getMock(ctx.registry, "addWatcherAttester").mockRejectedValue({ data: encodeRegistryError("UnauthorizedWatcherOwner", [ADDR1, 1]) });
+      const err = await new AttesterModule(ctx).addWatcherAttester(1, ADDR1).catch((e) => e);
+      expect(err).toBeInstanceOf(ContractRevertError);
+      expect((err as ContractRevertError).errorName).toBe("UnauthorizedWatcherOwner");
+    });
+
+    it("decodes AttesterAlreadyAuthorized revert", async () => {
+      const ctx = createMockContext();
+      getMock(ctx.registry, "addWatcherAttester").mockRejectedValue({ data: encodeRegistryError("AttesterAlreadyAuthorized", [ADDR1, 1]) });
+      const err = await new AttesterModule(ctx).addWatcherAttester(1, ADDR1).catch((e) => e);
+      expect(err).toBeInstanceOf(ContractRevertError);
+      expect((err as ContractRevertError).errorName).toBe("AttesterAlreadyAuthorized");
     });
   });
 
@@ -204,35 +251,44 @@ describe("AttesterModule", () => {
     it("returns txHash as object", async () => {
       const ctx = createMockContext();
       setupMock(ctx, "removeWatcherAttester", "0xwatcherrm");
-      const mod = new AttesterModule(ctx);
-      const result = await mod.removeWatcherAttester(1, ADDR1);
+      const result = await new AttesterModule(ctx).removeWatcherAttester(1, ADDR1);
       expect(result.txHash).toBe("0xwatcherrm");
     });
 
     it("passes correct args to contract", async () => {
       const ctx = createMockContext();
       setupMock(ctx, "removeWatcherAttester");
-      const mod = new AttesterModule(ctx);
-      await mod.removeWatcherAttester(3n, ADDR2);
-      expect(getMock(ctx.registry, "removeWatcherAttester")).toHaveBeenCalledWith(
-        3n,
-        ADDR2,
-        expect.anything(),
-      );
+      await new AttesterModule(ctx).removeWatcherAttester(3n, ADDR2);
+      expect(getMock(ctx.registry, "removeWatcherAttester")).toHaveBeenCalledWith(3n, ADDR2, expect.anything());
     });
 
     it("throws ConfigurationError for invalid attester address", async () => {
       const ctx = createMockContext();
-      const mod = new AttesterModule(ctx);
-      await expect(mod.removeWatcherAttester(1, "bad")).rejects.toThrow(ConfigurationError);
+      await expect(new AttesterModule(ctx).removeWatcherAttester(1, "bad")).rejects.toThrow(ConfigurationError);
     });
 
-    it("decodes contract revert (AttesterNotAuthorized)", async () => {
+    it("decodes AttesterNotAuthorized revert", async () => {
       const ctx = createMockContext();
-      const data = encodeRegistryError("AttesterNotAuthorized", [ADDR1, 0]);
-      getMock(ctx.registry, "removeWatcherAttester").mockRejectedValue({ data });
-      const mod = new AttesterModule(ctx);
-      await expect(mod.removeWatcherAttester(1, ADDR1)).rejects.toThrow(ContractRevertError);
+      getMock(ctx.registry, "removeWatcherAttester").mockRejectedValue({ data: encodeRegistryError("AttesterNotAuthorized", [ADDR1, 0]) });
+      const err = await new AttesterModule(ctx).removeWatcherAttester(1, ADDR1).catch((e) => e);
+      expect(err).toBeInstanceOf(ContractRevertError);
+      expect((err as ContractRevertError).errorName).toBe("AttesterNotAuthorized");
+    });
+
+    it("decodes WatcherNotRegistered revert", async () => {
+      const ctx = createMockContext();
+      getMock(ctx.registry, "removeWatcherAttester").mockRejectedValue({ data: encodeRegistryError("WatcherNotRegistered", [99]) });
+      const err = await new AttesterModule(ctx).removeWatcherAttester(99, ADDR1).catch((e) => e);
+      expect(err).toBeInstanceOf(ContractRevertError);
+      expect((err as ContractRevertError).errorName).toBe("WatcherNotRegistered");
+    });
+
+    it("decodes UnauthorizedWatcherOwner revert", async () => {
+      const ctx = createMockContext();
+      getMock(ctx.registry, "removeWatcherAttester").mockRejectedValue({ data: encodeRegistryError("UnauthorizedWatcherOwner", [ADDR1, 1]) });
+      const err = await new AttesterModule(ctx).removeWatcherAttester(1, ADDR1).catch((e) => e);
+      expect(err).toBeInstanceOf(ContractRevertError);
+      expect((err as ContractRevertError).errorName).toBe("UnauthorizedWatcherOwner");
     });
   });
 });

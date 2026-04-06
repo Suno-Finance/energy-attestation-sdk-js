@@ -7,6 +7,7 @@ import {
   createMockReceipt,
   getMock,
   encodeRegistryError,
+  encodeResolverError,
 } from "../helpers/mocks.js";
 import { ConfigurationError, ContractRevertError } from "../../src/errors.js";
 
@@ -40,13 +41,20 @@ describe("AttestationModule.revokeAttestation", () => {
     await expect(mod.revokeAttestation(ZeroHash)).rejects.toThrow(ConfigurationError);
   });
 
-  it("decodes contract revert into ContractRevertError", async () => {
+  it("decodes AttestationNotFound revert", async () => {
     const ctx = createMockContext();
-    const data = encodeRegistryError("AttestationNotFound", [VALID_UID]);
-    getMock(ctx.eas, "revoke").mockRejectedValue({ data });
+    getMock(ctx.eas, "revoke").mockRejectedValue({ data: encodeRegistryError("AttestationNotFound", [VALID_UID]) });
+    const err = await new AttestationModule(ctx).revokeAttestation(VALID_UID).catch((e) => e);
+    expect(err).toBeInstanceOf(ContractRevertError);
+    expect((err as ContractRevertError).errorName).toBe("AttestationNotFound");
+  });
 
-    const mod = new AttestationModule(ctx);
-    await expect(mod.revokeAttestation(VALID_UID)).rejects.toThrow(ContractRevertError);
+  it("decodes DirectRevocationBlocked (resolver) revert — attestation not yet replaced", async () => {
+    const ctx = createMockContext();
+    getMock(ctx.eas, "revoke").mockRejectedValue({ data: encodeResolverError("DirectRevocationBlocked", []) });
+    const err = await new AttestationModule(ctx).revokeAttestation(VALID_UID).catch((e) => e);
+    expect(err).toBeInstanceOf(ContractRevertError);
+    expect((err as ContractRevertError).errorName).toBe("DirectRevocationBlocked");
   });
 });
 

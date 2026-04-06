@@ -127,7 +127,7 @@ describe("WatcherModule", () => {
       );
     });
 
-    it("decodes contract revert into ContractRevertError", async () => {
+    it("decodes UnauthorizedWatcherOwner revert into ContractRevertError", async () => {
       const ctx = createMockContext();
       const data = encodeRegistryError("UnauthorizedWatcherOwner", [
         "0x0000000000000000000000000000000000000001",
@@ -136,9 +136,24 @@ describe("WatcherModule", () => {
       getMock(ctx.registry, "transferWatcherOwnership").mockRejectedValue({ data });
 
       const mod = new WatcherModule(ctx);
-      await expect(
-        mod.transferWatcherOwnership(5, "0x0000000000000000000000000000000000000002"),
-      ).rejects.toThrow(ContractRevertError);
+      const err = await mod
+        .transferWatcherOwnership(5, "0x0000000000000000000000000000000000000002")
+        .catch((e) => e);
+      expect(err).toBeInstanceOf(ContractRevertError);
+      expect((err as ContractRevertError).errorName).toBe("UnauthorizedWatcherOwner");
+    });
+
+    it("decodes WatcherNotRegistered revert into ContractRevertError", async () => {
+      const ctx = createMockContext();
+      const data = encodeRegistryError("WatcherNotRegistered", [99]);
+      getMock(ctx.registry, "transferWatcherOwnership").mockRejectedValue({ data });
+
+      const mod = new WatcherModule(ctx);
+      const err = await mod
+        .transferWatcherOwnership(99, "0x0000000000000000000000000000000000000002")
+        .catch((e) => e);
+      expect(err).toBeInstanceOf(ContractRevertError);
+      expect((err as ContractRevertError).errorName).toBe("WatcherNotRegistered");
     });
   });
 });

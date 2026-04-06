@@ -222,12 +222,43 @@ describe("AttestationModule.attestZeroPeriod", () => {
     ]);
     getMock(ctx.eas, "attest").mockRejectedValue({ data });
 
-    const mod = new AttestationModule(ctx);
-    try {
-      await mod.attestZeroPeriod({ projectId: PROJECT_ID, interval: Interval.Hourly });
-    } catch (e) {
-      expect(e).toBeInstanceOf(ContractRevertError);
-      expect((e as ContractRevertError).errorName).toBe("UnauthorizedAttester");
-    }
+    const err = await new AttestationModule(ctx)
+      .attestZeroPeriod({ projectId: PROJECT_ID, interval: Interval.Hourly })
+      .catch((e) => e);
+    expect(err).toBeInstanceOf(ContractRevertError);
+    expect((err as ContractRevertError).errorName).toBe("UnauthorizedAttester");
+  });
+
+  it("decodes NonSequentialAttestation (registry) revert", async () => {
+    const ctx = createMockContext();
+    getMock(ctx.registry, "getProjectLastTimestamp").mockResolvedValue(LAST_TIMESTAMP);
+    getMock(ctx.eas, "attest").mockRejectedValue({ data: encodeRegistryError("NonSequentialAttestation", [PROJECT_ID, 1700003600, 1700007200]) });
+    const err = await new AttestationModule(ctx)
+      .attestZeroPeriod({ projectId: PROJECT_ID, interval: Interval.Hourly })
+      .catch((e) => e);
+    expect(err).toBeInstanceOf(ContractRevertError);
+    expect((err as ContractRevertError).errorName).toBe("NonSequentialAttestation");
+  });
+
+  it("decodes PeriodAlreadyAttested (registry) revert", async () => {
+    const ctx = createMockContext();
+    getMock(ctx.registry, "getProjectLastTimestamp").mockResolvedValue(LAST_TIMESTAMP);
+    getMock(ctx.eas, "attest").mockRejectedValue({ data: encodeRegistryError("PeriodAlreadyAttested", [PROJECT_ID, 1700000000, 1700003600]) });
+    const err = await new AttestationModule(ctx)
+      .attestZeroPeriod({ projectId: PROJECT_ID, interval: Interval.Hourly })
+      .catch((e) => e);
+    expect(err).toBeInstanceOf(ContractRevertError);
+    expect((err as ContractRevertError).errorName).toBe("PeriodAlreadyAttested");
+  });
+
+  it("decodes TimestampOverflow (resolver) revert", async () => {
+    const ctx = createMockContext();
+    getMock(ctx.registry, "getProjectLastTimestamp").mockResolvedValue(LAST_TIMESTAMP);
+    getMock(ctx.eas, "attest").mockRejectedValue({ data: encodeResolverError("TimestampOverflow", []) });
+    const err = await new AttestationModule(ctx)
+      .attestZeroPeriod({ projectId: PROJECT_ID, interval: Interval.Hourly })
+      .catch((e) => e);
+    expect(err).toBeInstanceOf(ContractRevertError);
+    expect((err as ContractRevertError).errorName).toBe("TimestampOverflow");
   });
 });

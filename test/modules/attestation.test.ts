@@ -262,7 +262,95 @@ describe("AttestationModule", () => {
       ).resolves.toBeDefined();
     });
 
-    // --- Contract revert handling ---
+    // --- Contract revert handling (resolver errors) ---
+
+    it("decodes ProjectNotRegistered (registry) revert", async () => {
+      const ctx = createMockContext();
+      getMock(ctx.eas, "attest").mockRejectedValue({ data: encodeRegistryError("ProjectNotRegistered", [1]) });
+      const err = await new AttestationModule(ctx).attest(VALID_PARAMS).catch((e) => e);
+      expect(err).toBeInstanceOf(ContractRevertError);
+      expect((err as ContractRevertError).errorName).toBe("ProjectNotRegistered");
+    });
+
+    it("decodes UnauthorizedAttester (resolver) revert", async () => {
+      const ctx = createMockContext();
+      getMock(ctx.eas, "attest").mockRejectedValue({ data: encodeResolverError("UnauthorizedAttester", ["0x0000000000000000000000000000000000000001"]) });
+      const err = await new AttestationModule(ctx).attest(VALID_PARAMS).catch((e) => e);
+      expect(err).toBeInstanceOf(ContractRevertError);
+      expect((err as ContractRevertError).errorName).toBe("UnauthorizedAttester");
+    });
+
+    it("decodes InvalidTimestamps (resolver) revert", async () => {
+      const ctx = createMockContext();
+      getMock(ctx.eas, "attest").mockRejectedValue({ data: encodeResolverError("InvalidTimestamps", []) });
+      const err = await new AttestationModule(ctx).attest(VALID_PARAMS).catch((e) => e);
+      expect(err).toBeInstanceOf(ContractRevertError);
+      expect((err as ContractRevertError).errorName).toBe("InvalidTimestamps");
+    });
+
+    it("decodes InvalidReadingCount (resolver) revert", async () => {
+      const ctx = createMockContext();
+      getMock(ctx.eas, "attest").mockRejectedValue({ data: encodeResolverError("InvalidReadingCount", []) });
+      const err = await new AttestationModule(ctx).attest(VALID_PARAMS).catch((e) => e);
+      expect(err).toBeInstanceOf(ContractRevertError);
+      expect((err as ContractRevertError).errorName).toBe("InvalidReadingCount");
+    });
+
+    it("decodes InvalidReadingInterval (resolver) revert", async () => {
+      const ctx = createMockContext();
+      getMock(ctx.eas, "attest").mockRejectedValue({ data: encodeResolverError("InvalidReadingInterval", []) });
+      const err = await new AttestationModule(ctx).attest(VALID_PARAMS).catch((e) => e);
+      expect(err).toBeInstanceOf(ContractRevertError);
+      expect((err as ContractRevertError).errorName).toBe("InvalidReadingInterval");
+    });
+
+    it("decodes InvalidReadingsLength (resolver) revert", async () => {
+      const ctx = createMockContext();
+      getMock(ctx.eas, "attest").mockRejectedValue({ data: encodeResolverError("InvalidReadingsLength", [3, 2]) });
+      const err = await new AttestationModule(ctx).attest(VALID_PARAMS).catch((e) => e);
+      expect(err).toBeInstanceOf(ContractRevertError);
+      expect((err as ContractRevertError).errorName).toBe("InvalidReadingsLength");
+    });
+
+    it("decodes InvalidMethod (resolver) revert", async () => {
+      const ctx = createMockContext();
+      getMock(ctx.eas, "attest").mockRejectedValue({ data: encodeResolverError("InvalidMethod", []) });
+      const err = await new AttestationModule(ctx).attest(VALID_PARAMS).catch((e) => e);
+      expect(err).toBeInstanceOf(ContractRevertError);
+      expect((err as ContractRevertError).errorName).toBe("InvalidMethod");
+    });
+
+    it("decodes TimestampOverflow (resolver) revert", async () => {
+      const ctx = createMockContext();
+      getMock(ctx.eas, "attest").mockRejectedValue({ data: encodeResolverError("TimestampOverflow", []) });
+      const err = await new AttestationModule(ctx).attest(VALID_PARAMS).catch((e) => e);
+      expect(err).toBeInstanceOf(ContractRevertError);
+      expect((err as ContractRevertError).errorName).toBe("TimestampOverflow");
+    });
+
+    it("decodes PeriodAlreadyAttested (registry) revert", async () => {
+      const ctx = createMockContext();
+      getMock(ctx.eas, "attest").mockRejectedValue({ data: encodeRegistryError("PeriodAlreadyAttested", [1, 1700000000, 1700003600]) });
+      const err = await new AttestationModule(ctx).attest(VALID_PARAMS).catch((e) => e);
+      expect(err).toBeInstanceOf(ContractRevertError);
+      expect((err as ContractRevertError).errorName).toBe("PeriodAlreadyAttested");
+    });
+
+    it("decodes PeriodStartAlreadyAttested (registry) revert", async () => {
+      const ctx = createMockContext();
+      getMock(ctx.eas, "attest").mockRejectedValue({ data: encodeRegistryError("PeriodStartAlreadyAttested", [1, 1700000000]) });
+      const err = await new AttestationModule(ctx).attest(VALID_PARAMS).catch((e) => e);
+      expect(err).toBeInstanceOf(ContractRevertError);
+      expect((err as ContractRevertError).errorName).toBe("PeriodStartAlreadyAttested");
+    });
+
+    it("decodes NonSequentialAttestation (registry) revert", async () => {
+      const ctx = createMockContext();
+      getMock(ctx.eas, "attest").mockRejectedValue({ data: encodeRegistryError("NonSequentialAttestation", [1, 1700003600, 1700007200]) });
+      const err = await new AttestationModule(ctx).attest(VALID_PARAMS).catch((e) => e);
+      expect(err).toBeInstanceOf(ContractRevertError);
+      expect((err as ContractRevertError).errorName).toBe("NonSequentialAttestation");
+    });
 
     it("decodes contract revert into ContractRevertError", async () => {
       const ctx = createMockContext();

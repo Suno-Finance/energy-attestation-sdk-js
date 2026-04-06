@@ -141,14 +141,40 @@ describe("ProjectModule", () => {
         expect(err.message).toContain("0xnoevent");
       });
 
-      it("decodes contract revert into ContractRevertError", async () => {
+      it("decodes WatcherNotRegistered revert", async () => {
         const ctx = createMockContext();
         getMock(ctx.registry, "isEnergyTypeRegistered").mockResolvedValue(true);
         getMock(ctx.registry, "registerProject").mockRejectedValue({
           data: encodeRegistryError("WatcherNotRegistered", [99]),
         });
 
-        await expect(new ProjectModule(ctx).createProject(99, "Test", EnergyType.SOLAR_PV)).rejects.toThrow(ContractRevertError);
+        const err = await new ProjectModule(ctx).createProject(99, "Test", EnergyType.SOLAR_PV).catch((e) => e);
+        expect(err).toBeInstanceOf(ContractRevertError);
+        expect((err as ContractRevertError).errorName).toBe("WatcherNotRegistered");
+      });
+
+      it("decodes UnauthorizedWatcherOwner revert", async () => {
+        const ctx = createMockContext();
+        getMock(ctx.registry, "isEnergyTypeRegistered").mockResolvedValue(true);
+        getMock(ctx.registry, "registerProject").mockRejectedValue({
+          data: encodeRegistryError("UnauthorizedWatcherOwner", ["0x0000000000000000000000000000000000000001", 2]),
+        });
+
+        const err = await new ProjectModule(ctx).createProject(2, "Test", EnergyType.SOLAR_PV).catch((e) => e);
+        expect(err).toBeInstanceOf(ContractRevertError);
+        expect((err as ContractRevertError).errorName).toBe("UnauthorizedWatcherOwner");
+      });
+
+      it("decodes contract-level InvalidEnergyType revert (SDK pre-flight passed but contract rejects)", async () => {
+        const ctx = createMockContext();
+        getMock(ctx.registry, "isEnergyTypeRegistered").mockResolvedValue(true);
+        getMock(ctx.registry, "registerProject").mockRejectedValue({
+          data: encodeRegistryError("InvalidEnergyType", [5]),
+        });
+
+        const err = await new ProjectModule(ctx).createProject(1, "Test", 5).catch((e) => e);
+        expect(err).toBeInstanceOf(ContractRevertError);
+        expect((err as ContractRevertError).errorName).toBe("InvalidEnergyType");
       });
     });
   });
@@ -179,13 +205,24 @@ describe("ProjectModule", () => {
       );
     });
 
-    it("decodes contract revert into ContractRevertError", async () => {
+    it("decodes ProjectNotRegistered revert", async () => {
       const ctx = createMockContext();
       const data = encodeRegistryError("ProjectNotRegistered", [3]);
       getMock(ctx.registry, "deregisterProject").mockRejectedValue({ data });
 
-      const mod = new ProjectModule(ctx);
-      await expect(mod.deregisterProject(3)).rejects.toThrow(ContractRevertError);
+      const err = await new ProjectModule(ctx).deregisterProject(3).catch((e) => e);
+      expect(err).toBeInstanceOf(ContractRevertError);
+      expect((err as ContractRevertError).errorName).toBe("ProjectNotRegistered");
+    });
+
+    it("decodes UnauthorizedWatcherOwner revert", async () => {
+      const ctx = createMockContext();
+      const data = encodeRegistryError("UnauthorizedWatcherOwner", ["0x0000000000000000000000000000000000000001", 1]);
+      getMock(ctx.registry, "deregisterProject").mockRejectedValue({ data });
+
+      const err = await new ProjectModule(ctx).deregisterProject(3).catch((e) => e);
+      expect(err).toBeInstanceOf(ContractRevertError);
+      expect((err as ContractRevertError).errorName).toBe("UnauthorizedWatcherOwner");
     });
   });
 
@@ -216,13 +253,34 @@ describe("ProjectModule", () => {
       );
     });
 
-    it("decodes contract revert into ContractRevertError", async () => {
+    it("decodes ProjectNotRegistered revert", async () => {
       const ctx = createMockContext();
       const data = encodeRegistryError("ProjectNotRegistered", [1]);
       getMock(ctx.registry, "transferProject").mockRejectedValue({ data });
 
-      const mod = new ProjectModule(ctx);
-      await expect(mod.transferProject(1, 2)).rejects.toThrow(ContractRevertError);
+      const err = await new ProjectModule(ctx).transferProject(1, 2).catch((e) => e);
+      expect(err).toBeInstanceOf(ContractRevertError);
+      expect((err as ContractRevertError).errorName).toBe("ProjectNotRegistered");
+    });
+
+    it("decodes WatcherNotRegistered revert (destination watcher does not exist)", async () => {
+      const ctx = createMockContext();
+      const data = encodeRegistryError("WatcherNotRegistered", [99]);
+      getMock(ctx.registry, "transferProject").mockRejectedValue({ data });
+
+      const err = await new ProjectModule(ctx).transferProject(1, 99).catch((e) => e);
+      expect(err).toBeInstanceOf(ContractRevertError);
+      expect((err as ContractRevertError).errorName).toBe("WatcherNotRegistered");
+    });
+
+    it("decodes UnauthorizedWatcherOwner revert", async () => {
+      const ctx = createMockContext();
+      const data = encodeRegistryError("UnauthorizedWatcherOwner", ["0x0000000000000000000000000000000000000001", 1]);
+      getMock(ctx.registry, "transferProject").mockRejectedValue({ data });
+
+      const err = await new ProjectModule(ctx).transferProject(1, 2).catch((e) => e);
+      expect(err).toBeInstanceOf(ContractRevertError);
+      expect((err as ContractRevertError).errorName).toBe("UnauthorizedWatcherOwner");
     });
   });
 
@@ -258,8 +316,30 @@ describe("ProjectModule", () => {
       const data = encodeRegistryError("ProjectNotRegistered", [3]);
       getMock(ctx.registry, "setProjectMetadataURI").mockRejectedValue({ data });
 
-      const mod = new ProjectModule(ctx);
-      await expect(mod.setProjectMetadataURI(3, "ipfs://x")).rejects.toThrow(ContractRevertError);
+      const err = await new ProjectModule(ctx).setProjectMetadataURI(3, "ipfs://x").catch((e) => e);
+      expect(err).toBeInstanceOf(ContractRevertError);
+      expect((err as ContractRevertError).errorName).toBe("ProjectNotRegistered");
+    });
+
+    it("decodes UnauthorizedWatcherOwner revert", async () => {
+      const ctx = createMockContext();
+      const data = encodeRegistryError("UnauthorizedWatcherOwner", ["0x0000000000000000000000000000000000000001", 1]);
+      getMock(ctx.registry, "setProjectMetadataURI").mockRejectedValue({ data });
+
+      const err = await new ProjectModule(ctx).setProjectMetadataURI(3, "ipfs://x").catch((e) => e);
+      expect(err).toBeInstanceOf(ContractRevertError);
+      expect((err as ContractRevertError).errorName).toBe("UnauthorizedWatcherOwner");
+    });
+
+    it("accepts empty string URI (valid — clears the metadata)", async () => {
+      const ctx = createMockContext();
+      getMock(ctx.registry, "setProjectMetadataURI").mockResolvedValue(
+        createMockTx(createMockReceipt([], "0xclear")),
+      );
+
+      const result = await new ProjectModule(ctx).setProjectMetadataURI(1, "");
+      expect(result.txHash).toBe("0xclear");
+      expect(getMock(ctx.registry, "setProjectMetadataURI")).toHaveBeenCalledWith(1, "", expect.anything());
     });
   });
 });
