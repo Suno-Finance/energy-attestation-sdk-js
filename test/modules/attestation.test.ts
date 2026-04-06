@@ -175,6 +175,93 @@ describe("AttestationModule", () => {
       );
     });
 
+    // --- Negative readings ---
+
+    it("throws when a reading is negative", async () => {
+      const ctx = createMockContext();
+      const mod = new AttestationModule(ctx);
+      await expect(
+        mod.attest({ ...VALID_PARAMS, readings: [1000n, -1n, 3000n] }),
+      ).rejects.toThrow(ConfigurationError);
+    });
+
+    it("error message includes the index and value of the negative reading", async () => {
+      const ctx = createMockContext();
+      const mod = new AttestationModule(ctx);
+      const err = await mod
+        .attest({ ...VALID_PARAMS, readings: [500n, 200n, -42n] })
+        .catch((e) => e);
+      expect(err).toBeInstanceOf(ConfigurationError);
+      expect(err.message).toContain("2"); // index
+      expect(err.message).toContain("-42"); // value
+    });
+
+    it("throws when the first reading is negative", async () => {
+      const ctx = createMockContext();
+      const mod = new AttestationModule(ctx);
+      await expect(
+        mod.attest({ ...VALID_PARAMS, readings: [-1n] }),
+      ).rejects.toThrow(ConfigurationError);
+    });
+
+    it("does not throw when all readings are zero (valid — zero-energy period)", async () => {
+      const ctx = createMockContext();
+      const receipt = createMockAttestReceipt();
+      getMock(ctx.eas, "attest").mockResolvedValue(createMockTx(receipt));
+      const mod = new AttestationModule(ctx);
+      await expect(
+        mod.attest({ ...VALID_PARAMS, readings: [0n, 0n, 0n] }),
+      ).resolves.toBeDefined();
+    });
+
+    // --- Timestamp overflow ---
+
+    it("throws when toTimestamp would exceed uint64 max", async () => {
+      const ctx = createMockContext();
+      const mod = new AttestationModule(ctx);
+      // uint64 max = 18446744073709551615
+      // fromTimestamp near max + any duration overflows
+      await expect(
+        mod.attest({
+          ...VALID_PARAMS,
+          fromTimestamp: 18446744073709551000,
+          readings: [1000n],
+          readingIntervalMinutes: 60,
+        }),
+      ).rejects.toThrow(ConfigurationError);
+    });
+
+    it("error message mentions toTimestamp overflow", async () => {
+      const ctx = createMockContext();
+      const mod = new AttestationModule(ctx);
+      const err = await mod
+        .attest({
+          ...VALID_PARAMS,
+          fromTimestamp: 18446744073709551000,
+          readings: [1000n],
+          readingIntervalMinutes: 60,
+        })
+        .catch((e) => e);
+      expect(err).toBeInstanceOf(ConfigurationError);
+      expect(err.message).toContain("uint64");
+    });
+
+    it("does not throw for a large but valid fromTimestamp well within uint64 range", async () => {
+      const ctx = createMockContext();
+      const receipt = createMockAttestReceipt();
+      getMock(ctx.eas, "attest").mockResolvedValue(createMockTx(receipt));
+      const mod = new AttestationModule(ctx);
+      // Year 2100 in unix seconds ≈ 4102444800 — large but well within uint64 and JS safe integer range
+      await expect(
+        mod.attest({
+          ...VALID_PARAMS,
+          fromTimestamp: 4102444800,
+          readings: [0n],
+          readingIntervalMinutes: 60,
+        }),
+      ).resolves.toBeDefined();
+    });
+
     // --- Contract revert handling ---
 
     it("decodes contract revert into ContractRevertError", async () => {
@@ -380,6 +467,30 @@ describe("AttestationModule", () => {
       const mod = new AttestationModule(ctx);
       await expect(
         mod.overwriteAttestation({ ...VALID_PARAMS, method: "", refUID }),
+      ).rejects.toThrow(ConfigurationError);
+      expect(getMock(ctx.eas, "getAttestation")).not.toHaveBeenCalled();
+    });
+
+    it("throws when a reading is negative without calling getAttestation", async () => {
+      const ctx = createMockContext();
+      const mod = new AttestationModule(ctx);
+      await expect(
+        mod.overwriteAttestation({ ...VALID_PARAMS, readings: [100n, -5n, 300n], refUID }),
+      ).rejects.toThrow(ConfigurationError);
+      expect(getMock(ctx.eas, "getAttestation")).not.toHaveBeenCalled();
+    });
+
+    it("throws on timestamp overflow without calling getAttestation", async () => {
+      const ctx = createMockContext();
+      const mod = new AttestationModule(ctx);
+      await expect(
+        mod.overwriteAttestation({
+          ...VALID_PARAMS,
+          fromTimestamp: 18446744073709551000,
+          readings: [1000n],
+          readingIntervalMinutes: 60,
+          refUID,
+        }),
       ).rejects.toThrow(ConfigurationError);
       expect(getMock(ctx.eas, "getAttestation")).not.toHaveBeenCalled();
     });

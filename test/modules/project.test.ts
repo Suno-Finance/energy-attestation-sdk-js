@@ -14,102 +14,142 @@ import { ConfigurationError, ContractRevertError } from "../../src/errors.js";
 
 describe("ProjectModule", () => {
   describe("createProject", () => {
-    it("returns projectId from event", async () => {
-      const ctx = createMockContext();
-      getMock(ctx.registry, "isEnergyTypeRegistered").mockResolvedValue(true);
-      const log = createMockLog(registryInterface, "ProjectRegistered", [
-        3n,
-        1n,
-        "Solar Farm Alpha",
-        1,
-      ]);
-      const receipt = createMockReceipt([log], "0xprojecthash");
-      const mockTx = createMockTx(receipt);
-      getMock(ctx.registry, "registerProject").mockResolvedValue(mockTx);
+    describe("consumer project (energyType = 0)", () => {
+      it("succeeds and returns projectId and txHash", async () => {
+        const ctx = createMockContext();
+        const log = createMockLog(registryInterface, "ProjectRegistered", [5n, 1n, "City Grid", 0]);
+        getMock(ctx.registry, "registerProject").mockResolvedValue(
+          createMockTx(createMockReceipt([log], "0xconsumerhash")),
+        );
 
-      const mod = new ProjectModule(ctx);
-      const result = await mod.createProject(1, "Solar Farm Alpha", EnergyType.SOLAR_PV);
+        const result = await new ProjectModule(ctx).createProject(1, "City Grid", EnergyType.CONSUMER);
 
-      expect(result.projectId).toBe(3n);
-      expect(result.txHash).toBe("0xprojecthash");
+        expect(result.projectId).toBe(5n);
+        expect(result.txHash).toBe("0xconsumerhash");
+      });
+
+      it("does not call isEnergyTypeRegistered (type 0 is always valid)", async () => {
+        const ctx = createMockContext();
+        const log = createMockLog(registryInterface, "ProjectRegistered", [1n, 1n, "Consumer", 0]);
+        getMock(ctx.registry, "registerProject").mockResolvedValue(
+          createMockTx(createMockReceipt([log])),
+        );
+
+        await new ProjectModule(ctx).createProject(1, "Consumer", EnergyType.CONSUMER);
+
+        expect(getMock(ctx.registry, "isEnergyTypeRegistered")).not.toHaveBeenCalled();
+      });
+
+      it("passes energyType 0 to the contract", async () => {
+        const ctx = createMockContext();
+        const log = createMockLog(registryInterface, "ProjectRegistered", [1n, 2n, "Factory", 0]);
+        getMock(ctx.registry, "registerProject").mockResolvedValue(
+          createMockTx(createMockReceipt([log])),
+        );
+
+        await new ProjectModule(ctx).createProject(2n, "Factory", EnergyType.CONSUMER);
+
+        expect(getMock(ctx.registry, "registerProject")).toHaveBeenCalledWith(
+          2n, "Factory", EnergyType.CONSUMER, expect.anything(),
+        );
+      });
     });
 
-    it("passes correct args to contract", async () => {
-      const ctx = createMockContext();
-      getMock(ctx.registry, "isEnergyTypeRegistered").mockResolvedValue(true);
-      const log = createMockLog(registryInterface, "ProjectRegistered", [1n, 2n, "Test", 0]);
-      const receipt = createMockReceipt([log]);
-      const mockTx = createMockTx(receipt);
-      getMock(ctx.registry, "registerProject").mockResolvedValue(mockTx);
+    describe("generator project (energyType > 0, registered)", () => {
+      it("succeeds and returns projectId and txHash", async () => {
+        const ctx = createMockContext();
+        getMock(ctx.registry, "isEnergyTypeRegistered").mockResolvedValue(true);
+        const log = createMockLog(registryInterface, "ProjectRegistered", [3n, 1n, "Solar Farm", 1]);
+        getMock(ctx.registry, "registerProject").mockResolvedValue(
+          createMockTx(createMockReceipt([log], "0xsolarhash")),
+        );
 
-      const mod = new ProjectModule(ctx);
-      await mod.createProject(2n, "Test", EnergyType.CONSUMER);
+        const result = await new ProjectModule(ctx).createProject(1, "Solar Farm", EnergyType.SOLAR_PV);
 
-      expect(getMock(ctx.registry, "registerProject")).toHaveBeenCalledWith(
-        2n,
-        "Test",
-        EnergyType.CONSUMER,
-        expect.anything(),
-      );
+        expect(result.projectId).toBe(3n);
+        expect(result.txHash).toBe("0xsolarhash");
+      });
+
+      it("calls isEnergyTypeRegistered before submitting the transaction", async () => {
+        const ctx = createMockContext();
+        getMock(ctx.registry, "isEnergyTypeRegistered").mockResolvedValue(true);
+        const log = createMockLog(registryInterface, "ProjectRegistered", [1n, 1n, "Wind", 2]);
+        getMock(ctx.registry, "registerProject").mockResolvedValue(
+          createMockTx(createMockReceipt([log])),
+        );
+
+        await new ProjectModule(ctx).createProject(1, "Wind", EnergyType.WIND_ONSHORE);
+
+        expect(getMock(ctx.registry, "isEnergyTypeRegistered")).toHaveBeenCalledWith(EnergyType.WIND_ONSHORE);
+      });
+
+      it("passes energyType to the contract", async () => {
+        const ctx = createMockContext();
+        getMock(ctx.registry, "isEnergyTypeRegistered").mockResolvedValue(true);
+        const log = createMockLog(registryInterface, "ProjectRegistered", [1n, 1n, "Hydro", 4]);
+        getMock(ctx.registry, "registerProject").mockResolvedValue(
+          createMockTx(createMockReceipt([log])),
+        );
+
+        await new ProjectModule(ctx).createProject(1, "Hydro", EnergyType.HYDRO);
+
+        expect(getMock(ctx.registry, "registerProject")).toHaveBeenCalledWith(
+          1, "Hydro", EnergyType.HYDRO, expect.anything(),
+        );
+      });
     });
 
-    it("accepts numeric energyType", async () => {
-      const ctx = createMockContext();
-      getMock(ctx.registry, "isEnergyTypeRegistered").mockResolvedValue(true);
-      const log = createMockLog(registryInterface, "ProjectRegistered", [1n, 1n, "Wind", 2]);
-      const receipt = createMockReceipt([log]);
-      const mockTx = createMockTx(receipt);
-      getMock(ctx.registry, "registerProject").mockResolvedValue(mockTx);
+    describe("unregistered energy type", () => {
+      it("throws ConfigurationError before submitting the transaction", async () => {
+        const ctx = createMockContext();
+        getMock(ctx.registry, "isEnergyTypeRegistered").mockResolvedValue(false);
 
-      const mod = new ProjectModule(ctx);
-      await mod.createProject(1, "Wind", 2);
+        await expect(new ProjectModule(ctx).createProject(1, "Test", 99)).rejects.toThrow(ConfigurationError);
+      });
 
-      expect(getMock(ctx.registry, "registerProject")).toHaveBeenCalledWith(
-        1,
-        "Wind",
-        2,
-        expect.anything(),
-      );
+      it("does not call registerProject when the energy type check fails", async () => {
+        const ctx = createMockContext();
+        getMock(ctx.registry, "isEnergyTypeRegistered").mockResolvedValue(false);
+
+        await new ProjectModule(ctx).createProject(1, "Test", 99).catch(() => {});
+
+        expect(getMock(ctx.registry, "registerProject")).not.toHaveBeenCalled();
+      });
+
+      it("error message includes the invalid energy type", async () => {
+        const ctx = createMockContext();
+        getMock(ctx.registry, "isEnergyTypeRegistered").mockResolvedValue(false);
+
+        const err = await new ProjectModule(ctx).createProject(1, "Test", 99).catch((e) => e);
+
+        expect(err).toBeInstanceOf(ConfigurationError);
+        expect(err.message).toContain("99");
+      });
     });
 
-    it("throws ConfigurationError when ProjectRegistered event not found in logs", async () => {
-      const ctx = createMockContext();
-      getMock(ctx.registry, "isEnergyTypeRegistered").mockResolvedValue(true);
-      const receipt = createMockReceipt([], "0xnoevent");
-      const mockTx = createMockTx(receipt);
-      getMock(ctx.registry, "registerProject").mockResolvedValue(mockTx);
+    describe("contract revert handling", () => {
+      it("throws ConfigurationError when ProjectRegistered event is missing from receipt", async () => {
+        const ctx = createMockContext();
+        getMock(ctx.registry, "isEnergyTypeRegistered").mockResolvedValue(true);
+        getMock(ctx.registry, "registerProject").mockResolvedValue(
+          createMockTx(createMockReceipt([], "0xnoevent")),
+        );
 
-      const mod = new ProjectModule(ctx);
-      const err = await mod.createProject(1, "Test", 0).catch((e) => e);
-      expect(err).toBeInstanceOf(ConfigurationError);
-      expect(err.message).toContain("0xnoevent");
-    });
+        const err = await new ProjectModule(ctx).createProject(1, "Test", EnergyType.SOLAR_PV).catch((e) => e);
 
-    it("throws ConfigurationError when energy type is not registered", async () => {
-      const ctx = createMockContext();
-      getMock(ctx.registry, "isEnergyTypeRegistered").mockResolvedValue(false);
+        expect(err).toBeInstanceOf(ConfigurationError);
+        expect(err.message).toContain("0xnoevent");
+      });
 
-      const mod = new ProjectModule(ctx);
-      await expect(mod.createProject(1, "Test", 99)).rejects.toThrow(ConfigurationError);
-    });
+      it("decodes contract revert into ContractRevertError", async () => {
+        const ctx = createMockContext();
+        getMock(ctx.registry, "isEnergyTypeRegistered").mockResolvedValue(true);
+        getMock(ctx.registry, "registerProject").mockRejectedValue({
+          data: encodeRegistryError("WatcherNotRegistered", [99]),
+        });
 
-    it("does not call registerProject when energy type check fails", async () => {
-      const ctx = createMockContext();
-      getMock(ctx.registry, "isEnergyTypeRegistered").mockResolvedValue(false);
-
-      const mod = new ProjectModule(ctx);
-      await mod.createProject(1, "Test", 99).catch(() => {});
-      expect(getMock(ctx.registry, "registerProject")).not.toHaveBeenCalled();
-    });
-
-    it("decodes contract revert into ContractRevertError", async () => {
-      const ctx = createMockContext();
-      getMock(ctx.registry, "isEnergyTypeRegistered").mockResolvedValue(true);
-      const data = encodeRegistryError("WatcherNotRegistered", [99]);
-      getMock(ctx.registry, "registerProject").mockRejectedValue({ data });
-
-      const mod = new ProjectModule(ctx);
-      await expect(mod.createProject(99, "Test", 0)).rejects.toThrow(ContractRevertError);
+        await expect(new ProjectModule(ctx).createProject(99, "Test", EnergyType.SOLAR_PV)).rejects.toThrow(ContractRevertError);
+      });
     });
   });
 

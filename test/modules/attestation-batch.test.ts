@@ -104,6 +104,25 @@ describe("AttestationModule.attestBatch", () => {
     );
   });
 
+  it("throws ConfigurationError if any entry has a negative reading", async () => {
+    const ctx = createMockContext();
+    const mod = new AttestationModule(ctx);
+    await expect(
+      mod.attestBatch([PARAMS, { ...PARAMS2, readings: [500n, -1n] }]),
+    ).rejects.toThrow(ConfigurationError);
+  });
+
+  it("throws ConfigurationError if any entry has a timestamp overflow", async () => {
+    const ctx = createMockContext();
+    const mod = new AttestationModule(ctx);
+    await expect(
+      mod.attestBatch([
+        PARAMS,
+        { ...PARAMS2, fromTimestamp: 18446744073709551000, readings: [1000n], readingIntervalMinutes: 60 },
+      ]),
+    ).rejects.toThrow(ConfigurationError);
+  });
+
   it("decodes contract revert into ContractRevertError", async () => {
     const ctx = createMockContext();
     const data = encodeRegistryError("ProjectNotRegistered", [1]);

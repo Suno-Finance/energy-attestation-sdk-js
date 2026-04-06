@@ -14,12 +14,20 @@ import { findEventLog, findAllEventLogs } from "../utils/events.js";
 import { decodeContractError, ConfigurationError } from "../errors.js";
 import { getTxOverrides } from "../utils/transaction.js";
 
+const UINT64_MAX = (1n << 64n) - 1n;
+
 function validateParams(params: AttestParams): void {
   if (params.projectId <= 0) {
     throw new ConfigurationError("projectId must be a positive integer");
   }
   if (params.readings.length === 0) {
     throw new ConfigurationError("readings must not be empty");
+  }
+  const negativeIndex = params.readings.findIndex((r) => r < 0n);
+  if (negativeIndex !== -1) {
+    throw new ConfigurationError(
+      `readings[${negativeIndex}] is negative (${params.readings[negativeIndex]}) — energy values must be unsigned`,
+    );
   }
   if (params.readingIntervalMinutes <= 0) {
     throw new ConfigurationError("readingIntervalMinutes must be a positive integer");
@@ -29,6 +37,14 @@ function validateParams(params: AttestParams): void {
   }
   if (!params.method || params.method.trim().length === 0) {
     throw new ConfigurationError("method must not be empty");
+  }
+  const durationSeconds =
+    BigInt(params.readings.length) * BigInt(params.readingIntervalMinutes) * 60n;
+  const toTimestamp = BigInt(params.fromTimestamp) + durationSeconds;
+  if (toTimestamp > UINT64_MAX) {
+    throw new ConfigurationError(
+      `computed toTimestamp (${toTimestamp}) exceeds uint64 max — reduce readingCount, readingIntervalMinutes, or fromTimestamp`,
+    );
   }
 }
 

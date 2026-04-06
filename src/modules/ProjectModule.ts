@@ -22,7 +22,8 @@ export class ProjectModule {
     name: string,
     energyType: EnergyType | number,
   ): Promise<CreateProjectResult> {
-    const isRegistered = await this.ctx.registry.isEnergyTypeRegistered(energyType);
+    // energyType 0 (consumer) is always valid — the contract allows it without registration.
+    const isRegistered = energyType === 0 || await this.ctx.registry.isEnergyTypeRegistered(energyType);
     if (!isRegistered) {
       throw new ConfigurationError(`Energy type ${energyType} is not registered`);
     }
