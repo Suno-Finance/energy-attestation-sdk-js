@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.1.0] - 2026-04-06
+
+### Added
+
+- **Pre-flight validation for negative readings** — `attest`, `overwriteAttestation`, and `attestBatch` now throw `ConfigurationError` immediately if any value in `readings` is negative, instead of silently encoding it as a huge `uint256`.
+- **Pre-flight validation for timestamp overflow** — throws `ConfigurationError` before sending when `fromTimestamp + readingCount × readingIntervalMinutes × 60` would exceed `uint64` max, surfacing the issue without spending gas.
+- **Expanded test coverage** — new tests for all previously untested contract revert paths across `AttestationModule`, `AttestZeroPeriod`, `AttestBatch`, `AttestRevoke`, `ProjectModule`, and `AttesterModule`; ABI event round-trip tests for all 22 registry contract events.
+
+### Fixed
+
+- **MetaMask `eth_maxPriorityFeePerGas` warnings** — the SDK no longer calls `provider.getFeeData()`, which internally triggered this unsupported RPC method on Celo and caused noisy wallet console warnings. Fee data is now fetched via direct RPC calls (`eth_getBlockByNumber` for EIP-1559 networks, `eth_gasPrice` for legacy).
+- **`createProject` rejecting consumer projects** — `EnergyType.CONSUMER` (value `0`) was incorrectly blocked by the SDK's pre-flight energy type check. The contract always allows `energyType = 0` without a registration check, and the SDK now matches this behaviour.
+
+### Changed
+
+- **`gasStrategy` added to `NetworkConfig` and `SDKContext`** — all built-in networks are configured as `"eip1559"`. A `"legacy"` strategy is available for future networks that do not support EIP-1559.
+- **`AttestParams.fromTimestamp` widened to `number | bigint`** — accepts `bigint` in addition to `number` for greater precision when working with timestamps near `uint64` boundaries.
+
+---
+
 ## [1.0.0] - 2026-04-01
 
 ### Changed
