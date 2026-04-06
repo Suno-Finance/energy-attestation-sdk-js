@@ -118,7 +118,11 @@ describe("AttestationModule.attestZeroPeriod", () => {
     setupMock(ctx);
 
     const mod = new AttestationModule(ctx);
-    await mod.attestZeroPeriod({ projectId: PROJECT_ID, interval: Interval.Hourly, method: "downtime" });
+    await mod.attestZeroPeriod({
+      projectId: PROJECT_ID,
+      interval: Interval.Hourly,
+      method: "downtime",
+    });
 
     const decoded = decodeAttestData(ctx);
     expect(decoded[5]).toBe("downtime");
@@ -129,7 +133,11 @@ describe("AttestationModule.attestZeroPeriod", () => {
     setupMock(ctx);
 
     const mod = new AttestationModule(ctx);
-    await mod.attestZeroPeriod({ projectId: PROJECT_ID, interval: Interval.Hourly, metadataURI: "ipfs://abc" });
+    await mod.attestZeroPeriod({
+      projectId: PROJECT_ID,
+      interval: Interval.Hourly,
+      metadataURI: "ipfs://abc",
+    });
 
     const decoded = decodeAttestData(ctx);
     expect(decoded[6]).toBe("ipfs://abc");
@@ -169,9 +177,9 @@ describe("AttestationModule.attestZeroPeriod", () => {
   it("throws ConfigurationError on zero projectId", async () => {
     const ctx = createMockContext();
     const mod = new AttestationModule(ctx);
-    await expect(
-      mod.attestZeroPeriod({ projectId: 0, interval: Interval.Hourly }),
-    ).rejects.toThrow(ConfigurationError);
+    await expect(mod.attestZeroPeriod({ projectId: 0, interval: Interval.Hourly })).rejects.toThrow(
+      ConfigurationError,
+    );
   });
 
   it("throws ConfigurationError on negative projectId", async () => {

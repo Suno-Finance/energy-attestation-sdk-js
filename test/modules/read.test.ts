@@ -177,7 +177,9 @@ describe("ReadModule", () => {
     it("converts all elements to bigint when contract returns numbers", async () => {
       const ctx = createMockContext();
       // Contract may return numeric types before ethers coerces them
-      getMock(ctx.registry, "getWatcherProjects").mockResolvedValue([1, 2, 3] as unknown as bigint[]);
+      getMock(ctx.registry, "getWatcherProjects").mockResolvedValue([
+        1, 2, 3,
+      ] as unknown as bigint[]);
       const mod = new ReadModule(ctx);
       const result = await mod.getWatcherProjects(1);
       result.forEach((id) => expect(typeof id).toBe("bigint"));

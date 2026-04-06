@@ -43,17 +43,20 @@ async function submitAttestation(
 
   try {
     const overrides = await getTxOverrides(ctx);
-    const tx = await ctx.eas.attest({
-      schema: ctx.schemaUID,
-      data: {
-        recipient: ZeroAddress,
-        expirationTime: 0n,
-        revocable: true,
-        refUID,
-        data,
-        value: 0n,
+    const tx = await ctx.eas.attest(
+      {
+        schema: ctx.schemaUID,
+        data: {
+          recipient: ZeroAddress,
+          expirationTime: 0n,
+          revocable: true,
+          refUID,
+          data,
+          value: 0n,
+        },
       },
-    }, overrides);
+      overrides,
+    );
 
     const receipt = await tx.wait();
 
@@ -178,10 +181,13 @@ export class AttestationModule {
     // The resolver's onRevoke now allows revocation of already-replaced attestations.
     try {
       const overrides = await getTxOverrides(this.ctx);
-      const revokeTx = await this.ctx.eas.revoke({
-        schema: this.ctx.schemaUID,
-        data: { uid: params.refUID, value: 0n },
-      }, overrides);
+      const revokeTx = await this.ctx.eas.revoke(
+        {
+          schema: this.ctx.schemaUID,
+          data: { uid: params.refUID, value: 0n },
+        },
+        overrides,
+      );
       await revokeTx.wait();
     } catch (error) {
       throw decodeContractError(error, this.ctx.registryInterface, this.ctx.resolverInterface);
@@ -237,9 +243,10 @@ export class AttestationModule {
 
     try {
       const overrides = await getTxOverrides(this.ctx);
-      const tx = await this.ctx.eas.multiAttest([
-        { schema: this.ctx.schemaUID, data: attestationData },
-      ], overrides);
+      const tx = await this.ctx.eas.multiAttest(
+        [{ schema: this.ctx.schemaUID, data: attestationData }],
+        overrides,
+      );
       const receipt = await tx.wait();
 
       const uids = findAllEventLogs(receipt, this.ctx.eas.interface, TOPIC0_ATTESTED).map(
@@ -358,10 +365,13 @@ export class AttestationModule {
 
     try {
       const overrides = await getTxOverrides(this.ctx);
-      const tx = await this.ctx.eas.revoke({
-        schema: this.ctx.schemaUID,
-        data: { uid, value: 0n },
-      }, overrides);
+      const tx = await this.ctx.eas.revoke(
+        {
+          schema: this.ctx.schemaUID,
+          data: { uid, value: 0n },
+        },
+        overrides,
+      );
       const receipt = await tx.wait();
       return { txHash: receipt.hash as string };
     } catch (error) {

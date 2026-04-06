@@ -29,7 +29,12 @@ export class ProjectModule {
 
     const receipt = await sendTx(
       (overrides) =>
-        this.ctx.registry.registerProject(watcherId, name, energyType, ...(overrides ? [overrides] : [])),
+        this.ctx.registry.registerProject(
+          watcherId,
+          name,
+          energyType,
+          ...(overrides ? [overrides] : []),
+        ),
       this.ctx,
     );
 
@@ -48,7 +53,8 @@ export class ProjectModule {
    */
   async deregisterProject(projectId: number | bigint): Promise<TxResult> {
     const receipt = await sendTx(
-      (overrides) => this.ctx.registry.deregisterProject(projectId, ...(overrides ? [overrides] : [])),
+      (overrides) =>
+        this.ctx.registry.deregisterProject(projectId, ...(overrides ? [overrides] : [])),
       this.ctx,
     );
     return { txHash: receipt.hash };
@@ -67,7 +73,11 @@ export class ProjectModule {
   ): Promise<TxResult> {
     const receipt = await sendTx(
       (overrides) =>
-        this.ctx.registry.transferProject(projectId, toWatcherId, ...(overrides ? [overrides] : [])),
+        this.ctx.registry.transferProject(
+          projectId,
+          toWatcherId,
+          ...(overrides ? [overrides] : []),
+        ),
       this.ctx,
     );
     return { txHash: receipt.hash };
@@ -144,10 +154,7 @@ export class ProjectModule {
    * @param uri - The metadata URI to use in the estimate.
    * @returns Estimated gas units as a bigint.
    */
-  async estimateSetProjectMetadataURIGas(
-    projectId: number | bigint,
-    uri: string,
-  ): Promise<bigint> {
+  async estimateSetProjectMetadataURIGas(projectId: number | bigint, uri: string): Promise<bigint> {
     try {
       return await this.ctx.registry.setProjectMetadataURI.estimateGas(projectId, uri);
     } catch (error) {

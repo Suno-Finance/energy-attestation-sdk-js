@@ -30,7 +30,10 @@ describe("ReadModule.getProjectStats", () => {
   it("calls all registry methods with the same projectId", async () => {
     const ctx = createMockContext();
     getMock(ctx.registry, "getProject").mockResolvedValue({
-      watcherId: 2n, registered: true, energyType: 0, name: "Consumer",
+      watcherId: 2n,
+      registered: true,
+      energyType: 0,
+      name: "Consumer",
     });
     getMock(ctx.registry, "getTotalGeneratedEnergy").mockResolvedValue(0n);
     getMock(ctx.registry, "getTotalConsumedEnergy").mockResolvedValue(1000n);
@@ -50,7 +53,10 @@ describe("ReadModule.getProjectStats", () => {
   it("returns bigint values for energy and timestamp", async () => {
     const ctx = createMockContext();
     getMock(ctx.registry, "getProject").mockResolvedValue({
-      watcherId: 1n, registered: true, energyType: 1, name: "Wind",
+      watcherId: 1n,
+      registered: true,
+      energyType: 1,
+      name: "Wind",
     });
     getMock(ctx.registry, "getTotalGeneratedEnergy").mockResolvedValue("9999");
     getMock(ctx.registry, "getTotalConsumedEnergy").mockResolvedValue("0");

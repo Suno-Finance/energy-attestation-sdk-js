@@ -401,9 +401,7 @@ describe("AttestationModule", () => {
       getMock(ctx.eas, "getAttestation").mockResolvedValue({ uid: ZeroHash });
 
       const mod = new AttestationModule(ctx);
-      await expect(mod.overwriteAttestation({ ...VALID_PARAMS, refUID })).rejects.toThrow(
-        refUID,
-      );
+      await expect(mod.overwriteAttestation({ ...VALID_PARAMS, refUID })).rejects.toThrow(refUID);
     });
 
     it("throws when attestation is already replaced (registry has a replacementUID)", async () => {
@@ -413,9 +411,9 @@ describe("AttestationModule", () => {
       getMock(ctx.registry, "getReplacementUID").mockResolvedValue("0x" + "cc".repeat(32));
 
       const mod = new AttestationModule(ctx);
-      await expect(
-        mod.overwriteAttestation({ ...VALID_PARAMS, refUID }),
-      ).rejects.toThrow(ConfigurationError);
+      await expect(mod.overwriteAttestation({ ...VALID_PARAMS, refUID })).rejects.toThrow(
+        ConfigurationError,
+      );
     });
 
     it("does not call eas.attest when attestation is already replaced", async () => {
@@ -498,7 +496,11 @@ describe("AttestationModule", () => {
       const expectedReplacementTo = VALID_PARAMS.fromTimestamp + 4 * 60 * 60;
       await expect(
         mod.overwriteAttestation({ ...VALID_PARAMS, readings: [500n, 600n, 700n, 800n], refUID }),
-      ).rejects.toThrow(new RegExp(`${expectedReplacementTo}.*${expectedOriginalTo}|${expectedOriginalTo}.*${expectedReplacementTo}`));
+      ).rejects.toThrow(
+        new RegExp(
+          `${expectedReplacementTo}.*${expectedOriginalTo}|${expectedOriginalTo}.*${expectedReplacementTo}`,
+        ),
+      );
     });
 
     it("does not call eas.attest when period does not match", async () => {

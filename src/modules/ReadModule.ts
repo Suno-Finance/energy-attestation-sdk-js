@@ -66,7 +66,9 @@ export class ReadModule {
 
   /** Returns all project IDs owned by a watcher. */
   async getWatcherProjects(watcherId: number | bigint): Promise<bigint[]> {
-    const ids = (await this.ctx.registry.getWatcherProjects(watcherId)) as Array<bigint | number | string>;
+    const ids = (await this.ctx.registry.getWatcherProjects(watcherId)) as Array<
+      bigint | number | string
+    >;
     return ids.map(toBigInt);
   }
 

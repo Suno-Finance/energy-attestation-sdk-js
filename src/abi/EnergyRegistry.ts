@@ -1,1912 +1,1911 @@
 export const ENERGY_REGISTRY_ABI = [
   {
-    "inputs": [
+    inputs: [
       {
-        "internalType": "address",
-        "name": "target",
-        "type": "address"
-      }
+        internalType: "address",
+        name: "target",
+        type: "address",
+      },
     ],
-    "name": "AddressEmptyCode",
-    "type": "error"
+    name: "AddressEmptyCode",
+    type: "error",
   },
   {
-    "inputs": [
+    inputs: [
       {
-        "internalType": "bytes32",
-        "name": "uid",
-        "type": "bytes32"
-      }
+        internalType: "bytes32",
+        name: "uid",
+        type: "bytes32",
+      },
     ],
-    "name": "AttestationAlreadyReplaced",
-    "type": "error"
+    name: "AttestationAlreadyReplaced",
+    type: "error",
   },
   {
-    "inputs": [
+    inputs: [
       {
-        "internalType": "bytes32",
-        "name": "uid",
-        "type": "bytes32"
-      }
+        internalType: "bytes32",
+        name: "uid",
+        type: "bytes32",
+      },
     ],
-    "name": "AttestationNotFound",
-    "type": "error"
+    name: "AttestationNotFound",
+    type: "error",
   },
   {
-    "inputs": [
+    inputs: [
       {
-        "internalType": "address",
-        "name": "attester",
-        "type": "address"
+        internalType: "address",
+        name: "attester",
+        type: "address",
       },
       {
-        "internalType": "uint64",
-        "name": "projectId",
-        "type": "uint64"
-      }
+        internalType: "uint64",
+        name: "projectId",
+        type: "uint64",
+      },
     ],
-    "name": "AttesterAlreadyAuthorized",
-    "type": "error"
+    name: "AttesterAlreadyAuthorized",
+    type: "error",
   },
   {
-    "inputs": [
+    inputs: [
       {
-        "internalType": "address",
-        "name": "attester",
-        "type": "address"
+        internalType: "address",
+        name: "attester",
+        type: "address",
       },
       {
-        "internalType": "uint64",
-        "name": "projectId",
-        "type": "uint64"
-      }
+        internalType: "uint64",
+        name: "projectId",
+        type: "uint64",
+      },
     ],
-    "name": "AttesterNotAuthorized",
-    "type": "error"
+    name: "AttesterNotAuthorized",
+    type: "error",
   },
   {
-    "inputs": [
+    inputs: [
       {
-        "internalType": "uint64",
-        "name": "projectId",
-        "type": "uint64"
-      }
+        internalType: "uint64",
+        name: "projectId",
+        type: "uint64",
+      },
     ],
-    "name": "DirectRevocationBlocked",
-    "type": "error"
+    name: "DirectRevocationBlocked",
+    type: "error",
   },
   {
-    "inputs": [
+    inputs: [
       {
-        "internalType": "address",
-        "name": "implementation",
-        "type": "address"
-      }
+        internalType: "address",
+        name: "implementation",
+        type: "address",
+      },
     ],
-    "name": "ERC1967InvalidImplementation",
-    "type": "error"
+    name: "ERC1967InvalidImplementation",
+    type: "error",
   },
   {
-    "inputs": [],
-    "name": "ERC1967NonPayable",
-    "type": "error"
+    inputs: [],
+    name: "ERC1967NonPayable",
+    type: "error",
   },
   {
-    "inputs": [],
-    "name": "EmptyAttesterArray",
-    "type": "error"
+    inputs: [],
+    name: "EmptyAttesterArray",
+    type: "error",
   },
   {
-    "inputs": [
+    inputs: [
       {
-        "internalType": "uint8",
-        "name": "id",
-        "type": "uint8"
-      }
+        internalType: "uint8",
+        name: "id",
+        type: "uint8",
+      },
     ],
-    "name": "EnergyTypeNotRegistered",
-    "type": "error"
+    name: "EnergyTypeNotRegistered",
+    type: "error",
   },
   {
-    "inputs": [],
-    "name": "FailedCall",
-    "type": "error"
+    inputs: [],
+    name: "FailedCall",
+    type: "error",
   },
   {
-    "inputs": [
+    inputs: [
       {
-        "internalType": "uint8",
-        "name": "energyType",
-        "type": "uint8"
-      }
+        internalType: "uint8",
+        name: "energyType",
+        type: "uint8",
+      },
     ],
-    "name": "InvalidEnergyType",
-    "type": "error"
+    name: "InvalidEnergyType",
+    type: "error",
   },
   {
-    "inputs": [],
-    "name": "InvalidInitialization",
-    "type": "error"
+    inputs: [],
+    name: "InvalidInitialization",
+    type: "error",
   },
   {
-    "inputs": [
+    inputs: [
       {
-        "internalType": "uint64",
-        "name": "projectId",
-        "type": "uint64"
+        internalType: "uint64",
+        name: "projectId",
+        type: "uint64",
       },
       {
-        "internalType": "uint64",
-        "name": "expectedFrom",
-        "type": "uint64"
+        internalType: "uint64",
+        name: "expectedFrom",
+        type: "uint64",
       },
       {
-        "internalType": "uint64",
-        "name": "actualFrom",
-        "type": "uint64"
-      }
+        internalType: "uint64",
+        name: "actualFrom",
+        type: "uint64",
+      },
     ],
-    "name": "NonSequentialAttestation",
-    "type": "error"
+    name: "NonSequentialAttestation",
+    type: "error",
   },
   {
-    "inputs": [],
-    "name": "NotInitializing",
-    "type": "error"
+    inputs: [],
+    name: "NotInitializing",
+    type: "error",
   },
   {
-    "inputs": [
+    inputs: [
       {
-        "internalType": "address",
-        "name": "owner",
-        "type": "address"
-      }
+        internalType: "address",
+        name: "owner",
+        type: "address",
+      },
     ],
-    "name": "OwnableInvalidOwner",
-    "type": "error"
+    name: "OwnableInvalidOwner",
+    type: "error",
   },
   {
-    "inputs": [
+    inputs: [
       {
-        "internalType": "address",
-        "name": "account",
-        "type": "address"
-      }
+        internalType: "address",
+        name: "account",
+        type: "address",
+      },
     ],
-    "name": "OwnableUnauthorizedAccount",
-    "type": "error"
+    name: "OwnableUnauthorizedAccount",
+    type: "error",
   },
   {
-    "inputs": [
+    inputs: [
       {
-        "internalType": "uint64",
-        "name": "projectId",
-        "type": "uint64"
+        internalType: "uint64",
+        name: "projectId",
+        type: "uint64",
       },
       {
-        "internalType": "uint64",
-        "name": "fromTimestamp",
-        "type": "uint64"
+        internalType: "uint64",
+        name: "fromTimestamp",
+        type: "uint64",
       },
       {
-        "internalType": "uint64",
-        "name": "toTimestamp",
-        "type": "uint64"
-      }
+        internalType: "uint64",
+        name: "toTimestamp",
+        type: "uint64",
+      },
     ],
-    "name": "PeriodAlreadyAttested",
-    "type": "error"
+    name: "PeriodAlreadyAttested",
+    type: "error",
   },
   {
-    "inputs": [
+    inputs: [
       {
-        "internalType": "uint64",
-        "name": "projectId",
-        "type": "uint64"
+        internalType: "uint64",
+        name: "projectId",
+        type: "uint64",
       },
       {
-        "internalType": "uint64",
-        "name": "fromTimestamp",
-        "type": "uint64"
-      }
+        internalType: "uint64",
+        name: "fromTimestamp",
+        type: "uint64",
+      },
     ],
-    "name": "PeriodStartAlreadyAttested",
-    "type": "error"
+    name: "PeriodStartAlreadyAttested",
+    type: "error",
   },
   {
-    "inputs": [
+    inputs: [
       {
-        "internalType": "uint64",
-        "name": "projectId",
-        "type": "uint64"
-      }
+        internalType: "uint64",
+        name: "projectId",
+        type: "uint64",
+      },
     ],
-    "name": "ProjectNotRegistered",
-    "type": "error"
+    name: "ProjectNotRegistered",
+    type: "error",
   },
   {
-    "inputs": [
+    inputs: [
       {
-        "internalType": "uint64",
-        "name": "projectId",
-        "type": "uint64"
+        internalType: "uint64",
+        name: "projectId",
+        type: "uint64",
       },
       {
-        "internalType": "uint64",
-        "name": "expectedFrom",
-        "type": "uint64"
+        internalType: "uint64",
+        name: "expectedFrom",
+        type: "uint64",
       },
       {
-        "internalType": "uint64",
-        "name": "actualFrom",
-        "type": "uint64"
+        internalType: "uint64",
+        name: "actualFrom",
+        type: "uint64",
       },
       {
-        "internalType": "uint64",
-        "name": "expectedTo",
-        "type": "uint64"
+        internalType: "uint64",
+        name: "expectedTo",
+        type: "uint64",
       },
       {
-        "internalType": "uint64",
-        "name": "actualTo",
-        "type": "uint64"
-      }
+        internalType: "uint64",
+        name: "actualTo",
+        type: "uint64",
+      },
     ],
-    "name": "ReplacementPeriodMismatch",
-    "type": "error"
+    name: "ReplacementPeriodMismatch",
+    type: "error",
   },
   {
-    "inputs": [],
-    "name": "UUPSUnauthorizedCallContext",
-    "type": "error"
+    inputs: [],
+    name: "UUPSUnauthorizedCallContext",
+    type: "error",
   },
   {
-    "inputs": [
+    inputs: [
       {
-        "internalType": "bytes32",
-        "name": "slot",
-        "type": "bytes32"
-      }
+        internalType: "bytes32",
+        name: "slot",
+        type: "bytes32",
+      },
     ],
-    "name": "UUPSUnsupportedProxiableUUID",
-    "type": "error"
+    name: "UUPSUnsupportedProxiableUUID",
+    type: "error",
   },
   {
-    "inputs": [
+    inputs: [
       {
-        "internalType": "address",
-        "name": "caller",
-        "type": "address"
-      }
+        internalType: "address",
+        name: "caller",
+        type: "address",
+      },
     ],
-    "name": "UnauthorizedEnergyTypeAdmin",
-    "type": "error"
+    name: "UnauthorizedEnergyTypeAdmin",
+    type: "error",
   },
   {
-    "inputs": [
+    inputs: [
       {
-        "internalType": "address",
-        "name": "caller",
-        "type": "address"
-      }
+        internalType: "address",
+        name: "caller",
+        type: "address",
+      },
     ],
-    "name": "UnauthorizedResolver",
-    "type": "error"
+    name: "UnauthorizedResolver",
+    type: "error",
   },
   {
-    "inputs": [
+    inputs: [
       {
-        "internalType": "address",
-        "name": "caller",
-        "type": "address"
+        internalType: "address",
+        name: "caller",
+        type: "address",
       },
       {
-        "internalType": "uint64",
-        "name": "watcherId",
-        "type": "uint64"
-      }
+        internalType: "uint64",
+        name: "watcherId",
+        type: "uint64",
+      },
     ],
-    "name": "UnauthorizedWatcherOwner",
-    "type": "error"
+    name: "UnauthorizedWatcherOwner",
+    type: "error",
   },
   {
-    "inputs": [
+    inputs: [
       {
-        "internalType": "uint64",
-        "name": "watcherId",
-        "type": "uint64"
-      }
+        internalType: "uint64",
+        name: "watcherId",
+        type: "uint64",
+      },
     ],
-    "name": "WatcherNotRegistered",
-    "type": "error"
+    name: "WatcherNotRegistered",
+    type: "error",
   },
   {
-    "anonymous": false,
-    "inputs": [
+    anonymous: false,
+    inputs: [
       {
-        "indexed": true,
-        "internalType": "uint64",
-        "name": "projectId",
-        "type": "uint64"
+        indexed: true,
+        internalType: "uint64",
+        name: "projectId",
+        type: "uint64",
       },
       {
-        "indexed": true,
-        "internalType": "address",
-        "name": "attester",
-        "type": "address"
-      }
+        indexed: true,
+        internalType: "address",
+        name: "attester",
+        type: "address",
+      },
     ],
-    "name": "AttesterAdded",
-    "type": "event"
+    name: "AttesterAdded",
+    type: "event",
   },
   {
-    "anonymous": false,
-    "inputs": [
+    anonymous: false,
+    inputs: [
       {
-        "indexed": true,
-        "internalType": "uint64",
-        "name": "projectId",
-        "type": "uint64"
+        indexed: true,
+        internalType: "uint64",
+        name: "projectId",
+        type: "uint64",
       },
       {
-        "indexed": true,
-        "internalType": "address",
-        "name": "attester",
-        "type": "address"
-      }
+        indexed: true,
+        internalType: "address",
+        name: "attester",
+        type: "address",
+      },
     ],
-    "name": "AttesterRemoved",
-    "type": "event"
+    name: "AttesterRemoved",
+    type: "event",
   },
   {
-    "anonymous": false,
-    "inputs": [
+    anonymous: false,
+    inputs: [
       {
-        "indexed": true,
-        "internalType": "uint64",
-        "name": "projectId",
-        "type": "uint64"
+        indexed: true,
+        internalType: "uint64",
+        name: "projectId",
+        type: "uint64",
       },
       {
-        "indexed": true,
-        "internalType": "bytes32",
-        "name": "uid",
-        "type": "bytes32"
+        indexed: true,
+        internalType: "bytes32",
+        name: "uid",
+        type: "bytes32",
       },
       {
-        "indexed": false,
-        "internalType": "uint64",
-        "name": "fromTimestamp",
-        "type": "uint64"
+        indexed: false,
+        internalType: "uint64",
+        name: "fromTimestamp",
+        type: "uint64",
       },
       {
-        "indexed": false,
-        "internalType": "uint64",
-        "name": "toTimestamp",
-        "type": "uint64"
+        indexed: false,
+        internalType: "uint64",
+        name: "toTimestamp",
+        type: "uint64",
       },
       {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "energyWh",
-        "type": "uint256"
+        indexed: false,
+        internalType: "uint256",
+        name: "energyWh",
+        type: "uint256",
       },
       {
-        "indexed": true,
-        "internalType": "address",
-        "name": "attester",
-        "type": "address"
+        indexed: true,
+        internalType: "address",
+        name: "attester",
+        type: "address",
       },
       {
-        "indexed": false,
-        "internalType": "uint8",
-        "name": "energyType",
-        "type": "uint8"
+        indexed: false,
+        internalType: "uint8",
+        name: "energyType",
+        type: "uint8",
       },
       {
-        "indexed": false,
-        "internalType": "string",
-        "name": "metadataURI",
-        "type": "string"
+        indexed: false,
+        internalType: "string",
+        name: "metadataURI",
+        type: "string",
       },
       {
-        "indexed": false,
-        "internalType": "uint256[]",
-        "name": "readings",
-        "type": "uint256[]"
-      }
+        indexed: false,
+        internalType: "uint256[]",
+        name: "readings",
+        type: "uint256[]",
+      },
     ],
-    "name": "EnergyAttested",
-    "type": "event"
+    name: "EnergyAttested",
+    type: "event",
   },
   {
-    "anonymous": false,
-    "inputs": [
+    anonymous: false,
+    inputs: [
       {
-        "indexed": true,
-        "internalType": "uint64",
-        "name": "projectId",
-        "type": "uint64"
+        indexed: true,
+        internalType: "uint64",
+        name: "projectId",
+        type: "uint64",
       },
       {
-        "indexed": true,
-        "internalType": "bytes32",
-        "name": "oldUid",
-        "type": "bytes32"
+        indexed: true,
+        internalType: "bytes32",
+        name: "oldUid",
+        type: "bytes32",
       },
       {
-        "indexed": false,
-        "internalType": "bytes32",
-        "name": "newUid",
-        "type": "bytes32"
+        indexed: false,
+        internalType: "bytes32",
+        name: "newUid",
+        type: "bytes32",
       },
       {
-        "indexed": false,
-        "internalType": "uint64",
-        "name": "fromTimestamp",
-        "type": "uint64"
+        indexed: false,
+        internalType: "uint64",
+        name: "fromTimestamp",
+        type: "uint64",
       },
       {
-        "indexed": false,
-        "internalType": "uint64",
-        "name": "toTimestamp",
-        "type": "uint64"
+        indexed: false,
+        internalType: "uint64",
+        name: "toTimestamp",
+        type: "uint64",
       },
       {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "oldEnergyWh",
-        "type": "uint256"
+        indexed: false,
+        internalType: "uint256",
+        name: "oldEnergyWh",
+        type: "uint256",
       },
       {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "newEnergyWh",
-        "type": "uint256"
+        indexed: false,
+        internalType: "uint256",
+        name: "newEnergyWh",
+        type: "uint256",
       },
       {
-        "indexed": true,
-        "internalType": "address",
-        "name": "attester",
-        "type": "address"
+        indexed: true,
+        internalType: "address",
+        name: "attester",
+        type: "address",
       },
       {
-        "indexed": false,
-        "internalType": "string",
-        "name": "metadataURI",
-        "type": "string"
+        indexed: false,
+        internalType: "string",
+        name: "metadataURI",
+        type: "string",
       },
       {
-        "indexed": false,
-        "internalType": "uint256[]",
-        "name": "newReadings",
-        "type": "uint256[]"
-      }
+        indexed: false,
+        internalType: "uint256[]",
+        name: "newReadings",
+        type: "uint256[]",
+      },
     ],
-    "name": "EnergyReplaced",
-    "type": "event"
+    name: "EnergyReplaced",
+    type: "event",
   },
   {
-    "anonymous": false,
-    "inputs": [
+    anonymous: false,
+    inputs: [
       {
-        "indexed": true,
-        "internalType": "uint64",
-        "name": "projectId",
-        "type": "uint64"
+        indexed: true,
+        internalType: "uint64",
+        name: "projectId",
+        type: "uint64",
       },
       {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "energyWh",
-        "type": "uint256"
+        indexed: false,
+        internalType: "uint256",
+        name: "energyWh",
+        type: "uint256",
       },
       {
-        "indexed": true,
-        "internalType": "address",
-        "name": "attester",
-        "type": "address"
+        indexed: true,
+        internalType: "address",
+        name: "attester",
+        type: "address",
       },
       {
-        "indexed": false,
-        "internalType": "uint8",
-        "name": "energyType",
-        "type": "uint8"
-      }
+        indexed: false,
+        internalType: "uint8",
+        name: "energyType",
+        type: "uint8",
+      },
     ],
-    "name": "EnergyRevoked",
-    "type": "event"
+    name: "EnergyRevoked",
+    type: "event",
   },
   {
-    "anonymous": false,
-    "inputs": [
+    anonymous: false,
+    inputs: [
       {
-        "indexed": true,
-        "internalType": "address",
-        "name": "previousAdmin",
-        "type": "address"
+        indexed: true,
+        internalType: "address",
+        name: "previousAdmin",
+        type: "address",
       },
       {
-        "indexed": true,
-        "internalType": "address",
-        "name": "newAdmin",
-        "type": "address"
-      }
+        indexed: true,
+        internalType: "address",
+        name: "newAdmin",
+        type: "address",
+      },
     ],
-    "name": "EnergyTypeAdminTransferred",
-    "type": "event"
+    name: "EnergyTypeAdminTransferred",
+    type: "event",
   },
   {
-    "anonymous": false,
-    "inputs": [
+    anonymous: false,
+    inputs: [
       {
-        "indexed": true,
-        "internalType": "uint8",
-        "name": "id",
-        "type": "uint8"
+        indexed: true,
+        internalType: "uint8",
+        name: "id",
+        type: "uint8",
       },
       {
-        "indexed": false,
-        "internalType": "string",
-        "name": "name",
-        "type": "string"
-      }
+        indexed: false,
+        internalType: "string",
+        name: "name",
+        type: "string",
+      },
     ],
-    "name": "EnergyTypeRegistered",
-    "type": "event"
+    name: "EnergyTypeRegistered",
+    type: "event",
   },
   {
-    "anonymous": false,
-    "inputs": [
+    anonymous: false,
+    inputs: [
       {
-        "indexed": true,
-        "internalType": "uint8",
-        "name": "id",
-        "type": "uint8"
+        indexed: true,
+        internalType: "uint8",
+        name: "id",
+        type: "uint8",
       },
       {
-        "indexed": false,
-        "internalType": "string",
-        "name": "name",
-        "type": "string"
-      }
+        indexed: false,
+        internalType: "string",
+        name: "name",
+        type: "string",
+      },
     ],
-    "name": "EnergyTypeRemoved",
-    "type": "event"
+    name: "EnergyTypeRemoved",
+    type: "event",
   },
   {
-    "anonymous": false,
-    "inputs": [
+    anonymous: false,
+    inputs: [
       {
-        "indexed": false,
-        "internalType": "uint64",
-        "name": "version",
-        "type": "uint64"
-      }
+        indexed: false,
+        internalType: "uint64",
+        name: "version",
+        type: "uint64",
+      },
     ],
-    "name": "Initialized",
-    "type": "event"
+    name: "Initialized",
+    type: "event",
   },
   {
-    "anonymous": false,
-    "inputs": [
+    anonymous: false,
+    inputs: [
       {
-        "indexed": true,
-        "internalType": "address",
-        "name": "previousOwner",
-        "type": "address"
+        indexed: true,
+        internalType: "address",
+        name: "previousOwner",
+        type: "address",
       },
       {
-        "indexed": true,
-        "internalType": "address",
-        "name": "newOwner",
-        "type": "address"
-      }
+        indexed: true,
+        internalType: "address",
+        name: "newOwner",
+        type: "address",
+      },
     ],
-    "name": "OwnershipTransferStarted",
-    "type": "event"
+    name: "OwnershipTransferStarted",
+    type: "event",
   },
   {
-    "anonymous": false,
-    "inputs": [
+    anonymous: false,
+    inputs: [
       {
-        "indexed": true,
-        "internalType": "address",
-        "name": "previousOwner",
-        "type": "address"
+        indexed: true,
+        internalType: "address",
+        name: "previousOwner",
+        type: "address",
       },
       {
-        "indexed": true,
-        "internalType": "address",
-        "name": "newOwner",
-        "type": "address"
-      }
+        indexed: true,
+        internalType: "address",
+        name: "newOwner",
+        type: "address",
+      },
     ],
-    "name": "OwnershipTransferred",
-    "type": "event"
+    name: "OwnershipTransferred",
+    type: "event",
   },
   {
-    "anonymous": false,
-    "inputs": [
+    anonymous: false,
+    inputs: [
       {
-        "indexed": true,
-        "internalType": "uint64",
-        "name": "projectId",
-        "type": "uint64"
-      }
+        indexed: true,
+        internalType: "uint64",
+        name: "projectId",
+        type: "uint64",
+      },
     ],
-    "name": "ProjectDeregistered",
-    "type": "event"
+    name: "ProjectDeregistered",
+    type: "event",
   },
   {
-    "anonymous": false,
-    "inputs": [
+    anonymous: false,
+    inputs: [
       {
-        "indexed": true,
-        "internalType": "uint64",
-        "name": "projectId",
-        "type": "uint64"
+        indexed: true,
+        internalType: "uint64",
+        name: "projectId",
+        type: "uint64",
       },
       {
-        "indexed": false,
-        "internalType": "string",
-        "name": "uri",
-        "type": "string"
-      }
+        indexed: false,
+        internalType: "string",
+        name: "uri",
+        type: "string",
+      },
     ],
-    "name": "ProjectMetadataURISet",
-    "type": "event"
+    name: "ProjectMetadataURISet",
+    type: "event",
   },
   {
-    "anonymous": false,
-    "inputs": [
+    anonymous: false,
+    inputs: [
       {
-        "indexed": true,
-        "internalType": "uint64",
-        "name": "projectId",
-        "type": "uint64"
+        indexed: true,
+        internalType: "uint64",
+        name: "projectId",
+        type: "uint64",
       },
       {
-        "indexed": true,
-        "internalType": "uint64",
-        "name": "watcherId",
-        "type": "uint64"
+        indexed: true,
+        internalType: "uint64",
+        name: "watcherId",
+        type: "uint64",
       },
       {
-        "indexed": false,
-        "internalType": "string",
-        "name": "name",
-        "type": "string"
+        indexed: false,
+        internalType: "string",
+        name: "name",
+        type: "string",
       },
       {
-        "indexed": false,
-        "internalType": "uint8",
-        "name": "energyType",
-        "type": "uint8"
-      }
+        indexed: false,
+        internalType: "uint8",
+        name: "energyType",
+        type: "uint8",
+      },
     ],
-    "name": "ProjectRegistered",
-    "type": "event"
+    name: "ProjectRegistered",
+    type: "event",
   },
   {
-    "anonymous": false,
-    "inputs": [
+    anonymous: false,
+    inputs: [
       {
-        "indexed": true,
-        "internalType": "uint64",
-        "name": "projectId",
-        "type": "uint64"
+        indexed: true,
+        internalType: "uint64",
+        name: "projectId",
+        type: "uint64",
       },
       {
-        "indexed": true,
-        "internalType": "uint64",
-        "name": "fromWatcherId",
-        "type": "uint64"
+        indexed: true,
+        internalType: "uint64",
+        name: "fromWatcherId",
+        type: "uint64",
       },
       {
-        "indexed": true,
-        "internalType": "uint64",
-        "name": "toWatcherId",
-        "type": "uint64"
-      }
+        indexed: true,
+        internalType: "uint64",
+        name: "toWatcherId",
+        type: "uint64",
+      },
     ],
-    "name": "ProjectTransferred",
-    "type": "event"
+    name: "ProjectTransferred",
+    type: "event",
   },
   {
-    "anonymous": false,
-    "inputs": [
+    anonymous: false,
+    inputs: [
       {
-        "indexed": true,
-        "internalType": "address",
-        "name": "resolver",
-        "type": "address"
-      }
+        indexed: true,
+        internalType: "address",
+        name: "resolver",
+        type: "address",
+      },
     ],
-    "name": "ResolverAuthorized",
-    "type": "event"
+    name: "ResolverAuthorized",
+    type: "event",
   },
   {
-    "anonymous": false,
-    "inputs": [
+    anonymous: false,
+    inputs: [
       {
-        "indexed": true,
-        "internalType": "address",
-        "name": "resolver",
-        "type": "address"
-      }
+        indexed: true,
+        internalType: "address",
+        name: "resolver",
+        type: "address",
+      },
     ],
-    "name": "ResolverDeauthorized",
-    "type": "event"
+    name: "ResolverDeauthorized",
+    type: "event",
   },
   {
-    "anonymous": false,
-    "inputs": [
+    anonymous: false,
+    inputs: [
       {
-        "indexed": true,
-        "internalType": "address",
-        "name": "implementation",
-        "type": "address"
-      }
+        indexed: true,
+        internalType: "address",
+        name: "implementation",
+        type: "address",
+      },
     ],
-    "name": "Upgraded",
-    "type": "event"
+    name: "Upgraded",
+    type: "event",
   },
   {
-    "anonymous": false,
-    "inputs": [
+    anonymous: false,
+    inputs: [
       {
-        "indexed": true,
-        "internalType": "uint64",
-        "name": "watcherId",
-        "type": "uint64"
+        indexed: true,
+        internalType: "uint64",
+        name: "watcherId",
+        type: "uint64",
       },
       {
-        "indexed": true,
-        "internalType": "address",
-        "name": "attester",
-        "type": "address"
-      }
+        indexed: true,
+        internalType: "address",
+        name: "attester",
+        type: "address",
+      },
     ],
-    "name": "WatcherAttesterAdded",
-    "type": "event"
+    name: "WatcherAttesterAdded",
+    type: "event",
   },
   {
-    "anonymous": false,
-    "inputs": [
+    anonymous: false,
+    inputs: [
       {
-        "indexed": true,
-        "internalType": "uint64",
-        "name": "watcherId",
-        "type": "uint64"
+        indexed: true,
+        internalType: "uint64",
+        name: "watcherId",
+        type: "uint64",
       },
       {
-        "indexed": true,
-        "internalType": "address",
-        "name": "attester",
-        "type": "address"
-      }
+        indexed: true,
+        internalType: "address",
+        name: "attester",
+        type: "address",
+      },
     ],
-    "name": "WatcherAttesterRemoved",
-    "type": "event"
+    name: "WatcherAttesterRemoved",
+    type: "event",
   },
   {
-    "anonymous": false,
-    "inputs": [
+    anonymous: false,
+    inputs: [
       {
-        "indexed": true,
-        "internalType": "uint64",
-        "name": "watcherId",
-        "type": "uint64"
+        indexed: true,
+        internalType: "uint64",
+        name: "watcherId",
+        type: "uint64",
       },
       {
-        "indexed": true,
-        "internalType": "address",
-        "name": "previousOwner",
-        "type": "address"
+        indexed: true,
+        internalType: "address",
+        name: "previousOwner",
+        type: "address",
       },
       {
-        "indexed": true,
-        "internalType": "address",
-        "name": "newOwner",
-        "type": "address"
-      }
+        indexed: true,
+        internalType: "address",
+        name: "newOwner",
+        type: "address",
+      },
     ],
-    "name": "WatcherOwnershipTransferred",
-    "type": "event"
+    name: "WatcherOwnershipTransferred",
+    type: "event",
   },
   {
-    "anonymous": false,
-    "inputs": [
+    anonymous: false,
+    inputs: [
       {
-        "indexed": true,
-        "internalType": "uint64",
-        "name": "watcherId",
-        "type": "uint64"
+        indexed: true,
+        internalType: "uint64",
+        name: "watcherId",
+        type: "uint64",
       },
       {
-        "indexed": false,
-        "internalType": "string",
-        "name": "name",
-        "type": "string"
+        indexed: false,
+        internalType: "string",
+        name: "name",
+        type: "string",
       },
       {
-        "indexed": true,
-        "internalType": "address",
-        "name": "owner",
-        "type": "address"
-      }
+        indexed: true,
+        internalType: "address",
+        name: "owner",
+        type: "address",
+      },
     ],
-    "name": "WatcherRegistered",
-    "type": "event"
+    name: "WatcherRegistered",
+    type: "event",
   },
   {
-    "inputs": [],
-    "name": "UPGRADE_INTERFACE_VERSION",
-    "outputs": [
+    inputs: [],
+    name: "UPGRADE_INTERFACE_VERSION",
+    outputs: [
       {
-        "internalType": "string",
-        "name": "",
-        "type": "string"
-      }
+        internalType: "string",
+        name: "",
+        type: "string",
+      },
     ],
-    "stateMutability": "view",
-    "type": "function"
+    stateMutability: "view",
+    type: "function",
   },
   {
-    "inputs": [],
-    "name": "acceptOwnership",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
+    inputs: [],
+    name: "acceptOwnership",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
   },
   {
-    "inputs": [
+    inputs: [
       {
-        "internalType": "uint64",
-        "name": "projectId",
-        "type": "uint64"
+        internalType: "uint64",
+        name: "projectId",
+        type: "uint64",
       },
       {
-        "internalType": "address",
-        "name": "attester",
-        "type": "address"
-      }
+        internalType: "address",
+        name: "attester",
+        type: "address",
+      },
     ],
-    "name": "addAttester",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
+    name: "addAttester",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
   },
   {
-    "inputs": [
+    inputs: [
       {
-        "internalType": "uint64",
-        "name": "projectId",
-        "type": "uint64"
+        internalType: "uint64",
+        name: "projectId",
+        type: "uint64",
       },
       {
-        "internalType": "address[]",
-        "name": "attesters",
-        "type": "address[]"
-      }
+        internalType: "address[]",
+        name: "attesters",
+        type: "address[]",
+      },
     ],
-    "name": "addAttesters",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
+    name: "addAttesters",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
   },
   {
-    "inputs": [
+    inputs: [
       {
-        "internalType": "uint64",
-        "name": "watcherId",
-        "type": "uint64"
+        internalType: "uint64",
+        name: "watcherId",
+        type: "uint64",
       },
       {
-        "internalType": "address",
-        "name": "attester",
-        "type": "address"
-      }
+        internalType: "address",
+        name: "attester",
+        type: "address",
+      },
     ],
-    "name": "addWatcherAttester",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
+    name: "addWatcherAttester",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
   },
   {
-    "inputs": [
+    inputs: [
       {
-        "internalType": "address",
-        "name": "resolver",
-        "type": "address"
-      }
+        internalType: "address",
+        name: "resolver",
+        type: "address",
+      },
     ],
-    "name": "authorizeResolver",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
+    name: "authorizeResolver",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
   },
   {
-    "inputs": [
+    inputs: [
       {
-        "internalType": "address",
-        "name": "resolver",
-        "type": "address"
-      }
+        internalType: "address",
+        name: "resolver",
+        type: "address",
+      },
     ],
-    "name": "deauthorizeResolver",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
+    name: "deauthorizeResolver",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
   },
   {
-    "inputs": [
+    inputs: [
       {
-        "internalType": "uint64",
-        "name": "projectId",
-        "type": "uint64"
-      }
+        internalType: "uint64",
+        name: "projectId",
+        type: "uint64",
+      },
     ],
-    "name": "deregisterProject",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
+    name: "deregisterProject",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
   },
   {
-    "inputs": [
+    inputs: [
       {
-        "internalType": "uint64",
-        "name": "projectId",
-        "type": "uint64"
+        internalType: "uint64",
+        name: "projectId",
+        type: "uint64",
       },
       {
-        "internalType": "uint64",
-        "name": "fromTimestamp",
-        "type": "uint64"
-      }
+        internalType: "uint64",
+        name: "fromTimestamp",
+        type: "uint64",
+      },
     ],
-    "name": "getAttestedPeriodStartUID",
-    "outputs": [
+    name: "getAttestedPeriodStartUID",
+    outputs: [
       {
-        "internalType": "bytes32",
-        "name": "",
-        "type": "bytes32"
-      }
+        internalType: "bytes32",
+        name: "",
+        type: "bytes32",
+      },
     ],
-    "stateMutability": "view",
-    "type": "function"
+    stateMutability: "view",
+    type: "function",
   },
   {
-    "inputs": [
+    inputs: [
       {
-        "internalType": "uint64",
-        "name": "projectId",
-        "type": "uint64"
+        internalType: "uint64",
+        name: "projectId",
+        type: "uint64",
       },
       {
-        "internalType": "uint64",
-        "name": "fromTimestamp",
-        "type": "uint64"
+        internalType: "uint64",
+        name: "fromTimestamp",
+        type: "uint64",
       },
       {
-        "internalType": "uint64",
-        "name": "toTimestamp",
-        "type": "uint64"
-      }
+        internalType: "uint64",
+        name: "toTimestamp",
+        type: "uint64",
+      },
     ],
-    "name": "getAttestedPeriodUID",
-    "outputs": [
+    name: "getAttestedPeriodUID",
+    outputs: [
       {
-        "internalType": "bytes32",
-        "name": "",
-        "type": "bytes32"
-      }
+        internalType: "bytes32",
+        name: "",
+        type: "bytes32",
+      },
     ],
-    "stateMutability": "view",
-    "type": "function"
+    stateMutability: "view",
+    type: "function",
   },
   {
-    "inputs": [],
-    "name": "getEnergyTypeAdmin",
-    "outputs": [
+    inputs: [],
+    name: "getEnergyTypeAdmin",
+    outputs: [
       {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
     ],
-    "stateMutability": "view",
-    "type": "function"
+    stateMutability: "view",
+    type: "function",
   },
   {
-    "inputs": [
+    inputs: [
       {
-        "internalType": "uint8",
-        "name": "id",
-        "type": "uint8"
-      }
+        internalType: "uint8",
+        name: "id",
+        type: "uint8",
+      },
     ],
-    "name": "getEnergyTypeName",
-    "outputs": [
+    name: "getEnergyTypeName",
+    outputs: [
       {
-        "internalType": "string",
-        "name": "",
-        "type": "string"
-      }
+        internalType: "string",
+        name: "",
+        type: "string",
+      },
     ],
-    "stateMutability": "view",
-    "type": "function"
+    stateMutability: "view",
+    type: "function",
   },
   {
-    "inputs": [],
-    "name": "getNextProjectId",
-    "outputs": [
+    inputs: [],
+    name: "getNextProjectId",
+    outputs: [
       {
-        "internalType": "uint64",
-        "name": "",
-        "type": "uint64"
-      }
+        internalType: "uint64",
+        name: "",
+        type: "uint64",
+      },
     ],
-    "stateMutability": "view",
-    "type": "function"
+    stateMutability: "view",
+    type: "function",
   },
   {
-    "inputs": [],
-    "name": "getNextWatcherId",
-    "outputs": [
+    inputs: [],
+    name: "getNextWatcherId",
+    outputs: [
       {
-        "internalType": "uint64",
-        "name": "",
-        "type": "uint64"
-      }
+        internalType: "uint64",
+        name: "",
+        type: "uint64",
+      },
     ],
-    "stateMutability": "view",
-    "type": "function"
+    stateMutability: "view",
+    type: "function",
   },
   {
-    "inputs": [
+    inputs: [
       {
-        "internalType": "uint64",
-        "name": "projectId",
-        "type": "uint64"
-      }
+        internalType: "uint64",
+        name: "projectId",
+        type: "uint64",
+      },
     ],
-    "name": "getProject",
-    "outputs": [
+    name: "getProject",
+    outputs: [
       {
-        "components": [
+        components: [
           {
-            "internalType": "uint64",
-            "name": "watcherId",
-            "type": "uint64"
+            internalType: "uint64",
+            name: "watcherId",
+            type: "uint64",
           },
           {
-            "internalType": "bool",
-            "name": "registered",
-            "type": "bool"
+            internalType: "bool",
+            name: "registered",
+            type: "bool",
           },
           {
-            "internalType": "uint8",
-            "name": "energyType",
-            "type": "uint8"
+            internalType: "uint8",
+            name: "energyType",
+            type: "uint8",
           },
           {
-            "internalType": "string",
-            "name": "name",
-            "type": "string"
-          }
+            internalType: "string",
+            name: "name",
+            type: "string",
+          },
         ],
-        "internalType": "struct EnergyRegistry.Project",
-        "name": "",
-        "type": "tuple"
-      }
+        internalType: "struct EnergyRegistry.Project",
+        name: "",
+        type: "tuple",
+      },
     ],
-    "stateMutability": "view",
-    "type": "function"
+    stateMutability: "view",
+    type: "function",
   },
   {
-    "inputs": [
+    inputs: [
       {
-        "internalType": "uint64",
-        "name": "projectId",
-        "type": "uint64"
-      }
+        internalType: "uint64",
+        name: "projectId",
+        type: "uint64",
+      },
     ],
-    "name": "getProjectEnergyType",
-    "outputs": [
+    name: "getProjectEnergyType",
+    outputs: [
       {
-        "internalType": "uint8",
-        "name": "",
-        "type": "uint8"
-      }
+        internalType: "uint8",
+        name: "",
+        type: "uint8",
+      },
     ],
-    "stateMutability": "view",
-    "type": "function"
+    stateMutability: "view",
+    type: "function",
   },
   {
-    "inputs": [
+    inputs: [
       {
-        "internalType": "uint64",
-        "name": "projectId",
-        "type": "uint64"
-      }
+        internalType: "uint64",
+        name: "projectId",
+        type: "uint64",
+      },
     ],
-    "name": "getProjectLastTimestamp",
-    "outputs": [
+    name: "getProjectLastTimestamp",
+    outputs: [
       {
-        "internalType": "uint64",
-        "name": "",
-        "type": "uint64"
-      }
+        internalType: "uint64",
+        name: "",
+        type: "uint64",
+      },
     ],
-    "stateMutability": "view",
-    "type": "function"
+    stateMutability: "view",
+    type: "function",
   },
   {
-    "inputs": [
+    inputs: [
       {
-        "internalType": "uint64",
-        "name": "projectId",
-        "type": "uint64"
-      }
+        internalType: "uint64",
+        name: "projectId",
+        type: "uint64",
+      },
     ],
-    "name": "getProjectMetadataURI",
-    "outputs": [
+    name: "getProjectMetadataURI",
+    outputs: [
       {
-        "internalType": "string",
-        "name": "",
-        "type": "string"
-      }
+        internalType: "string",
+        name: "",
+        type: "string",
+      },
     ],
-    "stateMutability": "view",
-    "type": "function"
+    stateMutability: "view",
+    type: "function",
   },
   {
-    "inputs": [
+    inputs: [
       {
-        "internalType": "uint64",
-        "name": "projectId",
-        "type": "uint64"
-      }
+        internalType: "uint64",
+        name: "projectId",
+        type: "uint64",
+      },
     ],
-    "name": "getProjectType",
-    "outputs": [
+    name: "getProjectType",
+    outputs: [
       {
-        "internalType": "uint8",
-        "name": "",
-        "type": "uint8"
-      }
+        internalType: "uint8",
+        name: "",
+        type: "uint8",
+      },
     ],
-    "stateMutability": "view",
-    "type": "function"
+    stateMutability: "view",
+    type: "function",
   },
   {
-    "inputs": [
+    inputs: [
       {
-        "internalType": "uint64",
-        "name": "projectId",
-        "type": "uint64"
-      }
+        internalType: "uint64",
+        name: "projectId",
+        type: "uint64",
+      },
     ],
-    "name": "getProjectWatcherId",
-    "outputs": [
+    name: "getProjectWatcherId",
+    outputs: [
       {
-        "internalType": "uint64",
-        "name": "",
-        "type": "uint64"
-      }
+        internalType: "uint64",
+        name: "",
+        type: "uint64",
+      },
     ],
-    "stateMutability": "view",
-    "type": "function"
+    stateMutability: "view",
+    type: "function",
   },
   {
-    "inputs": [
+    inputs: [
       {
-        "internalType": "bytes32",
-        "name": "uid",
-        "type": "bytes32"
-      }
+        internalType: "bytes32",
+        name: "uid",
+        type: "bytes32",
+      },
     ],
-    "name": "getReplacementUID",
-    "outputs": [
+    name: "getReplacementUID",
+    outputs: [
       {
-        "internalType": "bytes32",
-        "name": "",
-        "type": "bytes32"
-      }
+        internalType: "bytes32",
+        name: "",
+        type: "bytes32",
+      },
     ],
-    "stateMutability": "view",
-    "type": "function"
+    stateMutability: "view",
+    type: "function",
   },
   {
-    "inputs": [
+    inputs: [
       {
-        "internalType": "uint64",
-        "name": "projectId",
-        "type": "uint64"
-      }
+        internalType: "uint64",
+        name: "projectId",
+        type: "uint64",
+      },
     ],
-    "name": "getTotalConsumedEnergy",
-    "outputs": [
+    name: "getTotalConsumedEnergy",
+    outputs: [
       {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
     ],
-    "stateMutability": "view",
-    "type": "function"
+    stateMutability: "view",
+    type: "function",
   },
   {
-    "inputs": [
+    inputs: [
       {
-        "internalType": "uint64",
-        "name": "watcherId",
-        "type": "uint64"
-      }
+        internalType: "uint64",
+        name: "watcherId",
+        type: "uint64",
+      },
     ],
-    "name": "getTotalConsumedEnergyByWatcher",
-    "outputs": [
+    name: "getTotalConsumedEnergyByWatcher",
+    outputs: [
       {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
     ],
-    "stateMutability": "view",
-    "type": "function"
+    stateMutability: "view",
+    type: "function",
   },
   {
-    "inputs": [
+    inputs: [
       {
-        "internalType": "uint64",
-        "name": "projectId",
-        "type": "uint64"
-      }
+        internalType: "uint64",
+        name: "projectId",
+        type: "uint64",
+      },
     ],
-    "name": "getTotalGeneratedEnergy",
-    "outputs": [
+    name: "getTotalGeneratedEnergy",
+    outputs: [
       {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
     ],
-    "stateMutability": "view",
-    "type": "function"
+    stateMutability: "view",
+    type: "function",
   },
   {
-    "inputs": [
+    inputs: [
       {
-        "internalType": "uint64",
-        "name": "watcherId",
-        "type": "uint64"
-      }
+        internalType: "uint64",
+        name: "watcherId",
+        type: "uint64",
+      },
     ],
-    "name": "getTotalGeneratedEnergyByWatcher",
-    "outputs": [
+    name: "getTotalGeneratedEnergyByWatcher",
+    outputs: [
       {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
     ],
-    "stateMutability": "view",
-    "type": "function"
+    stateMutability: "view",
+    type: "function",
   },
   {
-    "inputs": [
+    inputs: [
       {
-        "internalType": "uint64",
-        "name": "watcherId",
-        "type": "uint64"
-      }
+        internalType: "uint64",
+        name: "watcherId",
+        type: "uint64",
+      },
     ],
-    "name": "getWatcher",
-    "outputs": [
+    name: "getWatcher",
+    outputs: [
       {
-        "components": [
+        components: [
           {
-            "internalType": "address",
-            "name": "owner",
-            "type": "address"
+            internalType: "address",
+            name: "owner",
+            type: "address",
           },
           {
-            "internalType": "bool",
-            "name": "registered",
-            "type": "bool"
+            internalType: "bool",
+            name: "registered",
+            type: "bool",
           },
           {
-            "internalType": "string",
-            "name": "name",
-            "type": "string"
-          }
+            internalType: "string",
+            name: "name",
+            type: "string",
+          },
         ],
-        "internalType": "struct EnergyRegistry.Watcher",
-        "name": "",
-        "type": "tuple"
-      }
+        internalType: "struct EnergyRegistry.Watcher",
+        name: "",
+        type: "tuple",
+      },
     ],
-    "stateMutability": "view",
-    "type": "function"
+    stateMutability: "view",
+    type: "function",
   },
   {
-    "inputs": [
+    inputs: [
       {
-        "internalType": "uint64",
-        "name": "watcherId",
-        "type": "uint64"
-      }
+        internalType: "uint64",
+        name: "watcherId",
+        type: "uint64",
+      },
     ],
-    "name": "getWatcherProjects",
-    "outputs": [
+    name: "getWatcherProjects",
+    outputs: [
       {
-        "internalType": "uint64[]",
-        "name": "",
-        "type": "uint64[]"
-      }
+        internalType: "uint64[]",
+        name: "",
+        type: "uint64[]",
+      },
     ],
-    "stateMutability": "view",
-    "type": "function"
+    stateMutability: "view",
+    type: "function",
   },
   {
-    "inputs": [
+    inputs: [
       {
-        "internalType": "address",
-        "name": "initialOwner",
-        "type": "address"
-      }
+        internalType: "address",
+        name: "initialOwner",
+        type: "address",
+      },
     ],
-    "name": "initialize",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
+    name: "initialize",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
   },
   {
-    "inputs": [
+    inputs: [
       {
-        "internalType": "address",
-        "name": "resolver",
-        "type": "address"
-      }
+        internalType: "address",
+        name: "resolver",
+        type: "address",
+      },
     ],
-    "name": "isAuthorizedResolver",
-    "outputs": [
+    name: "isAuthorizedResolver",
+    outputs: [
       {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
     ],
-    "stateMutability": "view",
-    "type": "function"
+    stateMutability: "view",
+    type: "function",
   },
   {
-    "inputs": [
+    inputs: [
       {
-        "internalType": "uint8",
-        "name": "id",
-        "type": "uint8"
-      }
+        internalType: "uint8",
+        name: "id",
+        type: "uint8",
+      },
     ],
-    "name": "isEnergyTypeRegistered",
-    "outputs": [
+    name: "isEnergyTypeRegistered",
+    outputs: [
       {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
     ],
-    "stateMutability": "view",
-    "type": "function"
+    stateMutability: "view",
+    type: "function",
   },
   {
-    "inputs": [
+    inputs: [
       {
-        "internalType": "uint64",
-        "name": "projectId",
-        "type": "uint64"
+        internalType: "uint64",
+        name: "projectId",
+        type: "uint64",
       },
       {
-        "internalType": "address",
-        "name": "attester",
-        "type": "address"
-      }
+        internalType: "address",
+        name: "attester",
+        type: "address",
+      },
     ],
-    "name": "isProjectAttester",
-    "outputs": [
+    name: "isProjectAttester",
+    outputs: [
       {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
     ],
-    "stateMutability": "view",
-    "type": "function"
+    stateMutability: "view",
+    type: "function",
   },
   {
-    "inputs": [
+    inputs: [
       {
-        "internalType": "uint64",
-        "name": "projectId",
-        "type": "uint64"
-      }
+        internalType: "uint64",
+        name: "projectId",
+        type: "uint64",
+      },
     ],
-    "name": "isProjectRegistered",
-    "outputs": [
+    name: "isProjectRegistered",
+    outputs: [
       {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
     ],
-    "stateMutability": "view",
-    "type": "function"
+    stateMutability: "view",
+    type: "function",
   },
   {
-    "inputs": [
+    inputs: [
       {
-        "internalType": "uint64",
-        "name": "watcherId",
-        "type": "uint64"
+        internalType: "uint64",
+        name: "watcherId",
+        type: "uint64",
       },
       {
-        "internalType": "address",
-        "name": "attester",
-        "type": "address"
-      }
+        internalType: "address",
+        name: "attester",
+        type: "address",
+      },
     ],
-    "name": "isWatcherAttester",
-    "outputs": [
+    name: "isWatcherAttester",
+    outputs: [
       {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
     ],
-    "stateMutability": "view",
-    "type": "function"
+    stateMutability: "view",
+    type: "function",
   },
   {
-    "inputs": [
+    inputs: [
       {
-        "internalType": "uint64",
-        "name": "watcherId",
-        "type": "uint64"
-      }
+        internalType: "uint64",
+        name: "watcherId",
+        type: "uint64",
+      },
     ],
-    "name": "isWatcherRegistered",
-    "outputs": [
+    name: "isWatcherRegistered",
+    outputs: [
       {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
     ],
-    "stateMutability": "view",
-    "type": "function"
+    stateMutability: "view",
+    type: "function",
   },
   {
-    "inputs": [],
-    "name": "owner",
-    "outputs": [
+    inputs: [],
+    name: "owner",
+    outputs: [
       {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
     ],
-    "stateMutability": "view",
-    "type": "function"
+    stateMutability: "view",
+    type: "function",
   },
   {
-    "inputs": [],
-    "name": "pendingOwner",
-    "outputs": [
+    inputs: [],
+    name: "pendingOwner",
+    outputs: [
       {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
     ],
-    "stateMutability": "view",
-    "type": "function"
+    stateMutability: "view",
+    type: "function",
   },
   {
-    "inputs": [],
-    "name": "proxiableUUID",
-    "outputs": [
+    inputs: [],
+    name: "proxiableUUID",
+    outputs: [
       {
-        "internalType": "bytes32",
-        "name": "",
-        "type": "bytes32"
-      }
+        internalType: "bytes32",
+        name: "",
+        type: "bytes32",
+      },
     ],
-    "stateMutability": "view",
-    "type": "function"
+    stateMutability: "view",
+    type: "function",
   },
   {
-    "inputs": [
+    inputs: [
       {
-        "internalType": "bytes32",
-        "name": "uid",
-        "type": "bytes32"
+        internalType: "bytes32",
+        name: "uid",
+        type: "bytes32",
       },
       {
-        "internalType": "uint64",
-        "name": "projectId",
-        "type": "uint64"
+        internalType: "uint64",
+        name: "projectId",
+        type: "uint64",
       },
       {
-        "internalType": "uint64",
-        "name": "fromTimestamp",
-        "type": "uint64"
+        internalType: "uint64",
+        name: "fromTimestamp",
+        type: "uint64",
       },
       {
-        "internalType": "uint64",
-        "name": "toTimestamp",
-        "type": "uint64"
+        internalType: "uint64",
+        name: "toTimestamp",
+        type: "uint64",
       },
       {
-        "internalType": "uint256",
-        "name": "energyWh",
-        "type": "uint256"
+        internalType: "uint256",
+        name: "energyWh",
+        type: "uint256",
       },
       {
-        "internalType": "address",
-        "name": "attester",
-        "type": "address"
+        internalType: "address",
+        name: "attester",
+        type: "address",
       },
       {
-        "internalType": "string",
-        "name": "metadataURI",
-        "type": "string"
+        internalType: "string",
+        name: "metadataURI",
+        type: "string",
       },
       {
-        "internalType": "uint256[]",
-        "name": "readings",
-        "type": "uint256[]"
-      }
+        internalType: "uint256[]",
+        name: "readings",
+        type: "uint256[]",
+      },
     ],
-    "name": "recordAttestation",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
+    name: "recordAttestation",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
   },
   {
-    "inputs": [
+    inputs: [
       {
-        "internalType": "bytes32",
-        "name": "oldUid",
-        "type": "bytes32"
+        internalType: "bytes32",
+        name: "oldUid",
+        type: "bytes32",
       },
       {
-        "internalType": "bytes32",
-        "name": "newUid",
-        "type": "bytes32"
+        internalType: "bytes32",
+        name: "newUid",
+        type: "bytes32",
       },
       {
-        "internalType": "uint64",
-        "name": "projectId",
-        "type": "uint64"
+        internalType: "uint64",
+        name: "projectId",
+        type: "uint64",
       },
       {
-        "internalType": "uint64",
-        "name": "fromTimestamp",
-        "type": "uint64"
+        internalType: "uint64",
+        name: "fromTimestamp",
+        type: "uint64",
       },
       {
-        "internalType": "uint64",
-        "name": "toTimestamp",
-        "type": "uint64"
+        internalType: "uint64",
+        name: "toTimestamp",
+        type: "uint64",
       },
       {
-        "internalType": "uint256",
-        "name": "oldEnergyWh",
-        "type": "uint256"
+        internalType: "uint256",
+        name: "oldEnergyWh",
+        type: "uint256",
       },
       {
-        "internalType": "uint256",
-        "name": "newEnergyWh",
-        "type": "uint256"
+        internalType: "uint256",
+        name: "newEnergyWh",
+        type: "uint256",
       },
       {
-        "internalType": "address",
-        "name": "attester",
-        "type": "address"
+        internalType: "address",
+        name: "attester",
+        type: "address",
       },
       {
-        "internalType": "string",
-        "name": "metadataURI",
-        "type": "string"
+        internalType: "string",
+        name: "metadataURI",
+        type: "string",
       },
       {
-        "internalType": "uint256[]",
-        "name": "newReadings",
-        "type": "uint256[]"
-      }
+        internalType: "uint256[]",
+        name: "newReadings",
+        type: "uint256[]",
+      },
     ],
-    "name": "recordReplacement",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
+    name: "recordReplacement",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
   },
   {
-    "inputs": [
+    inputs: [
       {
-        "internalType": "bytes32",
-        "name": "",
-        "type": "bytes32"
+        internalType: "bytes32",
+        name: "",
+        type: "bytes32",
       },
       {
-        "internalType": "uint64",
-        "name": "projectId",
-        "type": "uint64"
+        internalType: "uint64",
+        name: "projectId",
+        type: "uint64",
       },
       {
-        "internalType": "uint64",
-        "name": "",
-        "type": "uint64"
+        internalType: "uint64",
+        name: "",
+        type: "uint64",
       },
       {
-        "internalType": "uint64",
-        "name": "",
-        "type": "uint64"
+        internalType: "uint64",
+        name: "",
+        type: "uint64",
       },
       {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
       },
       {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
     ],
-    "name": "recordRevocation",
-    "outputs": [],
-    "stateMutability": "view",
-    "type": "function"
+    name: "recordRevocation",
+    outputs: [],
+    stateMutability: "view",
+    type: "function",
   },
   {
-    "inputs": [
+    inputs: [
       {
-        "internalType": "uint8",
-        "name": "id",
-        "type": "uint8"
+        internalType: "uint8",
+        name: "id",
+        type: "uint8",
       },
       {
-        "internalType": "string",
-        "name": "name",
-        "type": "string"
-      }
+        internalType: "string",
+        name: "name",
+        type: "string",
+      },
     ],
-    "name": "registerEnergyType",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
+    name: "registerEnergyType",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
   },
   {
-    "inputs": [
+    inputs: [
       {
-        "internalType": "uint64",
-        "name": "watcherId",
-        "type": "uint64"
+        internalType: "uint64",
+        name: "watcherId",
+        type: "uint64",
       },
       {
-        "internalType": "string",
-        "name": "name",
-        "type": "string"
+        internalType: "string",
+        name: "name",
+        type: "string",
       },
       {
-        "internalType": "uint8",
-        "name": "energyType",
-        "type": "uint8"
-      }
+        internalType: "uint8",
+        name: "energyType",
+        type: "uint8",
+      },
     ],
-    "name": "registerProject",
-    "outputs": [
+    name: "registerProject",
+    outputs: [
       {
-        "internalType": "uint64",
-        "name": "projectId",
-        "type": "uint64"
-      }
+        internalType: "uint64",
+        name: "projectId",
+        type: "uint64",
+      },
     ],
-    "stateMutability": "nonpayable",
-    "type": "function"
+    stateMutability: "nonpayable",
+    type: "function",
   },
   {
-    "inputs": [
+    inputs: [
       {
-        "internalType": "string",
-        "name": "name",
-        "type": "string"
-      }
+        internalType: "string",
+        name: "name",
+        type: "string",
+      },
     ],
-    "name": "registerWatcher",
-    "outputs": [
+    name: "registerWatcher",
+    outputs: [
       {
-        "internalType": "uint64",
-        "name": "watcherId",
-        "type": "uint64"
-      }
+        internalType: "uint64",
+        name: "watcherId",
+        type: "uint64",
+      },
     ],
-    "stateMutability": "nonpayable",
-    "type": "function"
+    stateMutability: "nonpayable",
+    type: "function",
   },
   {
-    "inputs": [
+    inputs: [
       {
-        "internalType": "uint64",
-        "name": "projectId",
-        "type": "uint64"
+        internalType: "uint64",
+        name: "projectId",
+        type: "uint64",
       },
       {
-        "internalType": "address",
-        "name": "attester",
-        "type": "address"
-      }
+        internalType: "address",
+        name: "attester",
+        type: "address",
+      },
     ],
-    "name": "removeAttester",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
+    name: "removeAttester",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
   },
   {
-    "inputs": [
+    inputs: [
       {
-        "internalType": "uint64",
-        "name": "projectId",
-        "type": "uint64"
+        internalType: "uint64",
+        name: "projectId",
+        type: "uint64",
       },
       {
-        "internalType": "address[]",
-        "name": "attesters",
-        "type": "address[]"
-      }
+        internalType: "address[]",
+        name: "attesters",
+        type: "address[]",
+      },
     ],
-    "name": "removeAttesters",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
+    name: "removeAttesters",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
   },
   {
-    "inputs": [
+    inputs: [
       {
-        "internalType": "uint8",
-        "name": "id",
-        "type": "uint8"
-      }
+        internalType: "uint8",
+        name: "id",
+        type: "uint8",
+      },
     ],
-    "name": "removeEnergyType",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
+    name: "removeEnergyType",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
   },
   {
-    "inputs": [
+    inputs: [
       {
-        "internalType": "uint64",
-        "name": "watcherId",
-        "type": "uint64"
+        internalType: "uint64",
+        name: "watcherId",
+        type: "uint64",
       },
       {
-        "internalType": "address",
-        "name": "attester",
-        "type": "address"
-      }
+        internalType: "address",
+        name: "attester",
+        type: "address",
+      },
     ],
-    "name": "removeWatcherAttester",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
+    name: "removeWatcherAttester",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
   },
   {
-    "inputs": [],
-    "name": "renounceOwnership",
-    "outputs": [],
-    "stateMutability": "pure",
-    "type": "function"
+    inputs: [],
+    name: "renounceOwnership",
+    outputs: [],
+    stateMutability: "pure",
+    type: "function",
   },
   {
-    "inputs": [
+    inputs: [
       {
-        "internalType": "uint64",
-        "name": "projectId",
-        "type": "uint64"
+        internalType: "uint64",
+        name: "projectId",
+        type: "uint64",
       },
       {
-        "internalType": "string",
-        "name": "uri",
-        "type": "string"
-      }
+        internalType: "string",
+        name: "uri",
+        type: "string",
+      },
     ],
-    "name": "setProjectMetadataURI",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
+    name: "setProjectMetadataURI",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
   },
   {
-    "inputs": [
+    inputs: [
       {
-        "internalType": "address",
-        "name": "newAdmin",
-        "type": "address"
-      }
+        internalType: "address",
+        name: "newAdmin",
+        type: "address",
+      },
     ],
-    "name": "transferEnergyTypeAdmin",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
+    name: "transferEnergyTypeAdmin",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
   },
   {
-    "inputs": [
+    inputs: [
       {
-        "internalType": "address",
-        "name": "newOwner",
-        "type": "address"
-      }
+        internalType: "address",
+        name: "newOwner",
+        type: "address",
+      },
     ],
-    "name": "transferOwnership",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
+    name: "transferOwnership",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
   },
   {
-    "inputs": [
+    inputs: [
       {
-        "internalType": "uint64",
-        "name": "projectId",
-        "type": "uint64"
+        internalType: "uint64",
+        name: "projectId",
+        type: "uint64",
       },
       {
-        "internalType": "uint64",
-        "name": "toWatcherId",
-        "type": "uint64"
-      }
+        internalType: "uint64",
+        name: "toWatcherId",
+        type: "uint64",
+      },
     ],
-    "name": "transferProject",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
+    name: "transferProject",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
   },
   {
-    "inputs": [
+    inputs: [
       {
-        "internalType": "uint64",
-        "name": "watcherId",
-        "type": "uint64"
+        internalType: "uint64",
+        name: "watcherId",
+        type: "uint64",
       },
       {
-        "internalType": "address",
-        "name": "newOwner",
-        "type": "address"
-      }
+        internalType: "address",
+        name: "newOwner",
+        type: "address",
+      },
     ],
-    "name": "transferWatcherOwnership",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
+    name: "transferWatcherOwnership",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
   },
   {
-    "inputs": [
+    inputs: [
       {
-        "internalType": "address",
-        "name": "newImplementation",
-        "type": "address"
+        internalType: "address",
+        name: "newImplementation",
+        type: "address",
       },
       {
-        "internalType": "bytes",
-        "name": "data",
-        "type": "bytes"
-      }
+        internalType: "bytes",
+        name: "data",
+        type: "bytes",
+      },
     ],
-    "name": "upgradeToAndCall",
-    "outputs": [],
-    "stateMutability": "payable",
-    "type": "function"
-  }
+    name: "upgradeToAndCall",
+    outputs: [],
+    stateMutability: "payable",
+    type: "function",
+  },
 ] as const;
-

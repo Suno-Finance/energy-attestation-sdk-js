@@ -99,14 +99,14 @@ Your App / IoT Device
 
 Each attestation contains:
 
-| Field                    | Type        | Description                                                |
-| ------------------------ | ----------- | ---------------------------------------------------------- |
-| `projectId`              | `uint64`    | The project these readings belong to                       |
-| `readings`               | `uint256[]` | Energy per interval in **watt-hours** (Wh, not kWh)        |
+| Field                    | Type        | Description                                                 |
+| ------------------------ | ----------- | ----------------------------------------------------------- |
+| `projectId`              | `uint64`    | The project these readings belong to                        |
+| `readings`               | `uint256[]` | Energy per interval in **watt-hours** (Wh, not kWh)         |
 | `readingIntervalMinutes` | `uint32`    | Minutes between each reading (e.g., `Interval.Hourly` = 60) |
-| `fromTimestamp`          | `uint64`    | Start of the reporting period (Unix seconds)               |
-| `method`                 | `string`    | How data was collected: `"iot"`, `"manual"`, `"estimated"` |
-| `metadataURI`            | `string`    | Optional IPFS/HTTPS link to supporting evidence            |
+| `fromTimestamp`          | `uint64`    | Start of the reporting period (Unix seconds)                |
+| `method`                 | `string`    | How data was collected: `"iot"`, `"manual"`, `"estimated"`  |
+| `metadataURI`            | `string`    | Optional IPFS/HTTPS link to supporting evidence             |
 
 > **Note:** The `toTimestamp` is derived on-chain: `fromTimestamp + readings.length * readingIntervalMinutes * 60`.
 >
@@ -239,9 +239,9 @@ When a device is offline or data is unavailable, use `attestZeroPeriod` to keep 
 // Record a full day of zero output (e.g., device was offline)
 const { uid } = await sdk.attestations.attestZeroPeriod({
   projectId: 1,
-  interval: Interval.Daily,           // covers exactly 1 day
-  method: "downtime",                 // optional — defaults to "0 report"
-  metadataURI: "ipfs://Qm...",        // optional — link to incident report
+  interval: Interval.Daily, // covers exactly 1 day
+  method: "downtime", // optional — defaults to "0 report"
+  metadataURI: "ipfs://Qm...", // optional — link to incident report
 });
 ```
 
@@ -253,7 +253,7 @@ const lastTimestamp = await sdk.read.getProjectLastTimestamp(1);
 
 await sdk.attestations.overwriteAttestation({
   projectId: 1,
-  readings: [1500n, 1800n, 2100n, /* ...21 more hourly readings */],
+  readings: [1500n, 1800n, 2100n /* ...21 more hourly readings */],
   readingIntervalMinutes: Interval.Hourly,
   fromTimestamp: Number(lastTimestamp) - Interval.Daily * 60, // start of the zero period
   method: "iot",
@@ -390,28 +390,28 @@ The SDK supports two initialization methods:
 
 ### `PrivateKeySDKConfig`
 
-| Field             | Type      | Required | Description                                                    |
-| ----------------- | --------- | -------- | -------------------------------------------------------------- |
-| `privateKey`      | `string`  | Yes      | Hex-encoded private key (with or without 0x)                   |
-| `network`         | `Network` | Yes      | Target network — determines all default addresses and RPC      |
-| `rpcUrl`          | `string`  | No       | JSON-RPC endpoint URL. Defaults to the network's public RPC.   |
-| `registryAddress` | `string`  | No       | EnergyRegistry **proxy** address. Auto-resolved if available.  |
-| `schemaUID`       | `string`  | No       | EAS schema UID (bytes32). Auto-resolved if available.          |
-| `easAddress`      | `string`  | No       | EAS core contract address. Auto-resolved if available.         |
-| `tx`              | `TxFeeConfig` | No   | Optional fee policy for write transactions (EIP-1559 overrides). |
+| Field             | Type          | Required | Description                                                      |
+| ----------------- | ------------- | -------- | ---------------------------------------------------------------- |
+| `privateKey`      | `string`      | Yes      | Hex-encoded private key (with or without 0x)                     |
+| `network`         | `Network`     | Yes      | Target network — determines all default addresses and RPC        |
+| `rpcUrl`          | `string`      | No       | JSON-RPC endpoint URL. Defaults to the network's public RPC.     |
+| `registryAddress` | `string`      | No       | EnergyRegistry **proxy** address. Auto-resolved if available.    |
+| `schemaUID`       | `string`      | No       | EAS schema UID (bytes32). Auto-resolved if available.            |
+| `easAddress`      | `string`      | No       | EAS core contract address. Auto-resolved if available.           |
+| `tx`              | `TxFeeConfig` | No       | Optional fee policy for write transactions (EIP-1559 overrides). |
 
 > **Note:** `registryAddress` must always point to the **proxy** address (the permanent address printed by `deploy.ts`), never the implementation address.
 
 ### `SignerSDKConfig`
 
-| Field             | Type              | Required | Description                                                    |
-| ----------------- | ----------------- | -------- | -------------------------------------------------------------- |
-| `signer`          | `AbstractSigner`  | Yes      | An ethers.js signer with an attached provider                  |
-| `network`         | `Network`         | Yes      | Target network — determines all default addresses              |
-| `registryAddress` | `string`          | No       | EnergyRegistry **proxy** address. Auto-resolved if available.  |
-| `schemaUID`       | `string`          | No       | EAS schema UID (bytes32). Auto-resolved if available.          |
-| `easAddress`      | `string`          | No       | EAS core contract address. Auto-resolved if available.         |
-| `tx`              | `TxFeeConfig`     | No       | Optional fee policy for write transactions (EIP-1559 overrides). |
+| Field             | Type             | Required | Description                                                      |
+| ----------------- | ---------------- | -------- | ---------------------------------------------------------------- |
+| `signer`          | `AbstractSigner` | Yes      | An ethers.js signer with an attached provider                    |
+| `network`         | `Network`        | Yes      | Target network — determines all default addresses                |
+| `registryAddress` | `string`         | No       | EnergyRegistry **proxy** address. Auto-resolved if available.    |
+| `schemaUID`       | `string`         | No       | EAS schema UID (bytes32). Auto-resolved if available.            |
+| `easAddress`      | `string`         | No       | EAS core contract address. Auto-resolved if available.           |
+| `tx`              | `TxFeeConfig`    | No       | Optional fee policy for write transactions (EIP-1559 overrides). |
 
 > `rpcUrl` is not needed for `fromSigner` — the signer carries its own provider.
 >
@@ -431,9 +431,9 @@ Optional config type:
 ```typescript
 type TxFeeConfig = {
   minPriorityFeeGwei?: number; // minimum priority fee (tip) in gwei
-  maxFeeMultiplier?: number;   // multiplier applied to provider maxFeePerGas (or gasPrice fallback)
-  retryCount?: number;         // retry attempts for send failures (default: 0)
-  retryDelayMs?: number;       // initial delay in ms; doubles each retry (default: 1000)
+  maxFeeMultiplier?: number; // multiplier applied to provider maxFeePerGas (or gasPrice fallback)
+  retryCount?: number; // retry attempts for send failures (default: 0)
+  retryDelayMs?: number; // initial delay in ms; doubles each retry (default: 1000)
 };
 ```
 
@@ -452,11 +452,11 @@ const sdk = await EnergySDK.fromSigner({
 
 ### `EnergyQueryConfig`
 
-| Field         | Type      | Required | Description                                                                 |
-| ------------- | --------- | -------- | --------------------------------------------------------------------------- |
-| `network`     | `Network` | Yes      | Target network — determines the default subgraph URL                        |
-| `apiKey`      | `string`  | Yes*     | Your personal API key from [The Graph Studio](https://thegraph.com/studio). Required to query the hosted subgraphs. |
-| `subgraphUrl` | `string`  | No       | Override the default subgraph URL (e.g. for self-hosted deployments)        |
+| Field         | Type      | Required | Description                                                                                                         |
+| ------------- | --------- | -------- | ------------------------------------------------------------------------------------------------------------------- |
+| `network`     | `Network` | Yes      | Target network — determines the default subgraph URL                                                                |
+| `apiKey`      | `string`  | Yes\*    | Your personal API key from [The Graph Studio](https://thegraph.com/studio). Required to query the hosted subgraphs. |
+| `subgraphUrl` | `string`  | No       | Override the default subgraph URL (e.g. for self-hosted deployments)                                                |
 
 > \* Each developer brings their own free API key. The subgraphs are shared infrastructure — you don't need to deploy your own.
 
@@ -479,11 +479,11 @@ const query = new EnergyQuery({
 
 ### Supported Networks
 
-| Network                | Enum              | Registry                                     | Schema UID                                                             | Subgraph |
-| ---------------------- | ----------------- | -------------------------------------------- | ---------------------------------------------------------------------- | -------- |
-| Celo Mainnet           | `Network.CELO`    | `0xA5B5f895091d79d1f099531cDB8cb896F17ec4C1` | `0xb9c136082a935b39c6e276ea137ac489bdc090aac17a116347c7ea90442ef7e0`   | ✅ Live  |
-| Polygon Mainnet        | `Network.POLYGON` | `0xA5B5f895091d79d1f099531cDB8cb896F17ec4C1` | `0xb9c136082a935b39c6e276ea137ac489bdc090aac17a116347c7ea90442ef7e0`   | ✅ Live  |
-| Polygon Amoy (testnet) | `Network.AMOY`    | `0x059D4655941204cf6aaC1cF578Aa9dc5D3ed6B39` | `0x4673141c77c3d54962edf6ef7f25a0c62656f9bd08138b4c4f9561413c235435`   | ✅ Live  |
+| Network                | Enum              | Registry                                     | Schema UID                                                           | Subgraph |
+| ---------------------- | ----------------- | -------------------------------------------- | -------------------------------------------------------------------- | -------- |
+| Celo Mainnet           | `Network.CELO`    | `0xA5B5f895091d79d1f099531cDB8cb896F17ec4C1` | `0xb9c136082a935b39c6e276ea137ac489bdc090aac17a116347c7ea90442ef7e0` | ✅ Live  |
+| Polygon Mainnet        | `Network.POLYGON` | `0xA5B5f895091d79d1f099531cDB8cb896F17ec4C1` | `0xb9c136082a935b39c6e276ea137ac489bdc090aac17a116347c7ea90442ef7e0` | ✅ Live  |
+| Polygon Amoy (testnet) | `Network.AMOY`    | `0x059D4655941204cf6aaC1cF578Aa9dc5D3ed6B39` | `0x4673141c77c3d54962edf6ef7f25a0c62656f9bd08138b4c4f9561413c235435` | ✅ Live  |
 
 All three networks are fully supported — all addresses and subgraph URLs are auto-resolved, zero config needed.
 
@@ -545,12 +545,12 @@ sdk.network; //  Resolved SDK network enum value
 
 ### `sdk.watchers`
 
-| Method                                                        | Returns                 | Description                             |
-| ------------------------------------------------------------- | ----------------------- | --------------------------------------- |
-| `createWatcher(name)`                                         | `{ watcherId, txHash }` | Register a new watcher (permissionless) |
-| `transferWatcherOwnership(watcherId, newOwner)`               | `{ txHash }`            | Transfer watcher to a new owner         |
-| `estimateCreateWatcherGas(name)`                              | `bigint`                | Estimate gas for `createWatcher`        |
-| `estimateTransferWatcherOwnershipGas(watcherId, newOwner)`    | `bigint`                | Estimate gas for `transferWatcherOwnership` |
+| Method                                                     | Returns                 | Description                                 |
+| ---------------------------------------------------------- | ----------------------- | ------------------------------------------- |
+| `createWatcher(name)`                                      | `{ watcherId, txHash }` | Register a new watcher (permissionless)     |
+| `transferWatcherOwnership(watcherId, newOwner)`            | `{ txHash }`            | Transfer watcher to a new owner             |
+| `estimateCreateWatcherGas(name)`                           | `bigint`                | Estimate gas for `createWatcher`            |
+| `estimateTransferWatcherOwnershipGas(watcherId, newOwner)` | `bigint`                | Estimate gas for `transferWatcherOwnership` |
 
 ---
 
@@ -580,13 +580,13 @@ sdk.network; //  Resolved SDK network enum value
 
 ### `sdk.attestations`
 
-| Method                              | Returns                 | Description                                                       |
-| ----------------------------------- | ----------------------- | ----------------------------------------------------------------- |
-| `attest(params)`                    | `{ uid, txHash }`       | Submit new energy readings for a project                          |
-| `overwriteAttestation(params)`      | `{ uid, txHash }`       | Replace a previous attestation (correction flow)                  |
-| `attestBatch(params[])`             | `{ uids[], txHash }`    | Submit multiple attestations in a single transaction              |
-| `attestZeroPeriod(params)`          | `{ uid, txHash }`       | Record a zero-energy period; replaceable later with real readings |
-| `revokeAttestation(uid)`            | `{ txHash }`            | Invalidate an attestation without a replacement                   |
+| Method                         | Returns              | Description                                                       |
+| ------------------------------ | -------------------- | ----------------------------------------------------------------- |
+| `attest(params)`               | `{ uid, txHash }`    | Submit new energy readings for a project                          |
+| `overwriteAttestation(params)` | `{ uid, txHash }`    | Replace a previous attestation (correction flow)                  |
+| `attestBatch(params[])`        | `{ uids[], txHash }` | Submit multiple attestations in a single transaction              |
+| `attestZeroPeriod(params)`     | `{ uid, txHash }`    | Record a zero-energy period; replaceable later with real readings |
+| `revokeAttestation(uid)`       | `{ txHash }`         | Invalidate an attestation without a replacement                   |
 
 #### `AttestParams`
 
@@ -653,36 +653,36 @@ All methods are **gas-free** view calls — they query on-chain state directly w
 
 > For listing, filtering, pagination, time-series, and aggregated queries, use [`EnergyQuery`](#energyquery) instead.
 
-| Method                                        | Returns    | Description                                   |
-| --------------------------------------------- | ---------- | --------------------------------------------- |
-| `getWatcher(watcherId)`                       | `Watcher`  | Watcher metadata (owner, name, active)        |
-| `getProject(projectId)`                       | `Project`  | Project metadata (watcher, name, energy type) |
-| `isProjectRegistered(projectId)`              | `boolean`  | Whether a project is active                   |
-| `isWatcherRegistered(watcherId)`              | `boolean`  | Whether a watcher is active                   |
-| `getProjectLastTimestamp(projectId)`          | `bigint`   | Chain tip — where next attestation must start |
-| `getTotalGeneratedEnergy(projectId)`          | `bigint`   | Cumulative Wh generated by a project          |
-| `getTotalConsumedEnergy(projectId)`           | `bigint`   | Cumulative Wh consumed by a project           |
-| `getTotalGeneratedEnergyByWatcher(watcherId)` | `bigint`   | Cumulative Wh generated across all projects   |
-| `getTotalConsumedEnergyByWatcher(watcherId)`  | `bigint`   | Cumulative Wh consumed across all projects    |
-| `getWatcherProjects(watcherId)`               | `bigint[]` | All project IDs under a watcher               |
-| `isProjectAttester(projectId, attester)`      | `boolean`  | Check project-level authorization             |
-| `isWatcherAttester(watcherId, attester)`      | `boolean`  | Check watcher-level authorization             |
-| `getProjectMetadataURI(projectId)`            | `string`   | IPFS/HTTPS metadata link                      |
-| `getProjectEnergyType(projectId)`             | `number`   | Energy type ID (0 = consumer, 1+ = generator) |
-| `getReplacementUID(uid)`                      | `string`   | Follow the replacement chain for audit        |
-| `getAttestedPeriodUID(projectId, from, to)`   | `string`   | Look up which attestation covers a period     |
-| `getAttestedPeriodStartUID(projectId, from)`  | `string`   | Look up attestation by start timestamp only   |
-| `getNextProjectId()`                          | `bigint`   | Next project ID that will be assigned         |
-| `getNextWatcherId()`                          | `bigint`   | Next watcher ID that will be assigned         |
-| `getProjectWatcherId(projectId)`              | `bigint`   | Which watcher owns a project                  |
-| `getProjectType(projectId)`                   | `number`   | Raw energy type ID for a project              |
-| `isAuthorizedResolver(resolver)`              | `boolean`  | Check if an address is an authorized resolver |
-| `isEnergyTypeRegistered(id)`                  | `boolean`  | Check if an energy type ID is registered      |
-| `getEnergyTypeName(id)`                       | `string`      | Human-readable name for an energy type ID                |
-| `getEnergyTypeAdmin()`                        | `string`      | Address of the energy type admin                         |
-| `getWatcherProjectsWithDetails(watcherId)`    | `Project[]`   | All projects under a watcher with full metadata          |
-| `getAttestationData(uid)`                     | `AttestationData` | Fetch and decode attestation data by EAS UID         |
-| `getProjectStats(projectId)`                  | `ProjectStats` | Project metadata + energy totals + last timestamp in one call |
+| Method                                        | Returns           | Description                                                   |
+| --------------------------------------------- | ----------------- | ------------------------------------------------------------- |
+| `getWatcher(watcherId)`                       | `Watcher`         | Watcher metadata (owner, name, active)                        |
+| `getProject(projectId)`                       | `Project`         | Project metadata (watcher, name, energy type)                 |
+| `isProjectRegistered(projectId)`              | `boolean`         | Whether a project is active                                   |
+| `isWatcherRegistered(watcherId)`              | `boolean`         | Whether a watcher is active                                   |
+| `getProjectLastTimestamp(projectId)`          | `bigint`          | Chain tip — where next attestation must start                 |
+| `getTotalGeneratedEnergy(projectId)`          | `bigint`          | Cumulative Wh generated by a project                          |
+| `getTotalConsumedEnergy(projectId)`           | `bigint`          | Cumulative Wh consumed by a project                           |
+| `getTotalGeneratedEnergyByWatcher(watcherId)` | `bigint`          | Cumulative Wh generated across all projects                   |
+| `getTotalConsumedEnergyByWatcher(watcherId)`  | `bigint`          | Cumulative Wh consumed across all projects                    |
+| `getWatcherProjects(watcherId)`               | `bigint[]`        | All project IDs under a watcher                               |
+| `isProjectAttester(projectId, attester)`      | `boolean`         | Check project-level authorization                             |
+| `isWatcherAttester(watcherId, attester)`      | `boolean`         | Check watcher-level authorization                             |
+| `getProjectMetadataURI(projectId)`            | `string`          | IPFS/HTTPS metadata link                                      |
+| `getProjectEnergyType(projectId)`             | `number`          | Energy type ID (0 = consumer, 1+ = generator)                 |
+| `getReplacementUID(uid)`                      | `string`          | Follow the replacement chain for audit                        |
+| `getAttestedPeriodUID(projectId, from, to)`   | `string`          | Look up which attestation covers a period                     |
+| `getAttestedPeriodStartUID(projectId, from)`  | `string`          | Look up attestation by start timestamp only                   |
+| `getNextProjectId()`                          | `bigint`          | Next project ID that will be assigned                         |
+| `getNextWatcherId()`                          | `bigint`          | Next watcher ID that will be assigned                         |
+| `getProjectWatcherId(projectId)`              | `bigint`          | Which watcher owns a project                                  |
+| `getProjectType(projectId)`                   | `number`          | Raw energy type ID for a project                              |
+| `isAuthorizedResolver(resolver)`              | `boolean`         | Check if an address is an authorized resolver                 |
+| `isEnergyTypeRegistered(id)`                  | `boolean`         | Check if an energy type ID is registered                      |
+| `getEnergyTypeName(id)`                       | `string`          | Human-readable name for an energy type ID                     |
+| `getEnergyTypeAdmin()`                        | `string`          | Address of the energy type admin                              |
+| `getWatcherProjectsWithDetails(watcherId)`    | `Project[]`       | All projects under a watcher with full metadata               |
+| `getAttestationData(uid)`                     | `AttestationData` | Fetch and decode attestation data by EAS UID                  |
+| `getProjectStats(projectId)`                  | `ProjectStats`    | Project metadata + energy totals + last timestamp in one call |
 
 #### `AttestationData`
 
@@ -703,8 +703,8 @@ The decoded attestation data returned by `getAttestationData(uid)`:
 ```typescript
 // Fetch and decode an attestation directly from the chain
 const data = await sdk.read.getAttestationData("0xabc...def");
-console.log(data.projectId);    // 1n
-console.log(data.readings);     // [1500n, 1800n, 2100n]
+console.log(data.projectId); // 1n
+console.log(data.readings); // [1500n, 1800n, 2100n]
 console.log(data.fromTimestamp); // 1700000000n
 ```
 
@@ -712,11 +712,11 @@ console.log(data.fromTimestamp); // 1700000000n
 
 ```typescript
 {
-  project: Project;       // Metadata (name, watcherId, energyType, registered)
+  project: Project; // Metadata (name, watcherId, energyType, registered)
   totalGenerated: bigint; // Cumulative Wh generated
-  totalConsumed: bigint;  // Cumulative Wh consumed
-  lastTimestamp: bigint;  // Chain tip — where next attestation must start
-  metadataURI: string;    // IPFS/HTTPS metadata link
+  totalConsumed: bigint; // Cumulative Wh consumed
+  lastTimestamp: bigint; // Chain tip — where next attestation must start
+  metadataURI: string; // IPFS/HTTPS metadata link
 }
 ```
 
@@ -730,101 +730,101 @@ console.log(data.fromTimestamp); // 1700000000n
 
 #### Protocol
 
-| Method          | Returns                       | Description                                     |
-| --------------- | ----------------------------- | ----------------------------------------------- |
-| `getProtocol()` | `SubgraphProtocol \| null`    | Global stats: total watchers, projects, energy  |
+| Method          | Returns                    | Description                                    |
+| --------------- | -------------------------- | ---------------------------------------------- |
+| `getProtocol()` | `SubgraphProtocol \| null` | Global stats: total watchers, projects, energy |
 
 #### Energy Types
 
-| Method            | Returns                 | Description                          |
-| ----------------- | ----------------------- | ------------------------------------ |
+| Method             | Returns                | Description                             |
+| ------------------ | ---------------------- | --------------------------------------- |
 | `getEnergyTypes()` | `SubgraphEnergyType[]` | All registered energy types with totals |
 
 #### Watchers
 
-| Method                                      | Returns                          | Description                                                   |
-| ------------------------------------------- | -------------------------------- | ------------------------------------------------------------- |
-| `getWatcher(id)`                            | `SubgraphWatcherDetail \| null`  | Single watcher with projects, attesters, and ownership history |
-| `getWatchers(filters?)`                     | `PageResult<SubgraphWatcher>`    | Paged watcher list with `items` and `hasMore`                |
-| `iterateWatchers(filters?)`                 | `AsyncGenerator<SubgraphWatcher>`| Async iterator across all pages matching filters             |
-| `getWatcherOwnershipHistory(watcherId)`     | `SubgraphWatcherOwnershipTransfer[]` | Full ownership transfer history for a watcher            |
+| Method                                  | Returns                              | Description                                                    |
+| --------------------------------------- | ------------------------------------ | -------------------------------------------------------------- |
+| `getWatcher(id)`                        | `SubgraphWatcherDetail \| null`      | Single watcher with projects, attesters, and ownership history |
+| `getWatchers(filters?)`                 | `PageResult<SubgraphWatcher>`        | Paged watcher list with `items` and `hasMore`                  |
+| `iterateWatchers(filters?)`             | `AsyncGenerator<SubgraphWatcher>`    | Async iterator across all pages matching filters               |
+| `getWatcherOwnershipHistory(watcherId)` | `SubgraphWatcherOwnershipTransfer[]` | Full ownership transfer history for a watcher                  |
 
 #### `WatcherFilters`
 
-| Field            | Type                                                         | Default      |
-| ---------------- | ------------------------------------------------------------ | ------------ |
-| `first`          | `number`                                                     | `100`        |
-| `skip`           | `number`                                                     | `0`          |
+| Field            | Type                                                                       | Default       |
+| ---------------- | -------------------------------------------------------------------------- | ------------- |
+| `first`          | `number`                                                                   | `100`         |
+| `skip`           | `number`                                                                   | `0`           |
 | `orderBy`        | `"createdAt" \| "totalGeneratedWh" \| "totalConsumedWh" \| "projectCount"` | `"createdAt"` |
-| `orderDirection` | `"asc" \| "desc"`                                            | `"desc"`     |
-| `registered`     | `boolean`                                                    | —            |
-| `owner`          | `string`                                                     | —            |
+| `orderDirection` | `"asc" \| "desc"`                                                          | `"desc"`      |
+| `registered`     | `boolean`                                                                  | —             |
+| `owner`          | `string`                                                                   | —             |
 
 #### Projects
 
-| Method              | Returns                   | Description                                         |
-| ------------------- | ------------------------- | --------------------------------------------------- |
-| `getProject(id)`    | `SubgraphProject \| null` | Single project with watcher and energy type info    |
-| `getProjects(filters?)` | `PageResult<SubgraphProject>` | Paged project list with `items` and `hasMore`      |
+| Method                      | Returns                           | Description                                      |
+| --------------------------- | --------------------------------- | ------------------------------------------------ |
+| `getProject(id)`            | `SubgraphProject \| null`         | Single project with watcher and energy type info |
+| `getProjects(filters?)`     | `PageResult<SubgraphProject>`     | Paged project list with `items` and `hasMore`    |
 | `iterateProjects(filters?)` | `AsyncGenerator<SubgraphProject>` | Async iterator across all pages matching filters |
 
 #### `ProjectFilters`
 
-| Field            | Type                                                                       | Default      |
-| ---------------- | -------------------------------------------------------------------------- | ------------ |
-| `first`          | `number`                                                                   | `100`        |
-| `skip`           | `number`                                                                   | `0`          |
+| Field            | Type                                                                           | Default       |
+| ---------------- | ------------------------------------------------------------------------------ | ------------- |
+| `first`          | `number`                                                                       | `100`         |
+| `skip`           | `number`                                                                       | `0`           |
 | `orderBy`        | `"createdAt" \| "totalGeneratedWh" \| "totalConsumedWh" \| "attestationCount"` | `"createdAt"` |
-| `orderDirection` | `"asc" \| "desc"`                                                          | `"desc"`     |
-| `watcherId`      | `string`                                                                   | —            |
-| `energyTypeId`   | `string` — use `"0"` for consumers, `"1"`–`"13"` for generators           | —            |
-| `registered`     | `boolean`                                                                  | —            |
+| `orderDirection` | `"asc" \| "desc"`                                                              | `"desc"`      |
+| `watcherId`      | `string`                                                                       | —             |
+| `energyTypeId`   | `string` — use `"0"` for consumers, `"1"`–`"13"` for generators                | —             |
+| `registered`     | `boolean`                                                                      | —             |
 
 #### Attestations
 
-| Method                      | Returns                             | Description                                        |
-| --------------------------- | ----------------------------------- | -------------------------------------------------- |
-| `getAttestation(uid)`       | `SubgraphEnergyAttestation \| null` | Single attestation by EAS UID (bytes32 hex)        |
-| `getAttestations(filters?)` | `PageResult<SubgraphEnergyAttestation>` | Paged attestation list with `items` and `hasMore` |
-| `iterateAttestations(filters?)` | `AsyncGenerator<SubgraphEnergyAttestation>` | Async iterator across all pages matching filters |
+| Method                          | Returns                                     | Description                                       |
+| ------------------------------- | ------------------------------------------- | ------------------------------------------------- |
+| `getAttestation(uid)`           | `SubgraphEnergyAttestation \| null`         | Single attestation by EAS UID (bytes32 hex)       |
+| `getAttestations(filters?)`     | `PageResult<SubgraphEnergyAttestation>`     | Paged attestation list with `items` and `hasMore` |
+| `iterateAttestations(filters?)` | `AsyncGenerator<SubgraphEnergyAttestation>` | Async iterator across all pages matching filters  |
 
 #### `AttestationFilters`
 
-| Field               | Type                                              | Default          |
-| ------------------- | ------------------------------------------------- | ---------------- |
-| `first`             | `number`                                          | `100`            |
-| `skip`              | `number`                                          | `0`              |
-| `orderBy`           | `"fromTimestamp" \| "blockTimestamp" \| "energyWh"` | `"fromTimestamp"` |
-| `orderDirection`    | `"asc" \| "desc"`                                 | `"asc"`          |
-| `projectId`         | `string`                                          | —                |
-| `attester`          | `string`                                          | —                |
-| `replaced`          | `boolean` — `false` returns only active attestations | —             |
-| `fromTimestamp_gte` | `string` — Unix seconds                           | —                |
-| `fromTimestamp_lte` | `string` — Unix seconds                           | —                |
+| Field               | Type                                                 | Default           |
+| ------------------- | ---------------------------------------------------- | ----------------- |
+| `first`             | `number`                                             | `100`             |
+| `skip`              | `number`                                             | `0`               |
+| `orderBy`           | `"fromTimestamp" \| "blockTimestamp" \| "energyWh"`  | `"fromTimestamp"` |
+| `orderDirection`    | `"asc" \| "desc"`                                    | `"asc"`           |
+| `projectId`         | `string`                                             | —                 |
+| `attester`          | `string`                                             | —                 |
+| `replaced`          | `boolean` — `false` returns only active attestations | —                 |
+| `fromTimestamp_gte` | `string` — Unix seconds                              | —                 |
+| `fromTimestamp_lte` | `string` — Unix seconds                              | —                 |
 
 #### Daily Snapshots
 
-| Method                       | Returns                    | Description                                          |
-| ---------------------------- | -------------------------- | ---------------------------------------------------- |
-| `getDailySnapshots(filters)` | `SubgraphDailySnapshot[]`  | Day-bucketed energy totals, useful for charts        |
+| Method                       | Returns                   | Description                                   |
+| ---------------------------- | ------------------------- | --------------------------------------------- |
+| `getDailySnapshots(filters)` | `SubgraphDailySnapshot[]` | Day-bucketed energy totals, useful for charts |
 
 #### `DailySnapshotFilters`
 
-| Field            | Type              | Default | Required |
-| ---------------- | ----------------- | ------- | -------- |
-| `projectId`      | `string`          | —       | Yes      |
-| `dateFrom`       | `string` (YYYY-MM-DD) | —   | No       |
-| `dateTo`         | `string` (YYYY-MM-DD) | —   | No       |
-| `first`          | `number`          | `365`   | No       |
-| `skip`           | `number`          | `0`     | No       |
-| `orderDirection` | `"asc" \| "desc"` | `"asc"` | No       |
+| Field            | Type                  | Default | Required |
+| ---------------- | --------------------- | ------- | -------- |
+| `projectId`      | `string`              | —       | Yes      |
+| `dateFrom`       | `string` (YYYY-MM-DD) | —       | No       |
+| `dateTo`         | `string` (YYYY-MM-DD) | —       | No       |
+| `first`          | `number`              | `365`   | No       |
+| `skip`           | `number`              | `0`     | No       |
+| `orderDirection` | `"asc" \| "desc"`     | `"asc"` | No       |
 
 #### Attesters
 
-| Method                                    | Returns                      | Description                                     |
-| ----------------------------------------- | ---------------------------- | ----------------------------------------------- |
-| `getProjectAttesters(projectId, filters?)` | `SubgraphProjectAttester[]` | Attesters authorized for a specific project     |
-| `getWatcherAttesters(watcherId, filters?)` | `SubgraphWatcherAttester[]` | Attesters authorized at the watcher level       |
+| Method                                     | Returns                     | Description                                 |
+| ------------------------------------------ | --------------------------- | ------------------------------------------- |
+| `getProjectAttesters(projectId, filters?)` | `SubgraphProjectAttester[]` | Attesters authorized for a specific project |
+| `getWatcherAttesters(watcherId, filters?)` | `SubgraphWatcherAttester[]` | Attesters authorized at the watcher level   |
 
 Both accept an optional `AttesterFilters` with `{ first?, skip?, active? }`.
 
@@ -858,40 +858,40 @@ Gas estimation methods apply the **same input validation** as their transaction 
 
 #### `sdk.watchers`
 
-| Method                                                     | Estimates gas for                      |
-| ---------------------------------------------------------- | -------------------------------------- |
-| `estimateCreateWatcherGas(name)`                           | `createWatcher(name)`                  |
-| `estimateTransferWatcherOwnershipGas(watcherId, newOwner)` | `transferWatcherOwnership(...)`        |
+| Method                                                     | Estimates gas for               |
+| ---------------------------------------------------------- | ------------------------------- |
+| `estimateCreateWatcherGas(name)`                           | `createWatcher(name)`           |
+| `estimateTransferWatcherOwnershipGas(watcherId, newOwner)` | `transferWatcherOwnership(...)` |
 
 #### `sdk.attestations`
 
-| Method                                    | Estimates gas for                |
-| ----------------------------------------- | -------------------------------- |
-| `estimateAttestGas(params)`               | `attest(params)`                 |
-| `estimateOverwriteAttestationGas(params)` | `overwriteAttestation(params)`   |
-| `estimateAttestBatchGas(params[])`        | `attestBatch(params[])`          |
-| `estimateAttestZeroPeriodGas(params)`     | `attestZeroPeriod(params)`       |
-| `estimateRevokeAttestationGas(uid)`       | `revokeAttestation(uid)`         |
+| Method                                    | Estimates gas for              |
+| ----------------------------------------- | ------------------------------ |
+| `estimateAttestGas(params)`               | `attest(params)`               |
+| `estimateOverwriteAttestationGas(params)` | `overwriteAttestation(params)` |
+| `estimateAttestBatchGas(params[])`        | `attestBatch(params[])`        |
+| `estimateAttestZeroPeriodGas(params)`     | `attestZeroPeriod(params)`     |
+| `estimateRevokeAttestationGas(uid)`       | `revokeAttestation(uid)`       |
 
 #### `sdk.projects`
 
-| Method                                            | Estimates gas for                    |
-| ------------------------------------------------- | ------------------------------------ |
-| `estimateCreateProjectGas(watcherId, name, type)` | `createProject(...)`                 |
-| `estimateDeregisterProjectGas(projectId)`         | `deregisterProject(projectId)`       |
-| `estimateTransferProjectGas(projectId, watcherId)`| `transferProject(...)`               |
-| `estimateSetProjectMetadataURIGas(projectId, uri)`| `setProjectMetadataURI(...)`         |
+| Method                                             | Estimates gas for              |
+| -------------------------------------------------- | ------------------------------ |
+| `estimateCreateProjectGas(watcherId, name, type)`  | `createProject(...)`           |
+| `estimateDeregisterProjectGas(projectId)`          | `deregisterProject(projectId)` |
+| `estimateTransferProjectGas(projectId, watcherId)` | `transferProject(...)`         |
+| `estimateSetProjectMetadataURIGas(projectId, uri)` | `setProjectMetadataURI(...)`   |
 
 #### `sdk.attesters`
 
-| Method                                              | Estimates gas for                      |
-| --------------------------------------------------- | -------------------------------------- |
-| `estimateAddAttesterGas(projectId, attester)`       | `addAttester(...)`                     |
-| `estimateRemoveAttesterGas(projectId, attester)`    | `removeAttester(...)`                  |
-| `estimateAddAttestersGas(projectId, attesters[])`   | `addAttesters(...)`                    |
-| `estimateRemoveAttestersGas(projectId, attesters[])`| `removeAttesters(...)`                 |
-| `estimateAddWatcherAttesterGas(watcherId, attester)`| `addWatcherAttester(...)`              |
-| `estimateRemoveWatcherAttesterGas(watcherId, attester)` | `removeWatcherAttester(...)`       |
+| Method                                                  | Estimates gas for            |
+| ------------------------------------------------------- | ---------------------------- |
+| `estimateAddAttesterGas(projectId, attester)`           | `addAttester(...)`           |
+| `estimateRemoveAttesterGas(projectId, attester)`        | `removeAttester(...)`        |
+| `estimateAddAttestersGas(projectId, attesters[])`       | `addAttesters(...)`          |
+| `estimateRemoveAttestersGas(projectId, attesters[])`    | `removeAttesters(...)`       |
+| `estimateAddWatcherAttesterGas(watcherId, attester)`    | `addWatcherAttester(...)`    |
+| `estimateRemoveWatcherAttesterGas(watcherId, attester)` | `removeWatcherAttester(...)` |
 
 ---
 
@@ -955,52 +955,52 @@ try {
 
 `ConfigurationError` is thrown before any transaction is sent. Common triggers:
 
-| Scenario | Method(s) | Message |
-| -------- | --------- | ------- |
-| Invalid Ethereum address passed as `attester` | `addAttester`, `removeAttester`, `addAttesters`, `removeAttesters`, `addWatcherAttester`, `removeWatcherAttester` | "Invalid address: ..." |
-| Invalid `newOwner` address | `transferWatcherOwnership` | "Invalid address: ..." |
-| `fromSigner` called with a signer that has no attached provider | `EnergySDK.fromSigner` | "Signer must have an attached provider" |
-| `fromSigner` signer's chain ID doesn't match the configured `network` | `EnergySDK.fromSigner` | "Signer chain ID ... does not match expected ..." |
-| `attestZeroPeriod` called when the project has no prior attestation (chain tip is 0) | `attestZeroPeriod`, `estimateAttestZeroPeriodGas` | "No prior attestation found for project ..." |
-| `overwriteAttestation` `refUID` doesn't exist on-chain | `overwriteAttestation`, `estimateOverwriteAttestationGas` | "Original attestation not found: ..." |
-| `overwriteAttestation` original was already replaced | `overwriteAttestation`, `estimateOverwriteAttestationGas` | "Original attestation has already been replaced" |
-| `overwriteAttestation` replacement period doesn't match original | `overwriteAttestation`, `estimateOverwriteAttestationGas` | "Period mismatch: ..." |
+| Scenario                                                                             | Method(s)                                                                                                         | Message                                           |
+| ------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------- | ------------------------------------------------- |
+| Invalid Ethereum address passed as `attester`                                        | `addAttester`, `removeAttester`, `addAttesters`, `removeAttesters`, `addWatcherAttester`, `removeWatcherAttester` | "Invalid address: ..."                            |
+| Invalid `newOwner` address                                                           | `transferWatcherOwnership`                                                                                        | "Invalid address: ..."                            |
+| `fromSigner` called with a signer that has no attached provider                      | `EnergySDK.fromSigner`                                                                                            | "Signer must have an attached provider"           |
+| `fromSigner` signer's chain ID doesn't match the configured `network`                | `EnergySDK.fromSigner`                                                                                            | "Signer chain ID ... does not match expected ..." |
+| `attestZeroPeriod` called when the project has no prior attestation (chain tip is 0) | `attestZeroPeriod`, `estimateAttestZeroPeriodGas`                                                                 | "No prior attestation found for project ..."      |
+| `overwriteAttestation` `refUID` doesn't exist on-chain                               | `overwriteAttestation`, `estimateOverwriteAttestationGas`                                                         | "Original attestation not found: ..."             |
+| `overwriteAttestation` original was already replaced                                 | `overwriteAttestation`, `estimateOverwriteAttestationGas`                                                         | "Original attestation has already been replaced"  |
+| `overwriteAttestation` replacement period doesn't match original                     | `overwriteAttestation`, `estimateOverwriteAttestationGas`                                                         | "Period mismatch: ..."                            |
 
 ### Common contract errors
 
-| Error                          | Source   | Meaning                                                              |
-| ------------------------------ | -------- | -------------------------------------------------------------------- |
-| `UnauthorizedAttester`         | Resolver | Wallet is not whitelisted for this project                           |
-| `ProjectNotRegistered`         | Both     | Project ID doesn't exist or was deregistered                         |
-| `NonSequentialAttestation`     | Registry | `fromTimestamp` doesn't match the previous `toTimestamp`             |
-| `PeriodAlreadyAttested`        | Registry | This exact time period already has an attestation                    |
-| `PeriodStartAlreadyAttested`   | Registry | An attestation already starts at this `fromTimestamp`                |
-| `InvalidReadingsLength`        | Resolver | `readings.length` doesn't match `readingCount`                       |
-| `InvalidReadingCount`          | Resolver | Reading count is zero                                                |
-| `InvalidReadingInterval`       | Resolver | `readingIntervalMinutes` is zero                                     |
-| `InvalidMethod`                | Resolver | Empty method string                                                  |
-| `InvalidTimestamps`            | Resolver | Derived `toTimestamp` is not after `fromTimestamp`                   |
-| `ReplacementPeriodMismatch`    | Both     | Replacement attestation covers a different period than original      |
-| `ReplacementProjectMismatch`   | Resolver | Replacement references an attestation from a different project       |
-| `AttestationAlreadyReplaced`   | Registry | The referenced attestation was already replaced once                 |
-| `AttestationNotFound`          | Registry | The referenced `refUID` does not exist on-chain                      |
-| `DirectRevocationBlocked`      | Registry | Direct revocation is blocked; use `overwriteAttestation` instead     |
-| `WatcherNotRegistered`         | Registry | Watcher ID doesn't exist                                             |
-| `UnauthorizedWatcherOwner`     | Registry | Caller is not the watcher's owner                                    |
-| `AttesterAlreadyAuthorized`    | Registry | Attester is already whitelisted for this project                     |
-| `AttesterNotAuthorized`        | Registry | Attester is not whitelisted; cannot remove a wallet that isn't added |
-| `EmptyAttesterArray`           | Registry | Batch add/remove called with an empty array                          |
-| `EnergyTypeNotRegistered`      | Registry | The energy type ID passed to `createProject` is not registered       |
-| `InvalidEnergyType`            | Registry | Energy type ID is out of the valid range                             |
-| `UnauthorizedResolver`         | Registry | Caller is not an authorized resolver (registry-level guard)          |
-| `UnauthorizedEnergyTypeAdmin`  | Registry | Caller is not the energy type admin                                  |
-| `OwnableUnauthorizedAccount`   | Registry | Caller is not the contract owner (e.g. calling `upgradeToAndCall`)   |
-| `InsufficientValue`            | Resolver | Resolver requires ETH payment but none was sent                      |
-| `InvalidEAS`                   | Resolver | Invalid EAS address passed to resolver constructor                   |
-| `InvalidLength`                | Resolver | Encoded attestation data has wrong length                            |
-| `AccessDenied`                 | Resolver | Resolver access control check failed                                 |
-| `EnforcedPause`                | Resolver | Resolver is paused; attestations temporarily blocked                 |
-| `TimestampOverflow`            | Resolver | Timestamp arithmetic overflowed `uint64`                             |
+| Error                         | Source   | Meaning                                                              |
+| ----------------------------- | -------- | -------------------------------------------------------------------- |
+| `UnauthorizedAttester`        | Resolver | Wallet is not whitelisted for this project                           |
+| `ProjectNotRegistered`        | Both     | Project ID doesn't exist or was deregistered                         |
+| `NonSequentialAttestation`    | Registry | `fromTimestamp` doesn't match the previous `toTimestamp`             |
+| `PeriodAlreadyAttested`       | Registry | This exact time period already has an attestation                    |
+| `PeriodStartAlreadyAttested`  | Registry | An attestation already starts at this `fromTimestamp`                |
+| `InvalidReadingsLength`       | Resolver | `readings.length` doesn't match `readingCount`                       |
+| `InvalidReadingCount`         | Resolver | Reading count is zero                                                |
+| `InvalidReadingInterval`      | Resolver | `readingIntervalMinutes` is zero                                     |
+| `InvalidMethod`               | Resolver | Empty method string                                                  |
+| `InvalidTimestamps`           | Resolver | Derived `toTimestamp` is not after `fromTimestamp`                   |
+| `ReplacementPeriodMismatch`   | Both     | Replacement attestation covers a different period than original      |
+| `ReplacementProjectMismatch`  | Resolver | Replacement references an attestation from a different project       |
+| `AttestationAlreadyReplaced`  | Registry | The referenced attestation was already replaced once                 |
+| `AttestationNotFound`         | Registry | The referenced `refUID` does not exist on-chain                      |
+| `DirectRevocationBlocked`     | Registry | Direct revocation is blocked; use `overwriteAttestation` instead     |
+| `WatcherNotRegistered`        | Registry | Watcher ID doesn't exist                                             |
+| `UnauthorizedWatcherOwner`    | Registry | Caller is not the watcher's owner                                    |
+| `AttesterAlreadyAuthorized`   | Registry | Attester is already whitelisted for this project                     |
+| `AttesterNotAuthorized`       | Registry | Attester is not whitelisted; cannot remove a wallet that isn't added |
+| `EmptyAttesterArray`          | Registry | Batch add/remove called with an empty array                          |
+| `EnergyTypeNotRegistered`     | Registry | The energy type ID passed to `createProject` is not registered       |
+| `InvalidEnergyType`           | Registry | Energy type ID is out of the valid range                             |
+| `UnauthorizedResolver`        | Registry | Caller is not an authorized resolver (registry-level guard)          |
+| `UnauthorizedEnergyTypeAdmin` | Registry | Caller is not the energy type admin                                  |
+| `OwnableUnauthorizedAccount`  | Registry | Caller is not the contract owner (e.g. calling `upgradeToAndCall`)   |
+| `InsufficientValue`           | Resolver | Resolver requires ETH payment but none was sent                      |
+| `InvalidEAS`                  | Resolver | Invalid EAS address passed to resolver constructor                   |
+| `InvalidLength`               | Resolver | Encoded attestation data has wrong length                            |
+| `AccessDenied`                | Resolver | Resolver access control check failed                                 |
+| `EnforcedPause`               | Resolver | Resolver is paused; attestations temporarily blocked                 |
+| `TimestampOverflow`           | Resolver | Timestamp arithmetic overflowed `uint64`                             |
 
 ---
 

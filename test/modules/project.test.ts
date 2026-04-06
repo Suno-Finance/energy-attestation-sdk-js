@@ -133,7 +133,10 @@ describe("ProjectModule", () => {
 
       const mod = new ProjectModule(ctx);
       await mod.deregisterProject(42n);
-      expect(getMock(ctx.registry, "deregisterProject")).toHaveBeenCalledWith(42n, expect.anything());
+      expect(getMock(ctx.registry, "deregisterProject")).toHaveBeenCalledWith(
+        42n,
+        expect.anything(),
+      );
     });
 
     it("decodes contract revert into ContractRevertError", async () => {

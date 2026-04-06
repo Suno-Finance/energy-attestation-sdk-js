@@ -157,6 +157,7 @@ export interface SDKContext {
   signer: AbstractSigner;
   provider: Provider;
   tx: Required<TxFeeConfig>;
+  gasStrategy: "eip1559" | "legacy";
 }
 
 export interface TxFeeConfig {

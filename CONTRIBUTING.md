@@ -86,15 +86,15 @@ test/
 
 ## Scripts
 
-| Command                | Description                           |
-| ---------------------- | ------------------------------------- |
-| `npm run build`        | Compile CJS + ESM output with tsup    |
-| `npm test`             | Run all tests once                    |
-| `npm run test:watch`   | Run tests in watch mode               |
-| `npm run lint`         | Run ESLint                            |
-| `npm run format`       | Format all files with Prettier        |
-| `npm run format:check` | Check formatting without writing      |
-| `npm run typecheck`    | TypeScript type check (no emit)       |
+| Command                | Description                        |
+| ---------------------- | ---------------------------------- |
+| `npm run build`        | Compile CJS + ESM output with tsup |
+| `npm test`             | Run all tests once                 |
+| `npm run test:watch`   | Run tests in watch mode            |
+| `npm run lint`         | Run ESLint                         |
+| `npm run format`       | Format all files with Prettier     |
+| `npm run format:check` | Check formatting without writing   |
+| `npm run typecheck`    | TypeScript type check (no emit)    |
 
 ---
 

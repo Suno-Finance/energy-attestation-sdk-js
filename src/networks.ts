@@ -15,6 +15,12 @@ export interface NetworkConfig {
   subgraphUrl: string | null;
   /** EVM chain ID for this network */
   chainId: number;
+  /**
+   * Gas pricing strategy for this network.
+   * - 'eip1559': use maxFeePerGas + maxPriorityFeePerGas (EIP-1559 type-2 transactions)
+   * - 'legacy': use gasPrice only (networks that don't expose eth_maxPriorityFeePerGas, e.g. Celo)
+   */
+  gasStrategy: "eip1559" | "legacy";
 }
 
 /**
@@ -34,6 +40,7 @@ const NETWORK_CONFIG: Record<Network, NetworkConfig> = {
     subgraphUrl:
       "https://gateway.thegraph.com/api/subgraphs/id/33b8nJcqxLyH96eSyyHC9vsdvHifUXejLzMEtqLeySBC",
     chainId: 80002,
+    gasStrategy: "eip1559",
   },
   [Network.POLYGON]: {
     eas: "0x5E634ef5355f45A855d02D66eCD687b1502AF790",
@@ -44,6 +51,7 @@ const NETWORK_CONFIG: Record<Network, NetworkConfig> = {
     subgraphUrl:
       "https://gateway.thegraph.com/api/subgraphs/id/D8AgWoxUr3aDgWQCEy2hVeU8hnsrs5N3vmPSeGMphgEi",
     chainId: 137,
+    gasStrategy: "eip1559",
   },
   [Network.CELO]: {
     eas: "0x72E1d8ccf5299fb36fEfD8CC4394B8ef7e98Af92",
@@ -54,6 +62,7 @@ const NETWORK_CONFIG: Record<Network, NetworkConfig> = {
     subgraphUrl:
       "https://gateway.thegraph.com/api/subgraphs/id/9BM6kQzg7jtcbnphW7UXCGMmvJ2QtDkxnU8fqDYinUx1",
     chainId: 42220,
+    gasStrategy: "eip1559",
   },
 };
 

@@ -68,10 +68,7 @@ describe("EnergyQuery", () => {
       });
       await q.getProtocol();
 
-      expect(fetch).toHaveBeenCalledWith(
-        "https://custom.example.com/subgraph",
-        expect.anything(),
-      );
+      expect(fetch).toHaveBeenCalledWith("https://custom.example.com/subgraph", expect.anything());
     });
 
     it("sets Authorization header when apiKey is provided", async () => {
@@ -113,9 +110,7 @@ describe("EnergyQuery", () => {
   describe("error handling", () => {
     it("throws on network failure", async () => {
       vi.stubGlobal("fetch", mockFetchNetworkError("ECONNREFUSED"));
-      await expect(makeQuery().getProtocol()).rejects.toThrow(
-        "Subgraph request failed",
-      );
+      await expect(makeQuery().getProtocol()).rejects.toThrow("Subgraph request failed");
     });
 
     it("throws on HTTP error status", async () => {
@@ -280,7 +275,10 @@ describe("EnergyQuery", () => {
     });
 
     it("sets hasMore true and slices when subgraph returns first+1 items", async () => {
-      const items = Array.from({ length: 11 }, (_, i) => ({ ...watcherList[0], id: String(i + 1) }));
+      const items = Array.from({ length: 11 }, (_, i) => ({
+        ...watcherList[0],
+        id: String(i + 1),
+      }));
       vi.stubGlobal("fetch", mockFetch({ watchers: items }));
       const result = await makeQuery().getWatchers({ first: 10 });
       expect(result.hasMore).toBe(true);
@@ -423,7 +421,10 @@ describe("EnergyQuery", () => {
     });
 
     it("sets hasMore true and slices when subgraph returns first+1 items", async () => {
-      const projects = Array.from({ length: 6 }, (_, i) => ({ id: String(i + 1), name: `P${i + 1}` }));
+      const projects = Array.from({ length: 6 }, (_, i) => ({
+        id: String(i + 1),
+        name: `P${i + 1}`,
+      }));
       vi.stubGlobal("fetch", mockFetch({ projects }));
       const result = await makeQuery().getProjects({ first: 5 });
       expect(result.hasMore).toBe(true);

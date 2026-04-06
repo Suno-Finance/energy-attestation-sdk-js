@@ -34,7 +34,11 @@ describe("AttesterModule", () => {
       setupMock(ctx, "addAttester");
       const mod = new AttesterModule(ctx);
       await mod.addAttester(5n, ADDR2);
-      expect(getMock(ctx.registry, "addAttester")).toHaveBeenCalledWith(5n, ADDR2, expect.anything());
+      expect(getMock(ctx.registry, "addAttester")).toHaveBeenCalledWith(
+        5n,
+        ADDR2,
+        expect.anything(),
+      );
     });
 
     it("throws ConfigurationError for invalid attester address", async () => {
