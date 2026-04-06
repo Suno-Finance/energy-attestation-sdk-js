@@ -92,6 +92,12 @@ describe("EnergyQuery", () => {
       expect(options.headers["Authorization"]).toBeUndefined();
     });
 
+    it("throws ConfigurationError when no subgraph URL is available", () => {
+      // All built-in networks have a subgraphUrl, so we test via the explicit override path:
+      // passing subgraphUrl as empty string resolves to a falsy value that triggers the guard.
+      expect(() => new EnergyQuery({ network: Network.AMOY, subgraphUrl: "" })).toThrow();
+    });
+
     it("always sets Content-Type header", async () => {
       const fetch = mockFetch({ protocol: null });
       vi.stubGlobal("fetch", fetch);

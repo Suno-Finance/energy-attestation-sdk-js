@@ -387,4 +387,96 @@ describe("ProjectModule", () => {
       );
     });
   });
+
+  describe("estimateCreateProjectGas", () => {
+    it("returns estimated gas as bigint", async () => {
+      const ctx = createMockContext();
+      getMock(ctx.registry, "registerProject").estimateGas.mockResolvedValue(80000n);
+
+      const gas = await new ProjectModule(ctx).estimateCreateProjectGas(
+        1,
+        "Solar Farm",
+        EnergyType.SOLAR_PV,
+      );
+      expect(gas).toBe(80000n);
+    });
+
+    it("decodes contract revert into ContractRevertError", async () => {
+      const ctx = createMockContext();
+      getMock(ctx.registry, "registerProject").estimateGas.mockRejectedValue({
+        data: encodeRegistryError("WatcherNotRegistered", [99]),
+      });
+
+      const err = await new ProjectModule(ctx)
+        .estimateCreateProjectGas(99, "Test", EnergyType.SOLAR_PV)
+        .catch((e) => e);
+      expect(err).toBeInstanceOf(ContractRevertError);
+      expect((err as ContractRevertError).errorName).toBe("WatcherNotRegistered");
+    });
+  });
+
+  describe("estimateDeregisterProjectGas", () => {
+    it("returns estimated gas as bigint", async () => {
+      const ctx = createMockContext();
+      getMock(ctx.registry, "deregisterProject").estimateGas.mockResolvedValue(40000n);
+
+      const gas = await new ProjectModule(ctx).estimateDeregisterProjectGas(1);
+      expect(gas).toBe(40000n);
+    });
+
+    it("decodes contract revert into ContractRevertError", async () => {
+      const ctx = createMockContext();
+      getMock(ctx.registry, "deregisterProject").estimateGas.mockRejectedValue({
+        data: encodeRegistryError("ProjectNotRegistered", [1]),
+      });
+
+      const err = await new ProjectModule(ctx).estimateDeregisterProjectGas(1).catch((e) => e);
+      expect(err).toBeInstanceOf(ContractRevertError);
+      expect((err as ContractRevertError).errorName).toBe("ProjectNotRegistered");
+    });
+  });
+
+  describe("estimateTransferProjectGas", () => {
+    it("returns estimated gas as bigint", async () => {
+      const ctx = createMockContext();
+      getMock(ctx.registry, "transferProject").estimateGas.mockResolvedValue(55000n);
+
+      const gas = await new ProjectModule(ctx).estimateTransferProjectGas(1, 2);
+      expect(gas).toBe(55000n);
+    });
+
+    it("decodes contract revert into ContractRevertError", async () => {
+      const ctx = createMockContext();
+      getMock(ctx.registry, "transferProject").estimateGas.mockRejectedValue({
+        data: encodeRegistryError("WatcherNotRegistered", [2]),
+      });
+
+      const err = await new ProjectModule(ctx).estimateTransferProjectGas(1, 2).catch((e) => e);
+      expect(err).toBeInstanceOf(ContractRevertError);
+      expect((err as ContractRevertError).errorName).toBe("WatcherNotRegistered");
+    });
+  });
+
+  describe("estimateSetProjectMetadataURIGas", () => {
+    it("returns estimated gas as bigint", async () => {
+      const ctx = createMockContext();
+      getMock(ctx.registry, "setProjectMetadataURI").estimateGas.mockResolvedValue(30000n);
+
+      const gas = await new ProjectModule(ctx).estimateSetProjectMetadataURIGas(1, "ipfs://Qm");
+      expect(gas).toBe(30000n);
+    });
+
+    it("decodes contract revert into ContractRevertError", async () => {
+      const ctx = createMockContext();
+      getMock(ctx.registry, "setProjectMetadataURI").estimateGas.mockRejectedValue({
+        data: encodeRegistryError("ProjectNotRegistered", [1]),
+      });
+
+      const err = await new ProjectModule(ctx)
+        .estimateSetProjectMetadataURIGas(1, "ipfs://x")
+        .catch((e) => e);
+      expect(err).toBeInstanceOf(ContractRevertError);
+      expect((err as ContractRevertError).errorName).toBe("ProjectNotRegistered");
+    });
+  });
 });

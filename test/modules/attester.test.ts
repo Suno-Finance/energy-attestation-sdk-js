@@ -307,6 +307,126 @@ describe("AttesterModule", () => {
     });
   });
 
+  describe("estimateAddAttesterGas", () => {
+    it("returns estimated gas as bigint", async () => {
+      const ctx = createMockContext();
+      getMock(ctx.registry, "addAttester").estimateGas.mockResolvedValue(50000n);
+      const gas = await new AttesterModule(ctx).estimateAddAttesterGas(1, ADDR1);
+      expect(gas).toBe(50000n);
+    });
+
+    it("decodes contract revert into ContractRevertError", async () => {
+      const ctx = createMockContext();
+      getMock(ctx.registry, "addAttester").estimateGas.mockRejectedValue({
+        data: encodeRegistryError("ProjectNotRegistered", [1]),
+      });
+      const err = await new AttesterModule(ctx).estimateAddAttesterGas(1, ADDR1).catch((e) => e);
+      expect(err).toBeInstanceOf(ContractRevertError);
+      expect((err as ContractRevertError).errorName).toBe("ProjectNotRegistered");
+    });
+  });
+
+  describe("estimateRemoveAttesterGas", () => {
+    it("returns estimated gas as bigint", async () => {
+      const ctx = createMockContext();
+      getMock(ctx.registry, "removeAttester").estimateGas.mockResolvedValue(45000n);
+      const gas = await new AttesterModule(ctx).estimateRemoveAttesterGas(1, ADDR1);
+      expect(gas).toBe(45000n);
+    });
+
+    it("decodes contract revert into ContractRevertError", async () => {
+      const ctx = createMockContext();
+      getMock(ctx.registry, "removeAttester").estimateGas.mockRejectedValue({
+        data: encodeRegistryError("AttesterNotAuthorized", [ADDR1, 1]),
+      });
+      const err = await new AttesterModule(ctx).estimateRemoveAttesterGas(1, ADDR1).catch((e) => e);
+      expect(err).toBeInstanceOf(ContractRevertError);
+      expect((err as ContractRevertError).errorName).toBe("AttesterNotAuthorized");
+    });
+  });
+
+  describe("estimateAddAttestersGas", () => {
+    it("returns estimated gas as bigint", async () => {
+      const ctx = createMockContext();
+      getMock(ctx.registry, "addAttesters").estimateGas.mockResolvedValue(70000n);
+      const gas = await new AttesterModule(ctx).estimateAddAttestersGas(1, [ADDR1, ADDR2]);
+      expect(gas).toBe(70000n);
+    });
+
+    it("decodes contract revert into ContractRevertError", async () => {
+      const ctx = createMockContext();
+      getMock(ctx.registry, "addAttesters").estimateGas.mockRejectedValue({
+        data: encodeRegistryError("ProjectNotRegistered", [1]),
+      });
+      const err = await new AttesterModule(ctx).estimateAddAttestersGas(1, [ADDR1]).catch((e) => e);
+      expect(err).toBeInstanceOf(ContractRevertError);
+      expect((err as ContractRevertError).errorName).toBe("ProjectNotRegistered");
+    });
+  });
+
+  describe("estimateRemoveAttestersGas", () => {
+    it("returns estimated gas as bigint", async () => {
+      const ctx = createMockContext();
+      getMock(ctx.registry, "removeAttesters").estimateGas.mockResolvedValue(65000n);
+      const gas = await new AttesterModule(ctx).estimateRemoveAttestersGas(1, [ADDR1]);
+      expect(gas).toBe(65000n);
+    });
+
+    it("decodes contract revert into ContractRevertError", async () => {
+      const ctx = createMockContext();
+      getMock(ctx.registry, "removeAttesters").estimateGas.mockRejectedValue({
+        data: encodeRegistryError("AttesterNotAuthorized", [ADDR1, 1]),
+      });
+      const err = await new AttesterModule(ctx)
+        .estimateRemoveAttestersGas(1, [ADDR1])
+        .catch((e) => e);
+      expect(err).toBeInstanceOf(ContractRevertError);
+      expect((err as ContractRevertError).errorName).toBe("AttesterNotAuthorized");
+    });
+  });
+
+  describe("estimateAddWatcherAttesterGas", () => {
+    it("returns estimated gas as bigint", async () => {
+      const ctx = createMockContext();
+      getMock(ctx.registry, "addWatcherAttester").estimateGas.mockResolvedValue(55000n);
+      const gas = await new AttesterModule(ctx).estimateAddWatcherAttesterGas(1, ADDR1);
+      expect(gas).toBe(55000n);
+    });
+
+    it("decodes contract revert into ContractRevertError", async () => {
+      const ctx = createMockContext();
+      getMock(ctx.registry, "addWatcherAttester").estimateGas.mockRejectedValue({
+        data: encodeRegistryError("WatcherNotRegistered", [1]),
+      });
+      const err = await new AttesterModule(ctx)
+        .estimateAddWatcherAttesterGas(1, ADDR1)
+        .catch((e) => e);
+      expect(err).toBeInstanceOf(ContractRevertError);
+      expect((err as ContractRevertError).errorName).toBe("WatcherNotRegistered");
+    });
+  });
+
+  describe("estimateRemoveWatcherAttesterGas", () => {
+    it("returns estimated gas as bigint", async () => {
+      const ctx = createMockContext();
+      getMock(ctx.registry, "removeWatcherAttester").estimateGas.mockResolvedValue(48000n);
+      const gas = await new AttesterModule(ctx).estimateRemoveWatcherAttesterGas(1, ADDR1);
+      expect(gas).toBe(48000n);
+    });
+
+    it("decodes contract revert into ContractRevertError", async () => {
+      const ctx = createMockContext();
+      getMock(ctx.registry, "removeWatcherAttester").estimateGas.mockRejectedValue({
+        data: encodeRegistryError("AttesterNotAuthorized", [ADDR1, 0]),
+      });
+      const err = await new AttesterModule(ctx)
+        .estimateRemoveWatcherAttesterGas(1, ADDR1)
+        .catch((e) => e);
+      expect(err).toBeInstanceOf(ContractRevertError);
+      expect((err as ContractRevertError).errorName).toBe("AttesterNotAuthorized");
+    });
+  });
+
   describe("removeWatcherAttester", () => {
     it("returns txHash as object", async () => {
       const ctx = createMockContext();
