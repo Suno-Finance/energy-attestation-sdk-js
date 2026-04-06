@@ -66,9 +66,9 @@ describe("WatcherModule — gas estimation", () => {
     it("throws ConfigurationError for invalid newOwner address", async () => {
       const ctx = createMockContext();
       const mod = new WatcherModule(ctx);
-      await expect(
-        mod.estimateTransferWatcherOwnershipGas(1, "not-an-address"),
-      ).rejects.toThrow(ConfigurationError);
+      await expect(mod.estimateTransferWatcherOwnershipGas(1, "not-an-address")).rejects.toThrow(
+        ConfigurationError,
+      );
     });
 
     it("decodes contract revert into ContractRevertError", async () => {

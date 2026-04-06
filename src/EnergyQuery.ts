@@ -47,10 +47,7 @@ export class EnergyQuery {
   // Internal GraphQL client
   // ---------------------------------------------------------------------------
 
-  private async query<T>(
-    gql: string,
-    variables?: Record<string, unknown>,
-  ): Promise<T> {
+  private async query<T>(gql: string, variables?: Record<string, unknown>): Promise<T> {
     const queryName = gql.match(/query\s+(\w+)/)?.[1] ?? "unknown";
     let response: Response;
 
@@ -65,7 +62,9 @@ export class EnergyQuery {
         signal: controller.signal,
       });
     } catch (err) {
-      throw new Error(`Subgraph request failed (query: ${queryName}): ${String(err)}`, { cause: err });
+      throw new Error(`Subgraph request failed (query: ${queryName}): ${String(err)}`, {
+        cause: err,
+      });
     } finally {
       clearTimeout(timer);
     }
@@ -224,7 +223,9 @@ export class EnergyQuery {
   }
 
   /** Async generator that pages through all watchers matching the given filters. */
-  async *iterateWatchers(filters: Omit<WatcherFilters, "skip"> = {}): AsyncGenerator<SubgraphWatcher> {
+  async *iterateWatchers(
+    filters: Omit<WatcherFilters, "skip"> = {},
+  ): AsyncGenerator<SubgraphWatcher> {
     const first = filters.first ?? 100;
     let skip = 0;
     while (true) {
@@ -236,9 +237,7 @@ export class EnergyQuery {
   }
 
   /** Returns the full ownership transfer history for a watcher. */
-  async getWatcherOwnershipHistory(
-    watcherId: string,
-  ): Promise<SubgraphWatcherOwnershipTransfer[]> {
+  async getWatcherOwnershipHistory(watcherId: string): Promise<SubgraphWatcherOwnershipTransfer[]> {
     const data = await this.query<{
       watcherOwnershipTransfers: SubgraphWatcherOwnershipTransfer[];
     }>(
@@ -334,7 +333,9 @@ export class EnergyQuery {
   }
 
   /** Async generator that pages through all projects matching the given filters. */
-  async *iterateProjects(filters: Omit<ProjectFilters, "skip"> = {}): AsyncGenerator<SubgraphProject> {
+  async *iterateProjects(
+    filters: Omit<ProjectFilters, "skip"> = {},
+  ): AsyncGenerator<SubgraphProject> {
     const first = filters.first ?? 100;
     let skip = 0;
     while (true) {
@@ -350,9 +351,7 @@ export class EnergyQuery {
   // ---------------------------------------------------------------------------
 
   /** Returns a single energy attestation by its EAS UID. */
-  async getAttestation(
-    uid: string,
-  ): Promise<SubgraphEnergyAttestation | null> {
+  async getAttestation(uid: string): Promise<SubgraphEnergyAttestation | null> {
     const data = await this.query<{
       energyAttestation: SubgraphEnergyAttestation | null;
     }>(
@@ -435,7 +434,9 @@ export class EnergyQuery {
   }
 
   /** Async generator that pages through all attestations matching the given filters. */
-  async *iterateAttestations(filters: Omit<AttestationFilters, "skip"> = {}): AsyncGenerator<SubgraphEnergyAttestation> {
+  async *iterateAttestations(
+    filters: Omit<AttestationFilters, "skip"> = {},
+  ): AsyncGenerator<SubgraphEnergyAttestation> {
     const first = filters.first ?? 100;
     let skip = 0;
     while (true) {
@@ -454,17 +455,8 @@ export class EnergyQuery {
    * Returns daily energy snapshots for a project.
    * Useful for building charts and analytics dashboards.
    */
-  async getDailySnapshots(
-    filters: DailySnapshotFilters,
-  ): Promise<SubgraphDailySnapshot[]> {
-    const {
-      projectId,
-      dateFrom,
-      dateTo,
-      first = 365,
-      skip = 0,
-      orderDirection = "asc",
-    } = filters;
+  async getDailySnapshots(filters: DailySnapshotFilters): Promise<SubgraphDailySnapshot[]> {
+    const { projectId, dateFrom, dateTo, first = 365, skip = 0, orderDirection = "asc" } = filters;
 
     const where: Record<string, unknown> = { project: projectId };
     if (dateFrom) where["date_gte"] = dateFrom;

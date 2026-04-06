@@ -114,15 +114,7 @@ describe("ReadModule.getAttestationData", () => {
 
   it("returns bigint values for projectId, fromTimestamp, and each reading", async () => {
     const ctx = createMockContext();
-    const encodedData = encodeAttestData(
-      99n,
-      3,
-      60,
-      [100n, 200n, 300n],
-      1700009000n,
-      "iot",
-      "",
-    );
+    const encodedData = encodeAttestData(99n, 3, 60, [100n, 200n, 300n], 1700009000n, "iot", "");
     getMock(ctx.eas, "getAttestation").mockResolvedValue({ data: encodedData });
 
     const mod = new ReadModule(ctx);

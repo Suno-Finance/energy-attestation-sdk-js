@@ -77,7 +77,7 @@ export interface AttestParams {
   readings: bigint[];
   /** Minutes between readings. Accepts a plain number or an {@link Interval} enum value. */
   readingIntervalMinutes: Interval | number;
-  fromTimestamp: number;
+  fromTimestamp: number | bigint;
   method: string;
   metadataURI?: string;
 }
@@ -157,6 +157,7 @@ export interface SDKContext {
   signer: AbstractSigner;
   provider: Provider;
   tx: Required<TxFeeConfig>;
+  gasStrategy: "eip1559" | "legacy";
 }
 
 export interface TxFeeConfig {

@@ -1,10 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { AttesterModule } from "../../src/modules/AttesterModule.js";
-import {
-  createMockContext,
-  getMock,
-  encodeRegistryError,
-} from "../helpers/mocks.js";
+import { createMockContext, getMock, encodeRegistryError } from "../helpers/mocks.js";
 import { ContractRevertError } from "../../src/errors.js";
 
 const ADDR1 = "0x0000000000000000000000000000000000000001";

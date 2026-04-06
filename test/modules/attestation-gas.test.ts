@@ -1,11 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { ZeroAddress, ZeroHash } from "ethers";
 import { AttestationModule } from "../../src/modules/AttestationModule.js";
-import {
-  createMockContext,
-  getMock,
-  encodeRegistryError,
-} from "../helpers/mocks.js";
+import { createMockContext, getMock, encodeRegistryError } from "../helpers/mocks.js";
 import { ConfigurationError, ContractRevertError } from "../../src/errors.js";
 import type { AttestParams } from "../../src/types.js";
 import { encodeAttestationData } from "../../src/encoding.js";

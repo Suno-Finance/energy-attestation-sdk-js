@@ -90,8 +90,12 @@ export function createMockContext(overrides?: Partial<SDKContext>): SDKContext {
     registryInterface,
     resolverInterface,
     signer: { getAddress: vi.fn() } as unknown as SDKContext["signer"],
-    provider: { getFeeData: vi.fn().mockResolvedValue({}) } as unknown as SDKContext["provider"],
+    provider: {
+      getFeeData: vi.fn().mockResolvedValue({}),
+      send: vi.fn().mockResolvedValue({ baseFeePerGas: "0x174876E800" }), // 100 gwei default
+    } as unknown as SDKContext["provider"],
     tx: { minPriorityFeeGwei: 25, maxFeeMultiplier: 2, retryCount: 0, retryDelayMs: 1000 },
+    gasStrategy: "eip1559" as const,
     ...overrides,
   };
 }

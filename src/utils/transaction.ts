@@ -10,22 +10,36 @@ export interface TxReceipt {
 export interface TxOverrides {
   maxPriorityFeePerGas?: bigint;
   maxFeePerGas?: bigint;
+  gasPrice?: bigint;
+}
+
+type RpcProvider = { send(method: string, params: unknown[]): Promise<string> };
+
+function rpc(provider: SDKContext["provider"]): RpcProvider {
+  return provider as unknown as RpcProvider;
 }
 
 export async function getTxOverrides(ctx: SDKContext): Promise<TxOverrides> {
-  const feeData = await ctx.provider.getFeeData();
-  const minPriority = parseUnits(String(ctx.tx.minPriorityFeeGwei), "gwei");
-
-  const observedPriority = feeData.maxPriorityFeePerGas ?? 0n;
-  const maxPriorityFeePerGas = observedPriority > minPriority ? observedPriority : minPriority;
-
-  const feeSeed = feeData.maxFeePerGas ?? feeData.gasPrice ?? maxPriorityFeePerGas;
   const multiplier = BigInt(Math.max(1, Math.floor(ctx.tx.maxFeeMultiplier)));
-  const maxFeePerGas = feeSeed * multiplier;
+
+  // Legacy networks (e.g. Celo): call eth_gasPrice directly.
+  // getFeeData() internally calls eth_maxPriorityFeePerGas which many networks
+  // and wallet providers (MetaMask) don't support, producing noisy RPC warnings.
+  if (ctx.gasStrategy === "legacy") {
+    const gasPrice = BigInt(await rpc(ctx.provider).send("eth_gasPrice", []));
+    return { gasPrice: gasPrice * multiplier };
+  }
+
+  // EIP-1559 path: derive fees from the latest block's baseFeePerGas.
+  // Avoids getFeeData() and its eth_maxPriorityFeePerGas call entirely.
+  const block = await rpc(ctx.provider).send("eth_getBlockByNumber", ["latest", false]);
+  const baseFee = BigInt((block as unknown as { baseFeePerGas?: string }).baseFeePerGas ?? "0x0");
+  const minPriority = parseUnits(String(ctx.tx.minPriorityFeeGwei), "gwei");
+  const maxFeePerGas = baseFee * multiplier + minPriority;
 
   return {
-    maxPriorityFeePerGas,
-    maxFeePerGas: maxFeePerGas >= maxPriorityFeePerGas ? maxFeePerGas : maxPriorityFeePerGas * 2n,
+    maxPriorityFeePerGas: minPriority,
+    maxFeePerGas,
   };
 }
 

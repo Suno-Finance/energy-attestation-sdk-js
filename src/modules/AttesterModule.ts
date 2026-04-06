@@ -102,7 +102,11 @@ export class AttesterModule {
     validateAddress(attester, "attester");
     const receipt = await sendTx(
       (overrides) =>
-        this.ctx.registry.addWatcherAttester(watcherId, attester, ...(overrides ? [overrides] : [])),
+        this.ctx.registry.addWatcherAttester(
+          watcherId,
+          attester,
+          ...(overrides ? [overrides] : []),
+        ),
       this.ctx,
     );
     return { txHash: receipt.hash };
@@ -120,7 +124,11 @@ export class AttesterModule {
     validateAddress(attester, "attester");
     const receipt = await sendTx(
       (overrides) =>
-        this.ctx.registry.removeWatcherAttester(watcherId, attester, ...(overrides ? [overrides] : [])),
+        this.ctx.registry.removeWatcherAttester(
+          watcherId,
+          attester,
+          ...(overrides ? [overrides] : []),
+        ),
       this.ctx,
     );
     return { txHash: receipt.hash };

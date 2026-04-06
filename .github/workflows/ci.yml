@@ -16,8 +16,8 @@ jobs:
 
       - uses: actions/setup-node@v4.4.0
         with:
-          node-version: '20'
-          cache: 'npm'
+          node-version: "20"
+          cache: "npm"
 
       - run: npm ci
 

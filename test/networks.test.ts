@@ -14,7 +14,6 @@ describe("getEASAddress", () => {
   it("returns correct address for Celo", () => {
     expect(getEASAddress(Network.CELO)).toBe("0x72E1d8ccf5299fb36fEfD8CC4394B8ef7e98Af92");
   });
-
 });
 
 describe("getNetworkConfig", () => {
@@ -61,6 +60,25 @@ describe("getNetworkConfig", () => {
       const config = getNetworkConfig(network);
       expect(typeof config.chainId).toBe("number");
       expect(config.chainId).toBeGreaterThan(0);
+    }
+  });
+
+  it("Celo uses eip1559 gas strategy", () => {
+    expect(getNetworkConfig(Network.CELO).gasStrategy).toBe("eip1559");
+  });
+
+  it("Polygon uses eip1559 gas strategy", () => {
+    expect(getNetworkConfig(Network.POLYGON).gasStrategy).toBe("eip1559");
+  });
+
+  it("Amoy uses eip1559 gas strategy", () => {
+    expect(getNetworkConfig(Network.AMOY).gasStrategy).toBe("eip1559");
+  });
+
+  it("every network has a gasStrategy defined", () => {
+    for (const network of Object.values(Network)) {
+      const config = getNetworkConfig(network);
+      expect(["eip1559", "legacy"]).toContain(config.gasStrategy);
     }
   });
 });

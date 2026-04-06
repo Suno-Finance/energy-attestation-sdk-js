@@ -97,7 +97,6 @@ describe("EnergySDK.fromPrivateKey", () => {
       expect(sdk).toBeDefined();
       spy.mockRestore();
     });
-
   });
 
   describe("custom overrides on supported networks", () => {
@@ -255,7 +254,10 @@ describe("EnergySDK sdk.network", () => {
       chainId: 137n,
       name: "matic",
     } as Awaited<ReturnType<JsonRpcProvider["getNetwork"]>>);
-    const sdk = await EnergySDK.fromPrivateKey({ privateKey: PRIVATE_KEY, network: Network.POLYGON });
+    const sdk = await EnergySDK.fromPrivateKey({
+      privateKey: PRIVATE_KEY,
+      network: Network.POLYGON,
+    });
     expect(sdk.network).toBe(Network.POLYGON);
     spy.mockRestore();
   });
@@ -271,7 +273,8 @@ describe("EnergySDK sdk.network", () => {
 describe("EnergySDK assertSignerAddress", () => {
   it("does not throw when address matches (exact)", async () => {
     const spy = vi.spyOn(JsonRpcProvider.prototype, "getNetwork").mockResolvedValue({
-      chainId: 80002n, name: "amoy",
+      chainId: 80002n,
+      name: "amoy",
     } as Awaited<ReturnType<JsonRpcProvider["getNetwork"]>>);
     const sdk = await EnergySDK.fromPrivateKey({ privateKey: PRIVATE_KEY, network: Network.AMOY });
     expect(() => sdk.assertSignerAddress(sdk.address)).not.toThrow();
@@ -280,7 +283,8 @@ describe("EnergySDK assertSignerAddress", () => {
 
   it("does not throw when address matches (different case)", async () => {
     const spy = vi.spyOn(JsonRpcProvider.prototype, "getNetwork").mockResolvedValue({
-      chainId: 80002n, name: "amoy",
+      chainId: 80002n,
+      name: "amoy",
     } as Awaited<ReturnType<JsonRpcProvider["getNetwork"]>>);
     const sdk = await EnergySDK.fromPrivateKey({ privateKey: PRIVATE_KEY, network: Network.AMOY });
     expect(() => sdk.assertSignerAddress(sdk.address.toLowerCase())).not.toThrow();
@@ -289,16 +293,20 @@ describe("EnergySDK assertSignerAddress", () => {
 
   it("throws ConfigurationError when address does not match", async () => {
     const spy = vi.spyOn(JsonRpcProvider.prototype, "getNetwork").mockResolvedValue({
-      chainId: 80002n, name: "amoy",
+      chainId: 80002n,
+      name: "amoy",
     } as Awaited<ReturnType<JsonRpcProvider["getNetwork"]>>);
     const sdk = await EnergySDK.fromPrivateKey({ privateKey: PRIVATE_KEY, network: Network.AMOY });
-    expect(() => sdk.assertSignerAddress("0x72E1d8ccf5299fb36fEfD8CC4394B8ef7e98Af92")).toThrow(ConfigurationError);
+    expect(() => sdk.assertSignerAddress("0x72E1d8ccf5299fb36fEfD8CC4394B8ef7e98Af92")).toThrow(
+      ConfigurationError,
+    );
     spy.mockRestore();
   });
 
   it("throws ConfigurationError when expected is not a valid address", async () => {
     const spy = vi.spyOn(JsonRpcProvider.prototype, "getNetwork").mockResolvedValue({
-      chainId: 80002n, name: "amoy",
+      chainId: 80002n,
+      name: "amoy",
     } as Awaited<ReturnType<JsonRpcProvider["getNetwork"]>>);
     const sdk = await EnergySDK.fromPrivateKey({ privateKey: PRIVATE_KEY, network: Network.AMOY });
     expect(() => sdk.assertSignerAddress("not-an-address")).toThrow(ConfigurationError);
@@ -308,7 +316,9 @@ describe("EnergySDK assertSignerAddress", () => {
 
 describe("EnergySDK chain ID error handling", () => {
   it("re-throws non-transport errors from provider.getNetwork()", async () => {
-    const spy = vi.spyOn(JsonRpcProvider.prototype, "getNetwork").mockRejectedValue(new SyntaxError("unexpected token"));
+    const spy = vi
+      .spyOn(JsonRpcProvider.prototype, "getNetwork")
+      .mockRejectedValue(new SyntaxError("unexpected token"));
     await expect(
       EnergySDK.fromPrivateKey({ privateKey: PRIVATE_KEY, network: Network.AMOY }),
     ).rejects.toThrow(SyntaxError);
@@ -316,7 +326,9 @@ describe("EnergySDK chain ID error handling", () => {
   });
 
   it("still succeeds when provider.getNetwork() throws a transport error", async () => {
-    const spy = vi.spyOn(JsonRpcProvider.prototype, "getNetwork").mockRejectedValue(new Error("network request failed"));
+    const spy = vi
+      .spyOn(JsonRpcProvider.prototype, "getNetwork")
+      .mockRejectedValue(new Error("network request failed"));
     const sdk = await EnergySDK.fromPrivateKey({ privateKey: PRIVATE_KEY, network: Network.AMOY });
     expect(sdk).toBeDefined();
     spy.mockRestore();
@@ -473,11 +485,13 @@ describe("EnergySDK.fromSigner", () => {
       const provider = new JsonRpcProvider("https://rpc-amoy.polygon.technology");
       const signer = new Wallet(PRIVATE_KEY, provider);
       // Override getAddress to simulate a failing signer
-      signer.getAddress = async () => { throw new Error("Signer disconnected"); };
+      signer.getAddress = async () => {
+        throw new Error("Signer disconnected");
+      };
 
-      await expect(
-        EnergySDK.fromSigner({ signer, network: Network.AMOY }),
-      ).rejects.toThrow("Signer disconnected");
+      await expect(EnergySDK.fromSigner({ signer, network: Network.AMOY })).rejects.toThrow(
+        "Signer disconnected",
+      );
     });
 
     it("throws ConfigurationError for invalid registryAddress", async () => {
@@ -521,9 +535,9 @@ describe("EnergySDK.fromSigner", () => {
         name: "mainnet",
       } as Awaited<ReturnType<JsonRpcProvider["getNetwork"]>>);
 
-      await expect(
-        EnergySDK.fromSigner({ signer, network: Network.AMOY }),
-      ).rejects.toThrow(ConfigurationError);
+      await expect(EnergySDK.fromSigner({ signer, network: Network.AMOY })).rejects.toThrow(
+        ConfigurationError,
+      );
 
       spy.mockRestore();
     });
@@ -531,13 +545,14 @@ describe("EnergySDK.fromSigner", () => {
     it("succeeds when provider is unreachable (skips chain ID validation)", async () => {
       const provider = new JsonRpcProvider("https://rpc-amoy.polygon.technology");
       const signer = new Wallet(PRIVATE_KEY, provider);
-      const spy = vi.spyOn(provider, "getNetwork").mockRejectedValue(new Error("network request failed"));
+      const spy = vi
+        .spyOn(provider, "getNetwork")
+        .mockRejectedValue(new Error("network request failed"));
 
       const sdk = await EnergySDK.fromSigner({ signer, network: Network.AMOY });
       expect(sdk).toBeDefined();
 
       spy.mockRestore();
     });
-
   });
 });

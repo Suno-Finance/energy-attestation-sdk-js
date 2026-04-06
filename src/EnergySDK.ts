@@ -7,7 +7,13 @@ import {
   type AbstractSigner,
   type Provider,
 } from "ethers";
-import type { PrivateKeySDKConfig, SignerSDKConfig, SDKContext, TxFeeConfig, Network } from "./types.js";
+import type {
+  PrivateKeySDKConfig,
+  SignerSDKConfig,
+  SDKContext,
+  TxFeeConfig,
+  Network,
+} from "./types.js";
 import { ConfigurationError } from "./errors.js";
 import { getNetworkConfig, type NetworkConfig } from "./networks.js";
 import { ENERGY_REGISTRY_ABI } from "./abi/EnergyRegistry.js";
@@ -55,7 +61,7 @@ function resolveAddresses(
       schemaUID
         ? "schemaUID must be a valid bytes32 hex string (0x + 64 hex chars)"
         : `No schema UID available for ${network}. ` +
-          `Provide an explicit schemaUID for a custom deployment, or use a supported network.`,
+            `Provide an explicit schemaUID for a custom deployment, or use a supported network.`,
     );
   }
 
@@ -76,6 +82,7 @@ function buildContext(
   signer: AbstractSigner,
   provider: Provider,
   addresses: ResolvedAddresses,
+  gasStrategy: "eip1559" | "legacy",
   txOverrides?: TxFeeConfig,
 ): SDKContext {
   if (txOverrides?.maxFeeMultiplier !== undefined && txOverrides.maxFeeMultiplier < 1) {
@@ -100,14 +107,21 @@ function buildContext(
     signer,
     provider,
     tx: { ...DEFAULT_TX_POLICY, ...txOverrides },
+    gasStrategy,
   };
 }
 
-async function getNetworkWithTimeout(provider: Provider, timeoutMs = 2000): Promise<Awaited<ReturnType<Provider["getNetwork"]>>> {
+async function getNetworkWithTimeout(
+  provider: Provider,
+  timeoutMs = 2000,
+): Promise<Awaited<ReturnType<Provider["getNetwork"]>>> {
   return await Promise.race([
     provider.getNetwork(),
     new Promise<never>((_, reject) =>
-      setTimeout(() => reject(new Error(`provider.getNetwork timeout after ${timeoutMs}ms`)), timeoutMs),
+      setTimeout(
+        () => reject(new Error(`provider.getNetwork timeout after ${timeoutMs}ms`)),
+        timeoutMs,
+      ),
     ),
   ]);
 }
@@ -156,9 +170,7 @@ export class EnergySDK {
       throw new ConfigurationError("expected must be a valid Ethereum address");
     }
     if (this.address.toLowerCase() !== expected.toLowerCase()) {
-      throw new ConfigurationError(
-        `Signer address mismatch: ${this.address} !== ${expected}`,
-      );
+      throw new ConfigurationError(`Signer address mismatch: ${this.address} !== ${expected}`);
     }
   }
 
@@ -200,9 +212,15 @@ export class EnergySDK {
     }
 
     const wallet = new Wallet(config.privateKey, provider);
-    const ctx = buildContext(wallet, provider, addresses, config.tx);
+    const ctx = buildContext(wallet, provider, addresses, networkConfig.gasStrategy, config.tx);
 
-    return new EnergySDK({ signer: wallet, provider, address: wallet.address, network: config.network, ctx });
+    return new EnergySDK({
+      signer: wallet,
+      provider,
+      address: wallet.address,
+      network: config.network,
+      ctx,
+    });
   }
 
   /**
@@ -240,7 +258,13 @@ export class EnergySDK {
 
     const addresses = resolveAddresses(config.network, networkConfig, config);
     const address = await config.signer.getAddress();
-    const ctx = buildContext(config.signer, config.signer.provider, addresses, config.tx);
+    const ctx = buildContext(
+      config.signer,
+      config.signer.provider,
+      addresses,
+      networkConfig.gasStrategy,
+      config.tx,
+    );
 
     return new EnergySDK({
       signer: config.signer,
