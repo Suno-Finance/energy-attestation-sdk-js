@@ -22,7 +22,11 @@ describe("ProjectModule", () => {
           createMockTx(createMockReceipt([log], "0xconsumerhash")),
         );
 
-        const result = await new ProjectModule(ctx).createProject(1, "City Grid", EnergyType.CONSUMER);
+        const result = await new ProjectModule(ctx).createProject(
+          1,
+          "City Grid",
+          EnergyType.CONSUMER,
+        );
 
         expect(result.projectId).toBe(5n);
         expect(result.txHash).toBe("0xconsumerhash");
@@ -50,7 +54,10 @@ describe("ProjectModule", () => {
         await new ProjectModule(ctx).createProject(2n, "Factory", EnergyType.CONSUMER);
 
         expect(getMock(ctx.registry, "registerProject")).toHaveBeenCalledWith(
-          2n, "Factory", EnergyType.CONSUMER, expect.anything(),
+          2n,
+          "Factory",
+          EnergyType.CONSUMER,
+          expect.anything(),
         );
       });
     });
@@ -59,12 +66,21 @@ describe("ProjectModule", () => {
       it("succeeds and returns projectId and txHash", async () => {
         const ctx = createMockContext();
         getMock(ctx.registry, "isEnergyTypeRegistered").mockResolvedValue(true);
-        const log = createMockLog(registryInterface, "ProjectRegistered", [3n, 1n, "Solar Farm", 1]);
+        const log = createMockLog(registryInterface, "ProjectRegistered", [
+          3n,
+          1n,
+          "Solar Farm",
+          1,
+        ]);
         getMock(ctx.registry, "registerProject").mockResolvedValue(
           createMockTx(createMockReceipt([log], "0xsolarhash")),
         );
 
-        const result = await new ProjectModule(ctx).createProject(1, "Solar Farm", EnergyType.SOLAR_PV);
+        const result = await new ProjectModule(ctx).createProject(
+          1,
+          "Solar Farm",
+          EnergyType.SOLAR_PV,
+        );
 
         expect(result.projectId).toBe(3n);
         expect(result.txHash).toBe("0xsolarhash");
@@ -80,7 +96,9 @@ describe("ProjectModule", () => {
 
         await new ProjectModule(ctx).createProject(1, "Wind", EnergyType.WIND_ONSHORE);
 
-        expect(getMock(ctx.registry, "isEnergyTypeRegistered")).toHaveBeenCalledWith(EnergyType.WIND_ONSHORE);
+        expect(getMock(ctx.registry, "isEnergyTypeRegistered")).toHaveBeenCalledWith(
+          EnergyType.WIND_ONSHORE,
+        );
       });
 
       it("passes energyType to the contract", async () => {
@@ -94,7 +112,10 @@ describe("ProjectModule", () => {
         await new ProjectModule(ctx).createProject(1, "Hydro", EnergyType.HYDRO);
 
         expect(getMock(ctx.registry, "registerProject")).toHaveBeenCalledWith(
-          1, "Hydro", EnergyType.HYDRO, expect.anything(),
+          1,
+          "Hydro",
+          EnergyType.HYDRO,
+          expect.anything(),
         );
       });
     });
@@ -104,7 +125,9 @@ describe("ProjectModule", () => {
         const ctx = createMockContext();
         getMock(ctx.registry, "isEnergyTypeRegistered").mockResolvedValue(false);
 
-        await expect(new ProjectModule(ctx).createProject(1, "Test", 99)).rejects.toThrow(ConfigurationError);
+        await expect(new ProjectModule(ctx).createProject(1, "Test", 99)).rejects.toThrow(
+          ConfigurationError,
+        );
       });
 
       it("does not call registerProject when the energy type check fails", async () => {
@@ -135,7 +158,9 @@ describe("ProjectModule", () => {
           createMockTx(createMockReceipt([], "0xnoevent")),
         );
 
-        const err = await new ProjectModule(ctx).createProject(1, "Test", EnergyType.SOLAR_PV).catch((e) => e);
+        const err = await new ProjectModule(ctx)
+          .createProject(1, "Test", EnergyType.SOLAR_PV)
+          .catch((e) => e);
 
         expect(err).toBeInstanceOf(ConfigurationError);
         expect(err.message).toContain("0xnoevent");
@@ -148,7 +173,9 @@ describe("ProjectModule", () => {
           data: encodeRegistryError("WatcherNotRegistered", [99]),
         });
 
-        const err = await new ProjectModule(ctx).createProject(99, "Test", EnergyType.SOLAR_PV).catch((e) => e);
+        const err = await new ProjectModule(ctx)
+          .createProject(99, "Test", EnergyType.SOLAR_PV)
+          .catch((e) => e);
         expect(err).toBeInstanceOf(ContractRevertError);
         expect((err as ContractRevertError).errorName).toBe("WatcherNotRegistered");
       });
@@ -157,10 +184,15 @@ describe("ProjectModule", () => {
         const ctx = createMockContext();
         getMock(ctx.registry, "isEnergyTypeRegistered").mockResolvedValue(true);
         getMock(ctx.registry, "registerProject").mockRejectedValue({
-          data: encodeRegistryError("UnauthorizedWatcherOwner", ["0x0000000000000000000000000000000000000001", 2]),
+          data: encodeRegistryError("UnauthorizedWatcherOwner", [
+            "0x0000000000000000000000000000000000000001",
+            2,
+          ]),
         });
 
-        const err = await new ProjectModule(ctx).createProject(2, "Test", EnergyType.SOLAR_PV).catch((e) => e);
+        const err = await new ProjectModule(ctx)
+          .createProject(2, "Test", EnergyType.SOLAR_PV)
+          .catch((e) => e);
         expect(err).toBeInstanceOf(ContractRevertError);
         expect((err as ContractRevertError).errorName).toBe("UnauthorizedWatcherOwner");
       });
@@ -217,7 +249,10 @@ describe("ProjectModule", () => {
 
     it("decodes UnauthorizedWatcherOwner revert", async () => {
       const ctx = createMockContext();
-      const data = encodeRegistryError("UnauthorizedWatcherOwner", ["0x0000000000000000000000000000000000000001", 1]);
+      const data = encodeRegistryError("UnauthorizedWatcherOwner", [
+        "0x0000000000000000000000000000000000000001",
+        1,
+      ]);
       getMock(ctx.registry, "deregisterProject").mockRejectedValue({ data });
 
       const err = await new ProjectModule(ctx).deregisterProject(3).catch((e) => e);
@@ -275,7 +310,10 @@ describe("ProjectModule", () => {
 
     it("decodes UnauthorizedWatcherOwner revert", async () => {
       const ctx = createMockContext();
-      const data = encodeRegistryError("UnauthorizedWatcherOwner", ["0x0000000000000000000000000000000000000001", 1]);
+      const data = encodeRegistryError("UnauthorizedWatcherOwner", [
+        "0x0000000000000000000000000000000000000001",
+        1,
+      ]);
       getMock(ctx.registry, "transferProject").mockRejectedValue({ data });
 
       const err = await new ProjectModule(ctx).transferProject(1, 2).catch((e) => e);
@@ -323,7 +361,10 @@ describe("ProjectModule", () => {
 
     it("decodes UnauthorizedWatcherOwner revert", async () => {
       const ctx = createMockContext();
-      const data = encodeRegistryError("UnauthorizedWatcherOwner", ["0x0000000000000000000000000000000000000001", 1]);
+      const data = encodeRegistryError("UnauthorizedWatcherOwner", [
+        "0x0000000000000000000000000000000000000001",
+        1,
+      ]);
       getMock(ctx.registry, "setProjectMetadataURI").mockRejectedValue({ data });
 
       const err = await new ProjectModule(ctx).setProjectMetadataURI(3, "ipfs://x").catch((e) => e);
@@ -339,7 +380,11 @@ describe("ProjectModule", () => {
 
       const result = await new ProjectModule(ctx).setProjectMetadataURI(1, "");
       expect(result.txHash).toBe("0xclear");
-      expect(getMock(ctx.registry, "setProjectMetadataURI")).toHaveBeenCalledWith(1, "", expect.anything());
+      expect(getMock(ctx.registry, "setProjectMetadataURI")).toHaveBeenCalledWith(
+        1,
+        "",
+        expect.anything(),
+      );
     });
   });
 });

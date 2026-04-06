@@ -126,15 +126,15 @@ describe("Registry ABI events", () => {
   describe("EnergyAttested", () => {
     it("encodes and decodes correctly", () => {
       const decoded = encodeAndDecode("EnergyAttested", [
-        7n,           // projectId (indexed)
-        UID1,         // uid (indexed)
-        1700000000n,  // fromTimestamp
-        1700003600n,  // toTimestamp
-        3600000n,     // energyWh
-        ADDR1,        // attester (indexed)
-        1,            // energyType
-        "ipfs://meta",// metadataURI
-        [3600000n],   // readings
+        7n, // projectId (indexed)
+        UID1, // uid (indexed)
+        1700000000n, // fromTimestamp
+        1700003600n, // toTimestamp
+        3600000n, // energyWh
+        ADDR1, // attester (indexed)
+        1, // energyType
+        "ipfs://meta", // metadataURI
+        [3600000n], // readings
       ]);
       expect(decoded.projectId).toBe(7n);
       expect(decoded.uid).toBe(UID1);
@@ -150,14 +150,30 @@ describe("Registry ABI events", () => {
     it("handles multiple readings", () => {
       const readings = [1000n, 2000n, 3000n];
       const decoded = encodeAndDecode("EnergyAttested", [
-        1n, UID1, 1700000000n, 1700010800n, 6000n, ADDR1, 0, "", readings,
+        1n,
+        UID1,
+        1700000000n,
+        1700010800n,
+        6000n,
+        ADDR1,
+        0,
+        "",
+        readings,
       ]);
       expect(decoded.readings.map(BigInt)).toEqual(readings);
     });
 
     it("handles zero-energy reading (zero period)", () => {
       const decoded = encodeAndDecode("EnergyAttested", [
-        2n, UID1, 1700000000n, 1700003600n, 0n, ADDR2, 1, "", [0n],
+        2n,
+        UID1,
+        1700000000n,
+        1700003600n,
+        0n,
+        ADDR2,
+        1,
+        "",
+        [0n],
       ]);
       expect(decoded.energyWh).toBe(0n);
       expect(decoded.readings.map(BigInt)).toEqual([0n]);
@@ -167,16 +183,16 @@ describe("Registry ABI events", () => {
   describe("EnergyReplaced", () => {
     it("encodes and decodes correctly", () => {
       const decoded = encodeAndDecode("EnergyReplaced", [
-        5n,           // projectId (indexed)
-        UID1,         // oldUid (indexed)
-        UID2,         // newUid
-        1700000000n,  // fromTimestamp
-        1700003600n,  // toTimestamp
-        1000n,        // oldEnergyWh
-        1200n,        // newEnergyWh
-        ADDR3,        // attester (indexed)
+        5n, // projectId (indexed)
+        UID1, // oldUid (indexed)
+        UID2, // newUid
+        1700000000n, // fromTimestamp
+        1700003600n, // toTimestamp
+        1000n, // oldEnergyWh
+        1200n, // newEnergyWh
+        ADDR3, // attester (indexed)
         "ipfs://new", // metadataURI
-        [1200n],      // newReadings
+        [1200n], // newReadings
       ]);
       expect(decoded.projectId).toBe(5n);
       expect(decoded.oldUid).toBe(UID1);
@@ -192,10 +208,10 @@ describe("Registry ABI events", () => {
   describe("EnergyRevoked", () => {
     it("encodes and decodes correctly", () => {
       const decoded = encodeAndDecode("EnergyRevoked", [
-        8n,      // projectId (indexed)
-        500n,    // energyWh
-        ADDR2,   // attester (indexed)
-        1,       // energyType
+        8n, // projectId (indexed)
+        500n, // energyWh
+        ADDR2, // attester (indexed)
+        1, // energyType
       ]);
       expect(decoded.projectId).toBe(8n);
       expect(decoded.energyWh).toBe(500n);

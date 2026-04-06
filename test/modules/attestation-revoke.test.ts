@@ -43,7 +43,9 @@ describe("AttestationModule.revokeAttestation", () => {
 
   it("decodes AttestationNotFound revert", async () => {
     const ctx = createMockContext();
-    getMock(ctx.eas, "revoke").mockRejectedValue({ data: encodeRegistryError("AttestationNotFound", [VALID_UID]) });
+    getMock(ctx.eas, "revoke").mockRejectedValue({
+      data: encodeRegistryError("AttestationNotFound", [VALID_UID]),
+    });
     const err = await new AttestationModule(ctx).revokeAttestation(VALID_UID).catch((e) => e);
     expect(err).toBeInstanceOf(ContractRevertError);
     expect((err as ContractRevertError).errorName).toBe("AttestationNotFound");
@@ -51,7 +53,9 @@ describe("AttestationModule.revokeAttestation", () => {
 
   it("decodes DirectRevocationBlocked (resolver) revert — attestation not yet replaced", async () => {
     const ctx = createMockContext();
-    getMock(ctx.eas, "revoke").mockRejectedValue({ data: encodeResolverError("DirectRevocationBlocked", []) });
+    getMock(ctx.eas, "revoke").mockRejectedValue({
+      data: encodeResolverError("DirectRevocationBlocked", []),
+    });
     const err = await new AttestationModule(ctx).revokeAttestation(VALID_UID).catch((e) => e);
     expect(err).toBeInstanceOf(ContractRevertError);
     expect((err as ContractRevertError).errorName).toBe("DirectRevocationBlocked");

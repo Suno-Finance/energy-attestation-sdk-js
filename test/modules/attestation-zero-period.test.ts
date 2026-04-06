@@ -232,7 +232,9 @@ describe("AttestationModule.attestZeroPeriod", () => {
   it("decodes NonSequentialAttestation (registry) revert", async () => {
     const ctx = createMockContext();
     getMock(ctx.registry, "getProjectLastTimestamp").mockResolvedValue(LAST_TIMESTAMP);
-    getMock(ctx.eas, "attest").mockRejectedValue({ data: encodeRegistryError("NonSequentialAttestation", [PROJECT_ID, 1700003600, 1700007200]) });
+    getMock(ctx.eas, "attest").mockRejectedValue({
+      data: encodeRegistryError("NonSequentialAttestation", [PROJECT_ID, 1700003600, 1700007200]),
+    });
     const err = await new AttestationModule(ctx)
       .attestZeroPeriod({ projectId: PROJECT_ID, interval: Interval.Hourly })
       .catch((e) => e);
@@ -243,7 +245,9 @@ describe("AttestationModule.attestZeroPeriod", () => {
   it("decodes PeriodAlreadyAttested (registry) revert", async () => {
     const ctx = createMockContext();
     getMock(ctx.registry, "getProjectLastTimestamp").mockResolvedValue(LAST_TIMESTAMP);
-    getMock(ctx.eas, "attest").mockRejectedValue({ data: encodeRegistryError("PeriodAlreadyAttested", [PROJECT_ID, 1700000000, 1700003600]) });
+    getMock(ctx.eas, "attest").mockRejectedValue({
+      data: encodeRegistryError("PeriodAlreadyAttested", [PROJECT_ID, 1700000000, 1700003600]),
+    });
     const err = await new AttestationModule(ctx)
       .attestZeroPeriod({ projectId: PROJECT_ID, interval: Interval.Hourly })
       .catch((e) => e);
@@ -254,7 +258,9 @@ describe("AttestationModule.attestZeroPeriod", () => {
   it("decodes TimestampOverflow (resolver) revert", async () => {
     const ctx = createMockContext();
     getMock(ctx.registry, "getProjectLastTimestamp").mockResolvedValue(LAST_TIMESTAMP);
-    getMock(ctx.eas, "attest").mockRejectedValue({ data: encodeResolverError("TimestampOverflow", []) });
+    getMock(ctx.eas, "attest").mockRejectedValue({
+      data: encodeResolverError("TimestampOverflow", []),
+    });
     const err = await new AttestationModule(ctx)
       .attestZeroPeriod({ projectId: PROJECT_ID, interval: Interval.Hourly })
       .catch((e) => e);
