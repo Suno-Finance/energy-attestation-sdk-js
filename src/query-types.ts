@@ -231,6 +231,16 @@ export interface AttestationFilters {
   fromTimestamp_gte?: string;
   /** Maximum fromTimestamp in Unix seconds (as string) */
   fromTimestamp_lte?: string;
+  /** Minimum toTimestamp in Unix seconds (as string) */
+  toTimestamp_gte?: string;
+  /** Maximum toTimestamp in Unix seconds (as string) */
+  toTimestamp_lte?: string;
+  /**
+   * Filter by energy type ID.
+   * Use "0" for consumer attestations.
+   * Use the numeric string ("1", "2", …) for generator types.
+   */
+  energyTypeId?: string;
 }
 
 export interface DailySnapshotFilters {

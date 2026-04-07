@@ -109,11 +109,14 @@ export interface TxResult {
 
 export interface CreateWatcherResult {
   watcherId: bigint;
+  name: string;
   txHash: string;
 }
 
 export interface CreateProjectResult {
   projectId: bigint;
+  name: string;
+  energyType: number;
   txHash: string;
 }
 
@@ -146,6 +149,12 @@ export interface ProjectStats {
   totalConsumed: bigint;
   lastTimestamp: bigint;
   metadataURI: string;
+}
+
+export interface WatcherStats {
+  watcher: Watcher;
+  totalGenerated: bigint;
+  totalConsumed: bigint;
 }
 
 export interface SDKContext {

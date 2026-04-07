@@ -41,7 +41,13 @@ export class ProjectModule {
     );
 
     const parsed = findEventLog(receipt, this.ctx.registryInterface, TOPIC0_PROJECT_REGISTERED);
-    if (parsed) return { projectId: BigInt(parsed.args[0]), txHash: receipt.hash };
+    if (parsed)
+      return {
+        projectId: BigInt(parsed.args[0]),
+        name,
+        energyType: Number(energyType),
+        txHash: receipt.hash,
+      };
     throw new ConfigurationError(
       `ProjectRegistered event not found in transaction (tx: ${receipt.hash}) — project ID could not be determined`,
     );

@@ -72,6 +72,11 @@ export function createMockContext(overrides?: Partial<SDKContext>): SDKContext {
     isEnergyTypeRegistered: vi.fn(),
     getEnergyTypeName: vi.fn(),
     getEnergyTypeAdmin: vi.fn(),
+    registerEnergyType: mockMethod(),
+    removeEnergyType: mockMethod(),
+    transferEnergyTypeAdmin: mockMethod(),
+    owner: vi.fn(),
+    pendingOwner: vi.fn(),
     interface: registryInterface,
   };
 

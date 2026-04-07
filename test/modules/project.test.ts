@@ -29,6 +29,8 @@ describe("ProjectModule", () => {
         );
 
         expect(result.projectId).toBe(5n);
+        expect(result.name).toBe("City Grid");
+        expect(result.energyType).toBe(EnergyType.CONSUMER);
         expect(result.txHash).toBe("0xconsumerhash");
       });
 
@@ -83,6 +85,8 @@ describe("ProjectModule", () => {
         );
 
         expect(result.projectId).toBe(3n);
+        expect(result.name).toBe("Solar Farm");
+        expect(result.energyType).toBe(EnergyType.SOLAR_PV);
         expect(result.txHash).toBe("0xsolarhash");
       });
 

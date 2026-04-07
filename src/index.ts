@@ -17,6 +17,7 @@ export type {
   Watcher,
   Project,
   ProjectStats,
+  WatcherStats,
 } from "./types.js";
 
 export { Network, Interval, EnergyType } from "./types.js";

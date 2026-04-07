@@ -22,7 +22,7 @@ export class WatcherModule {
     );
 
     const parsed = findEventLog(receipt, this.ctx.registryInterface, TOPIC0_WATCHER_REGISTERED);
-    if (parsed) return { watcherId: BigInt(parsed.args[0]), txHash: receipt.hash };
+    if (parsed) return { watcherId: BigInt(parsed.args[0]), name, txHash: receipt.hash };
     throw new ConfigurationError(
       `WatcherRegistered event not found in transaction (tx: ${receipt.hash}) — watcher ID could not be determined`,
     );

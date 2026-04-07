@@ -28,6 +28,7 @@ describe("WatcherModule", () => {
       const result = await mod.createWatcher("Test Watcher");
 
       expect(result.watcherId).toBe(5n);
+      expect(result.name).toBe("Test Watcher");
       expect(result.txHash).toBe("0xtxhash");
     });
 
