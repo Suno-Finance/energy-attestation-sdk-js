@@ -568,5 +568,19 @@ describe("EnergySDK.fromSigner", () => {
 
       spy.mockRestore();
     });
+
+    it("re-throws non-transport errors from provider.getNetwork()", async () => {
+      const provider = new JsonRpcProvider("https://rpc-amoy.polygon.technology");
+      const signer = new Wallet(PRIVATE_KEY, provider);
+      const spy = vi
+        .spyOn(provider, "getNetwork")
+        .mockRejectedValue(new SyntaxError("unexpected token"));
+
+      await expect(EnergySDK.fromSigner({ signer, network: Network.AMOY })).rejects.toThrow(
+        SyntaxError,
+      );
+
+      spy.mockRestore();
+    });
   });
 });

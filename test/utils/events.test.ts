@@ -72,6 +72,20 @@ describe("findEventLog", () => {
     const result = findEventLog(receipt, registryInterface, TOPIC0_WATCHER_REGISTERED);
     expect(result).toBeNull();
   });
+
+  it("returns null when topic0 matches but parseLog returns null (unknown event in iface)", () => {
+    // Use easInterface to parse a WatcherRegistered log — easInterface doesn't know WatcherRegistered
+    // so parseLog returns null even though topics[0] matches the needle string
+    const log = createMockLog(registryInterface, "WatcherRegistered", [
+      WATCHER_ID,
+      WATCHER_NAME,
+      OWNER,
+    ]);
+    const receipt = createMockReceipt([log]);
+    // Pass easInterface which doesn't contain WatcherRegistered
+    const result = findEventLog(receipt, easInterface, log.topics[0]);
+    expect(result).toBeNull();
+  });
 });
 
 describe("findAllEventLogs", () => {
@@ -109,6 +123,18 @@ describe("findAllEventLogs", () => {
     ]);
     const receipt = createMockReceipt([log]);
     const results = findAllEventLogs(receipt, easInterface, TOPIC0_ATTESTED);
+    expect(results).toHaveLength(0);
+  });
+
+  it("skips logs where parseLog returns null (topic matches but event unknown in iface)", () => {
+    // The log's topic0 matches the needle, but easInterface doesn't know the event
+    const log = createMockLog(registryInterface, "WatcherRegistered", [
+      WATCHER_ID,
+      WATCHER_NAME,
+      OWNER,
+    ]);
+    const receipt = createMockReceipt([log]);
+    const results = findAllEventLogs(receipt, easInterface, log.topics[0]);
     expect(results).toHaveLength(0);
   });
 

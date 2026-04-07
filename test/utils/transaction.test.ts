@@ -137,4 +137,47 @@ describe("sendTx retry logic", () => {
     await expect(sendTx(call, ctx)).rejects.toThrow();
     expect(call).toHaveBeenCalledTimes(1);
   });
+
+  it("uses retryCount=0 fallback when ctx.tx.retryCount is undefined", async () => {
+    const ctx = createMockContext({
+      tx: {
+        minPriorityFeeGwei: 25,
+        maxFeeMultiplier: 2,
+        retryCount: undefined as never,
+        retryDelayMs: 0,
+      },
+    });
+    const call = vi.fn().mockRejectedValue(new Error("fail"));
+
+    await expect(sendTx(call, ctx)).rejects.toThrow();
+    expect(call).toHaveBeenCalledTimes(1); // maxAttempts = 1 + (undefined ?? 0) = 1
+  });
+
+  it("uses retryDelayMs=1000 fallback when ctx.tx.retryDelayMs is undefined", async () => {
+    const ctx = createMockContext({
+      tx: {
+        minPriorityFeeGwei: 25,
+        maxFeeMultiplier: 2,
+        retryCount: 1,
+        retryDelayMs: undefined as never,
+      },
+    });
+    const receipt = makeReceipt("0xretry");
+    const call = vi
+      .fn()
+      .mockRejectedValueOnce(new Error("transient"))
+      .mockResolvedValueOnce({ wait: () => Promise.resolve(receipt) });
+
+    // Should succeed on second attempt despite undefined retryDelayMs (defaults to 1000ms but
+    // we pass retryDelayMs: undefined to exercise the ?? 1000 branch; test uses fake timers
+    // implicitly — we just verify it completes and the call count is correct)
+    vi.useFakeTimers();
+    const txPromise = sendTx(call, ctx);
+    await vi.runAllTimersAsync();
+    const result = await txPromise;
+    vi.useRealTimers();
+
+    expect(result).toBe(receipt);
+    expect(call).toHaveBeenCalledTimes(2);
+  });
 });

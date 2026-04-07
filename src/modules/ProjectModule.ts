@@ -30,13 +30,7 @@ export class ProjectModule {
     }
 
     const receipt = await sendTx(
-      (overrides) =>
-        this.ctx.registry.registerProject(
-          watcherId,
-          name,
-          energyType,
-          ...(overrides ? [overrides] : []),
-        ),
+      (overrides) => this.ctx.registry.registerProject(watcherId, name, energyType, overrides),
       this.ctx,
     );
 
@@ -61,8 +55,7 @@ export class ProjectModule {
    */
   async deregisterProject(projectId: number | bigint): Promise<TxResult> {
     const receipt = await sendTx(
-      (overrides) =>
-        this.ctx.registry.deregisterProject(projectId, ...(overrides ? [overrides] : [])),
+      (overrides) => this.ctx.registry.deregisterProject(projectId, overrides),
       this.ctx,
     );
     return { txHash: receipt.hash };
@@ -80,12 +73,7 @@ export class ProjectModule {
     toWatcherId: number | bigint,
   ): Promise<TxResult> {
     const receipt = await sendTx(
-      (overrides) =>
-        this.ctx.registry.transferProject(
-          projectId,
-          toWatcherId,
-          ...(overrides ? [overrides] : []),
-        ),
+      (overrides) => this.ctx.registry.transferProject(projectId, toWatcherId, overrides),
       this.ctx,
     );
     return { txHash: receipt.hash };
@@ -100,8 +88,7 @@ export class ProjectModule {
    */
   async setProjectMetadataURI(projectId: number | bigint, uri: string): Promise<TxResult> {
     const receipt = await sendTx(
-      (overrides) =>
-        this.ctx.registry.setProjectMetadataURI(projectId, uri, ...(overrides ? [overrides] : [])),
+      (overrides) => this.ctx.registry.setProjectMetadataURI(projectId, uri, overrides),
       this.ctx,
     );
     return { txHash: receipt.hash };

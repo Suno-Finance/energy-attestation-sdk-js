@@ -22,8 +22,7 @@ export class EnergyTypeModule {
       );
     }
     const receipt = await sendTx(
-      (overrides) =>
-        this.ctx.registry.registerEnergyType(id, name, ...(overrides ? [overrides] : [])),
+      (overrides) => this.ctx.registry.registerEnergyType(id, name, overrides),
       this.ctx,
     );
     return { txHash: receipt.hash };
@@ -38,7 +37,7 @@ export class EnergyTypeModule {
    */
   async removeEnergyType(id: number): Promise<TxResult> {
     const receipt = await sendTx(
-      (overrides) => this.ctx.registry.removeEnergyType(id, ...(overrides ? [overrides] : [])),
+      (overrides) => this.ctx.registry.removeEnergyType(id, overrides),
       this.ctx,
     );
     return { txHash: receipt.hash };
@@ -57,8 +56,7 @@ export class EnergyTypeModule {
       throw new ConfigurationError("newAdmin must be a valid Ethereum address");
     }
     const receipt = await sendTx(
-      (overrides) =>
-        this.ctx.registry.transferEnergyTypeAdmin(newAdmin, ...(overrides ? [overrides] : [])),
+      (overrides) => this.ctx.registry.transferEnergyTypeAdmin(newAdmin, overrides),
       this.ctx,
     );
     return { txHash: receipt.hash };

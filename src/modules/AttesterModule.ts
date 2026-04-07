@@ -29,8 +29,7 @@ export class AttesterModule {
   async addAttester(projectId: number | bigint, attester: string): Promise<TxResult> {
     validateAddress(attester, "attester");
     const receipt = await sendTx(
-      (overrides) =>
-        this.ctx.registry.addAttester(projectId, attester, ...(overrides ? [overrides] : [])),
+      (overrides) => this.ctx.registry.addAttester(projectId, attester, overrides),
       this.ctx,
     );
     return { txHash: receipt.hash };
@@ -47,8 +46,7 @@ export class AttesterModule {
   async removeAttester(projectId: number | bigint, attester: string): Promise<TxResult> {
     validateAddress(attester, "attester");
     const receipt = await sendTx(
-      (overrides) =>
-        this.ctx.registry.removeAttester(projectId, attester, ...(overrides ? [overrides] : [])),
+      (overrides) => this.ctx.registry.removeAttester(projectId, attester, overrides),
       this.ctx,
     );
     return { txHash: receipt.hash };
@@ -65,8 +63,7 @@ export class AttesterModule {
   async addAttesters(projectId: number | bigint, attesters: string[]): Promise<TxResult> {
     validateAddresses(attesters, "attester");
     const receipt = await sendTx(
-      (overrides) =>
-        this.ctx.registry.addAttesters(projectId, attesters, ...(overrides ? [overrides] : [])),
+      (overrides) => this.ctx.registry.addAttesters(projectId, attesters, overrides),
       this.ctx,
     );
     return { txHash: receipt.hash };
@@ -83,8 +80,7 @@ export class AttesterModule {
   async removeAttesters(projectId: number | bigint, attesters: string[]): Promise<TxResult> {
     validateAddresses(attesters, "attester");
     const receipt = await sendTx(
-      (overrides) =>
-        this.ctx.registry.removeAttesters(projectId, attesters, ...(overrides ? [overrides] : [])),
+      (overrides) => this.ctx.registry.removeAttesters(projectId, attesters, overrides),
       this.ctx,
     );
     return { txHash: receipt.hash };
@@ -101,12 +97,7 @@ export class AttesterModule {
   async addWatcherAttester(watcherId: number | bigint, attester: string): Promise<TxResult> {
     validateAddress(attester, "attester");
     const receipt = await sendTx(
-      (overrides) =>
-        this.ctx.registry.addWatcherAttester(
-          watcherId,
-          attester,
-          ...(overrides ? [overrides] : []),
-        ),
+      (overrides) => this.ctx.registry.addWatcherAttester(watcherId, attester, overrides),
       this.ctx,
     );
     return { txHash: receipt.hash };
@@ -123,12 +114,7 @@ export class AttesterModule {
   async removeWatcherAttester(watcherId: number | bigint, attester: string): Promise<TxResult> {
     validateAddress(attester, "attester");
     const receipt = await sendTx(
-      (overrides) =>
-        this.ctx.registry.removeWatcherAttester(
-          watcherId,
-          attester,
-          ...(overrides ? [overrides] : []),
-        ),
+      (overrides) => this.ctx.registry.removeWatcherAttester(watcherId, attester, overrides),
       this.ctx,
     );
     return { txHash: receipt.hash };

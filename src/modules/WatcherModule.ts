@@ -17,7 +17,7 @@ export class WatcherModule {
    */
   async createWatcher(name: string): Promise<CreateWatcherResult> {
     const receipt = await sendTx(
-      (overrides) => this.ctx.registry.registerWatcher(name, ...(overrides ? [overrides] : [])),
+      (overrides) => this.ctx.registry.registerWatcher(name, overrides),
       this.ctx,
     );
 
@@ -41,12 +41,7 @@ export class WatcherModule {
       throw new ConfigurationError("newOwner must be a valid Ethereum address");
     }
     const receipt = await sendTx(
-      (overrides) =>
-        this.ctx.registry.transferWatcherOwnership(
-          watcherId,
-          newOwner,
-          ...(overrides ? [overrides] : []),
-        ),
+      (overrides) => this.ctx.registry.transferWatcherOwnership(watcherId, newOwner, overrides),
       this.ctx,
     );
     return { txHash: receipt.hash };
