@@ -393,6 +393,9 @@ export class EnergyQuery {
       replaced,
       fromTimestamp_gte,
       fromTimestamp_lte,
+      toTimestamp_gte,
+      toTimestamp_lte,
+      energyTypeId,
     } = filters;
 
     const where: Record<string, unknown> = {};
@@ -401,6 +404,11 @@ export class EnergyQuery {
     if (replaced !== undefined) where["replaced"] = replaced;
     if (fromTimestamp_gte) where["fromTimestamp_gte"] = fromTimestamp_gte;
     if (fromTimestamp_lte) where["fromTimestamp_lte"] = fromTimestamp_lte;
+    if (toTimestamp_gte) where["toTimestamp_gte"] = toTimestamp_gte;
+    if (toTimestamp_lte) where["toTimestamp_lte"] = toTimestamp_lte;
+    if (energyTypeId !== undefined) {
+      where["energyType"] = energyTypeId === "0" ? null : energyTypeId;
+    }
 
     const data = await this.query<{
       energyAttestations: SubgraphEnergyAttestation[];
@@ -479,6 +487,21 @@ export class EnergyQuery {
       { first, skip, orderDirection, where },
     );
     return data.dailyEnergySnapshots;
+  }
+
+  /** Async generator that pages through all daily snapshots matching the given filters. */
+  async *iterateDailySnapshots(
+    filters: Omit<DailySnapshotFilters, "skip">,
+  ): AsyncGenerator<SubgraphDailySnapshot> {
+    const first = filters.first ?? 365;
+    let skip = 0;
+    while (true) {
+      const items = await this.getDailySnapshots({ ...filters, first: first + 1, skip });
+      const hasMore = items.length > first;
+      yield* hasMore ? items.slice(0, first) : items;
+      if (!hasMore) break;
+      skip += first;
+    }
   }
 
   // ---------------------------------------------------------------------------

@@ -17,12 +17,12 @@ export class WatcherModule {
    */
   async createWatcher(name: string): Promise<CreateWatcherResult> {
     const receipt = await sendTx(
-      (overrides) => this.ctx.registry.registerWatcher(name, ...(overrides ? [overrides] : [])),
+      (overrides) => this.ctx.registry.registerWatcher(name, overrides),
       this.ctx,
     );
 
     const parsed = findEventLog(receipt, this.ctx.registryInterface, TOPIC0_WATCHER_REGISTERED);
-    if (parsed) return { watcherId: BigInt(parsed.args[0]), txHash: receipt.hash };
+    if (parsed) return { watcherId: BigInt(parsed.args[0]), name, txHash: receipt.hash };
     throw new ConfigurationError(
       `WatcherRegistered event not found in transaction (tx: ${receipt.hash}) — watcher ID could not be determined`,
     );
@@ -41,12 +41,7 @@ export class WatcherModule {
       throw new ConfigurationError("newOwner must be a valid Ethereum address");
     }
     const receipt = await sendTx(
-      (overrides) =>
-        this.ctx.registry.transferWatcherOwnership(
-          watcherId,
-          newOwner,
-          ...(overrides ? [overrides] : []),
-        ),
+      (overrides) => this.ctx.registry.transferWatcherOwnership(watcherId, newOwner, overrides),
       this.ctx,
     );
     return { txHash: receipt.hash };

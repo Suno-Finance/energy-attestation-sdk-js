@@ -24,6 +24,7 @@ import { ProjectModule } from "./modules/ProjectModule.js";
 import { AttesterModule } from "./modules/AttesterModule.js";
 import { AttestationModule } from "./modules/AttestationModule.js";
 import { ReadModule } from "./modules/ReadModule.js";
+import { EnergyTypeModule } from "./modules/EnergyTypeModule.js";
 
 interface ResolvedAddresses {
   registryAddress: string;
@@ -141,6 +142,7 @@ export class EnergySDK {
   readonly projects: ProjectModule;
   readonly attesters: AttesterModule;
   readonly attestations: AttestationModule;
+  readonly energyTypes: EnergyTypeModule;
   readonly read: ReadModule;
 
   private constructor(init: {
@@ -158,6 +160,7 @@ export class EnergySDK {
     this.projects = new ProjectModule(init.ctx);
     this.attesters = new AttesterModule(init.ctx);
     this.attestations = new AttestationModule(init.ctx);
+    this.energyTypes = new EnergyTypeModule(init.ctx);
     this.read = new ReadModule(init.ctx);
   }
 

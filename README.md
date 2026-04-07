@@ -525,11 +525,12 @@ const sdk = await EnergySDK.fromSigner({
 The SDK is organized into five focused modules, each accessible as a property on the SDK instance:
 
 ```typescript
-sdk.watchers; //     WatcherModule  — create and manage watchers (organizations)
-sdk.projects; //     ProjectModule  — create and manage energy projects
-sdk.attesters; //    AttesterModule — manage attester authorization
+sdk.watchers; //     WatcherModule    — create and manage watchers (organizations)
+sdk.projects; //     ProjectModule    — create and manage energy projects
+sdk.attesters; //    AttesterModule   — manage attester authorization
 sdk.attestations; // AttestationModule — submit and correct energy readings
-sdk.read; //         ReadModule     — query on-chain state (view functions, no gas)
+sdk.energyTypes; //  EnergyTypeModule — register and manage energy types (admin only)
+sdk.read; //         ReadModule       — query on-chain state (view functions, no gas)
 ```
 
 Additionally, the SDK exposes the underlying ethers.js objects for advanced use:
@@ -545,23 +546,23 @@ sdk.network; //  Resolved SDK network enum value
 
 ### `sdk.watchers`
 
-| Method                                                     | Returns                 | Description                                 |
-| ---------------------------------------------------------- | ----------------------- | ------------------------------------------- |
-| `createWatcher(name)`                                      | `{ watcherId, txHash }` | Register a new watcher (permissionless)     |
-| `transferWatcherOwnership(watcherId, newOwner)`            | `{ txHash }`            | Transfer watcher to a new owner             |
-| `estimateCreateWatcherGas(name)`                           | `bigint`                | Estimate gas for `createWatcher`            |
-| `estimateTransferWatcherOwnershipGas(watcherId, newOwner)` | `bigint`                | Estimate gas for `transferWatcherOwnership` |
+| Method                                                     | Returns                       | Description                                 |
+| ---------------------------------------------------------- | ----------------------------- | ------------------------------------------- |
+| `createWatcher(name)`                                      | `{ watcherId, name, txHash }` | Register a new watcher (permissionless)     |
+| `transferWatcherOwnership(watcherId, newOwner)`            | `{ txHash }`                  | Transfer watcher to a new owner             |
+| `estimateCreateWatcherGas(name)`                           | `bigint`                      | Estimate gas for `createWatcher`            |
+| `estimateTransferWatcherOwnershipGas(watcherId, newOwner)` | `bigint`                      | Estimate gas for `transferWatcherOwnership` |
 
 ---
 
 ### `sdk.projects`
 
-| Method                                       | Returns                 | Description                                        |
-| -------------------------------------------- | ----------------------- | -------------------------------------------------- |
-| `createProject(watcherId, name, energyType)` | `{ projectId, txHash }` | Register a project under a watcher                 |
-| `deregisterProject(projectId)`               | `{ txHash }`            | Deactivate a project (no new attestations allowed) |
-| `transferProject(projectId, toWatcherId)`    | `{ txHash }`            | Move a project to a different watcher              |
-| `setProjectMetadataURI(projectId, uri)`      | `{ txHash }`            | Set/update IPFS or HTTPS metadata link             |
+| Method                                       | Returns                                   | Description                                        |
+| -------------------------------------------- | ----------------------------------------- | -------------------------------------------------- |
+| `createProject(watcherId, name, energyType)` | `{ projectId, name, energyType, txHash }` | Register a project under a watcher                 |
+| `deregisterProject(projectId)`               | `{ txHash }`                              | Deactivate a project (no new attestations allowed) |
+| `transferProject(projectId, toWatcherId)`    | `{ txHash }`                              | Move a project to a different watcher              |
+| `setProjectMetadataURI(projectId, uri)`      | `{ txHash }`                              | Set/update IPFS or HTTPS metadata link             |
 
 ---
 
@@ -575,6 +576,23 @@ sdk.network; //  Resolved SDK network enum value
 | `removeAttesters(projectId, attesters[])`    | `{ txHash }` | Batch revoke multiple wallets                 |
 | `addWatcherAttester(watcherId, attester)`    | `{ txHash }` | Authorize across all projects under a watcher |
 | `removeWatcherAttester(watcherId, attester)` | `{ txHash }` | Revoke watcher-wide authorization             |
+
+---
+
+### `sdk.energyTypes`
+
+Admin-only operations for managing the energy type registry. The caller must be the current energy type admin (see `sdk.read.getEnergyTypeAdmin()`).
+
+| Method                                        | Returns      | Description                                |
+| --------------------------------------------- | ------------ | ------------------------------------------ |
+| `registerEnergyType(id, name)`                | `{ txHash }` | Register a new energy type (id 1–255)      |
+| `removeEnergyType(id)`                        | `{ txHash }` | Deactivate an existing energy type         |
+| `transferEnergyTypeAdmin(newAdmin)`           | `{ txHash }` | Transfer the admin role to a new address   |
+| `estimateRegisterEnergyTypeGas(id, name)`     | `bigint`     | Estimate gas for `registerEnergyType`      |
+| `estimateRemoveEnergyTypeGas(id)`             | `bigint`     | Estimate gas for `removeEnergyType`        |
+| `estimateTransferEnergyTypeAdminGas(address)` | `bigint`     | Estimate gas for `transferEnergyTypeAdmin` |
+
+> Energy type ID `0` is permanently reserved for consumer projects and cannot be registered.
 
 ---
 
@@ -653,36 +671,39 @@ All methods are **gas-free** view calls — they query on-chain state directly w
 
 > For listing, filtering, pagination, time-series, and aggregated queries, use [`EnergyQuery`](#energyquery) instead.
 
-| Method                                        | Returns           | Description                                                   |
-| --------------------------------------------- | ----------------- | ------------------------------------------------------------- |
-| `getWatcher(watcherId)`                       | `Watcher`         | Watcher metadata (owner, name, active)                        |
-| `getProject(projectId)`                       | `Project`         | Project metadata (watcher, name, energy type)                 |
-| `isProjectRegistered(projectId)`              | `boolean`         | Whether a project is active                                   |
-| `isWatcherRegistered(watcherId)`              | `boolean`         | Whether a watcher is active                                   |
-| `getProjectLastTimestamp(projectId)`          | `bigint`          | Chain tip — where next attestation must start                 |
-| `getTotalGeneratedEnergy(projectId)`          | `bigint`          | Cumulative Wh generated by a project                          |
-| `getTotalConsumedEnergy(projectId)`           | `bigint`          | Cumulative Wh consumed by a project                           |
-| `getTotalGeneratedEnergyByWatcher(watcherId)` | `bigint`          | Cumulative Wh generated across all projects                   |
-| `getTotalConsumedEnergyByWatcher(watcherId)`  | `bigint`          | Cumulative Wh consumed across all projects                    |
-| `getWatcherProjects(watcherId)`               | `bigint[]`        | All project IDs under a watcher                               |
-| `isProjectAttester(projectId, attester)`      | `boolean`         | Check project-level authorization                             |
-| `isWatcherAttester(watcherId, attester)`      | `boolean`         | Check watcher-level authorization                             |
-| `getProjectMetadataURI(projectId)`            | `string`          | IPFS/HTTPS metadata link                                      |
-| `getProjectEnergyType(projectId)`             | `number`          | Energy type ID (0 = consumer, 1+ = generator)                 |
-| `getReplacementUID(uid)`                      | `string`          | Follow the replacement chain for audit                        |
-| `getAttestedPeriodUID(projectId, from, to)`   | `string`          | Look up which attestation covers a period                     |
-| `getAttestedPeriodStartUID(projectId, from)`  | `string`          | Look up attestation by start timestamp only                   |
-| `getNextProjectId()`                          | `bigint`          | Next project ID that will be assigned                         |
-| `getNextWatcherId()`                          | `bigint`          | Next watcher ID that will be assigned                         |
-| `getProjectWatcherId(projectId)`              | `bigint`          | Which watcher owns a project                                  |
-| `getProjectType(projectId)`                   | `number`          | Raw energy type ID for a project                              |
-| `isAuthorizedResolver(resolver)`              | `boolean`         | Check if an address is an authorized resolver                 |
-| `isEnergyTypeRegistered(id)`                  | `boolean`         | Check if an energy type ID is registered                      |
-| `getEnergyTypeName(id)`                       | `string`          | Human-readable name for an energy type ID                     |
-| `getEnergyTypeAdmin()`                        | `string`          | Address of the energy type admin                              |
-| `getWatcherProjectsWithDetails(watcherId)`    | `Project[]`       | All projects under a watcher with full metadata               |
-| `getAttestationData(uid)`                     | `AttestationData` | Fetch and decode attestation data by EAS UID                  |
-| `getProjectStats(projectId)`                  | `ProjectStats`    | Project metadata + energy totals + last timestamp in one call |
+| Method                                        | Returns           | Description                                                             |
+| --------------------------------------------- | ----------------- | ----------------------------------------------------------------------- |
+| `getWatcher(watcherId)`                       | `Watcher`         | Watcher metadata (owner, name, active)                                  |
+| `getProject(projectId)`                       | `Project`         | Project metadata (watcher, name, energy type)                           |
+| `isProjectRegistered(projectId)`              | `boolean`         | Whether a project is active                                             |
+| `isWatcherRegistered(watcherId)`              | `boolean`         | Whether a watcher is active                                             |
+| `getProjectLastTimestamp(projectId)`          | `bigint`          | Chain tip — where next attestation must start                           |
+| `getTotalGeneratedEnergy(projectId)`          | `bigint`          | Cumulative Wh generated by a project                                    |
+| `getTotalConsumedEnergy(projectId)`           | `bigint`          | Cumulative Wh consumed by a project                                     |
+| `getTotalGeneratedEnergyByWatcher(watcherId)` | `bigint`          | Cumulative Wh generated across all projects                             |
+| `getTotalConsumedEnergyByWatcher(watcherId)`  | `bigint`          | Cumulative Wh consumed across all projects                              |
+| `getWatcherProjects(watcherId)`               | `bigint[]`        | All project IDs under a watcher                                         |
+| `isProjectAttester(projectId, attester)`      | `boolean`         | Check project-level authorization                                       |
+| `isWatcherAttester(watcherId, attester)`      | `boolean`         | Check watcher-level authorization                                       |
+| `getProjectMetadataURI(projectId)`            | `string`          | IPFS/HTTPS metadata link                                                |
+| `getProjectEnergyType(projectId)`             | `number`          | Energy type ID (0 = consumer, 1+ = generator)                           |
+| `getReplacementUID(uid)`                      | `string`          | Follow the replacement chain for audit                                  |
+| `getAttestedPeriodUID(projectId, from, to)`   | `string`          | Look up which attestation covers a period                               |
+| `getAttestedPeriodStartUID(projectId, from)`  | `string`          | Look up attestation by start timestamp only                             |
+| `getNextProjectId()`                          | `bigint`          | Next project ID that will be assigned                                   |
+| `getNextWatcherId()`                          | `bigint`          | Next watcher ID that will be assigned                                   |
+| `getProjectWatcherId(projectId)`              | `bigint`          | Which watcher owns a project                                            |
+| `getProjectType(projectId)`                   | `number`          | Raw energy type ID for a project                                        |
+| `isAuthorizedResolver(resolver)`              | `boolean`         | Check if an address is an authorized resolver                           |
+| `isEnergyTypeRegistered(id)`                  | `boolean`         | Check if an energy type ID is registered                                |
+| `getEnergyTypeName(id)`                       | `string`          | Human-readable name for an energy type ID                               |
+| `getEnergyTypeAdmin()`                        | `string`          | Address of the energy type admin                                        |
+| `getWatcherProjectsWithDetails(watcherId)`    | `Project[]`       | All projects under a watcher with full metadata                         |
+| `getAttestationData(uid)`                     | `AttestationData` | Fetch and decode attestation data by EAS UID                            |
+| `getProjectStats(projectId)`                  | `ProjectStats`    | Project metadata + energy totals + last timestamp in one call           |
+| `getWatcherStats(watcherId)`                  | `WatcherStats`    | Watcher metadata + generated and consumed totals in one call            |
+| `getOwner()`                                  | `string`          | Current owner of the EnergyRegistry contract                            |
+| `getPendingOwner()`                           | `string`          | Pending owner during a 2-step ownership transfer (zero address if none) |
 
 #### `AttestationData`
 
@@ -717,6 +738,16 @@ console.log(data.fromTimestamp); // 1700000000n
   totalConsumed: bigint; // Cumulative Wh consumed
   lastTimestamp: bigint; // Chain tip — where next attestation must start
   metadataURI: string; // IPFS/HTTPS metadata link
+}
+```
+
+#### `WatcherStats`
+
+```typescript
+{
+  watcher: Watcher; // Metadata (owner, name, registered)
+  totalGenerated: bigint; // Cumulative Wh generated across all projects
+  totalConsumed: bigint; // Cumulative Wh consumed across all projects
 }
 ```
 
@@ -790,23 +821,27 @@ console.log(data.fromTimestamp); // 1700000000n
 
 #### `AttestationFilters`
 
-| Field               | Type                                                 | Default           |
-| ------------------- | ---------------------------------------------------- | ----------------- |
-| `first`             | `number`                                             | `100`             |
-| `skip`              | `number`                                             | `0`               |
-| `orderBy`           | `"fromTimestamp" \| "blockTimestamp" \| "energyWh"`  | `"fromTimestamp"` |
-| `orderDirection`    | `"asc" \| "desc"`                                    | `"asc"`           |
-| `projectId`         | `string`                                             | —                 |
-| `attester`          | `string`                                             | —                 |
-| `replaced`          | `boolean` — `false` returns only active attestations | —                 |
-| `fromTimestamp_gte` | `string` — Unix seconds                              | —                 |
-| `fromTimestamp_lte` | `string` — Unix seconds                              | —                 |
+| Field               | Type                                                           | Default           |
+| ------------------- | -------------------------------------------------------------- | ----------------- |
+| `first`             | `number`                                                       | `100`             |
+| `skip`              | `number`                                                       | `0`               |
+| `orderBy`           | `"fromTimestamp" \| "blockTimestamp" \| "energyWh"`            | `"fromTimestamp"` |
+| `orderDirection`    | `"asc" \| "desc"`                                              | `"asc"`           |
+| `projectId`         | `string`                                                       | —                 |
+| `attester`          | `string`                                                       | —                 |
+| `replaced`          | `boolean` — `false` returns only active attestations           | —                 |
+| `fromTimestamp_gte` | `string` — Unix seconds                                        | —                 |
+| `fromTimestamp_lte` | `string` — Unix seconds                                        | —                 |
+| `toTimestamp_gte`   | `string` — Unix seconds                                        | —                 |
+| `toTimestamp_lte`   | `string` — Unix seconds                                        | —                 |
+| `energyTypeId`      | `string` — use `"0"` for consumer, `"1"`–`"13"` for generators | —                 |
 
 #### Daily Snapshots
 
-| Method                       | Returns                   | Description                                   |
-| ---------------------------- | ------------------------- | --------------------------------------------- |
-| `getDailySnapshots(filters)` | `SubgraphDailySnapshot[]` | Day-bucketed energy totals, useful for charts |
+| Method                           | Returns                                 | Description                                   |
+| -------------------------------- | --------------------------------------- | --------------------------------------------- |
+| `getDailySnapshots(filters)`     | `SubgraphDailySnapshot[]`               | Day-bucketed energy totals, useful for charts |
+| `iterateDailySnapshots(filters)` | `AsyncGenerator<SubgraphDailySnapshot>` | Async iterator for large date ranges          |
 
 #### `DailySnapshotFilters`
 
@@ -892,6 +927,14 @@ Gas estimation methods apply the **same input validation** as their transaction 
 | `estimateRemoveAttestersGas(projectId, attesters[])`    | `removeAttesters(...)`       |
 | `estimateAddWatcherAttesterGas(watcherId, attester)`    | `addWatcherAttester(...)`    |
 | `estimateRemoveWatcherAttesterGas(watcherId, attester)` | `removeWatcherAttester(...)` |
+
+#### `sdk.energyTypes`
+
+| Method                                        | Estimates gas for              |
+| --------------------------------------------- | ------------------------------ |
+| `estimateRegisterEnergyTypeGas(id, name)`     | `registerEnergyType(...)`      |
+| `estimateRemoveEnergyTypeGas(id)`             | `removeEnergyType(id)`         |
+| `estimateTransferEnergyTypeAdminGas(address)` | `transferEnergyTypeAdmin(...)` |
 
 ---
 

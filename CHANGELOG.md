@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.1.1] - 2026-04-07
+
+### Added
+
+- **`sdk.energyTypes` module** — new `EnergyTypeModule` exposed as `sdk.energyTypes` with `registerEnergyType`, `removeEnergyType`, and `transferEnergyTypeAdmin` write methods plus gas estimate variants for each. Energy type admins can now manage types entirely through the SDK.
+- **`sdk.read.getOwner()` / `getPendingOwner()`** — exposes the registry's `Ownable2Step` governance state. Useful for admin UIs and governance dashboards.
+- **`sdk.read.getWatcherStats(watcherId)`** — convenience aggregate that returns watcher metadata, `totalGenerated`, and `totalConsumed` in a single call (mirrors the existing `getProjectStats`). New `WatcherStats` type exported from the package.
+- **`toTimestamp_gte` / `toTimestamp_lte` filters on `AttestationFilters`** — allows querying attestations by when a period _ends_, complementing the existing `fromTimestamp` range filters.
+- **`energyTypeId` filter on `AttestationFilters`** — filter attestations by energy source type (use `"0"` for consumer attestations), consistent with the equivalent filter already available on `ProjectFilters`.
+- **`EnergyQuery.iterateDailySnapshots(filters)`** — async generator that pages through daily energy snapshots for large date ranges, consistent with `iterateWatchers`, `iterateProjects`, and `iterateAttestations`.
+
+### Changed
+
+- **`createWatcher` result includes `name`** — `CreateWatcherResult` now echoes back the watcher name alongside `watcherId` and `txHash`. Callers no longer need to track the name separately.
+- **`createProject` result includes `name` and `energyType`** — `CreateProjectResult` now echoes back both input fields alongside `projectId` and `txHash`.
+
+---
+
 ## [1.1.0] - 2026-04-06
 
 ### Added

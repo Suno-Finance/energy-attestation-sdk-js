@@ -1,4 +1,11 @@
-import type { SDKContext, Watcher, Project, ProjectStats, AttestationData } from "../types.js";
+import type {
+  SDKContext,
+  Watcher,
+  Project,
+  ProjectStats,
+  WatcherStats,
+  AttestationData,
+} from "../types.js";
 import { decodeAttestationData } from "../encoding.js";
 
 function toBigInt(value: bigint | number | string): bigint {
@@ -168,6 +175,26 @@ export class ReadModule {
   async getAttestationData(uid: string): Promise<AttestationData> {
     const attestation = await this.ctx.eas.getAttestation(uid);
     return decodeAttestationData(attestation.data as string);
+  }
+
+  /** Returns the current owner of the EnergyRegistry contract. */
+  async getOwner(): Promise<string> {
+    return (await this.ctx.registry.owner()) as string;
+  }
+
+  /** Returns the pending owner of the EnergyRegistry contract (Ownable2Step). */
+  async getPendingOwner(): Promise<string> {
+    return (await this.ctx.registry.pendingOwner()) as string;
+  }
+
+  /** Returns a convenience aggregate with watcher metadata and energy totals. */
+  async getWatcherStats(watcherId: number | bigint): Promise<WatcherStats> {
+    const [watcher, totalGenerated, totalConsumed] = await Promise.all([
+      this.getWatcher(watcherId),
+      this.getTotalGeneratedEnergyByWatcher(watcherId),
+      this.getTotalConsumedEnergyByWatcher(watcherId),
+    ]);
+    return { watcher, totalGenerated, totalConsumed };
   }
 
   /** Returns a convenience aggregate with project metadata and key totals. */

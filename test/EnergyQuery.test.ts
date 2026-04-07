@@ -600,6 +600,154 @@ describe("EnergyQuery", () => {
         fromTimestamp_lte: "1700100000",
       });
     });
+
+    it("passes toTimestamp range filters", async () => {
+      const fetch = mockFetch({ energyAttestations: [] });
+      vi.stubGlobal("fetch", fetch);
+
+      await makeQuery().getAttestations({
+        toTimestamp_gte: "1700003600",
+        toTimestamp_lte: "1700200000",
+      });
+
+      const body = JSON.parse(fetch.mock.calls[0][1].body);
+      expect(body.variables.where).toMatchObject({
+        toTimestamp_gte: "1700003600",
+        toTimestamp_lte: "1700200000",
+      });
+    });
+
+    it("passes energyTypeId filter for generator type", async () => {
+      const fetch = mockFetch({ energyAttestations: [] });
+      vi.stubGlobal("fetch", fetch);
+
+      await makeQuery().getAttestations({ energyTypeId: "1" });
+
+      const body = JSON.parse(fetch.mock.calls[0][1].body);
+      expect(body.variables.where).toMatchObject({ energyType: "1" });
+    });
+
+    it("maps energyTypeId '0' to null for consumer attestations", async () => {
+      const fetch = mockFetch({ energyAttestations: [] });
+      vi.stubGlobal("fetch", fetch);
+
+      await makeQuery().getAttestations({ energyTypeId: "0" });
+
+      const body = JSON.parse(fetch.mock.calls[0][1].body);
+      expect(body.variables.where.energyType).toBeNull();
+    });
+
+    it("omits energyType from where when energyTypeId is not set", async () => {
+      const fetch = mockFetch({ energyAttestations: [] });
+      vi.stubGlobal("fetch", fetch);
+
+      await makeQuery().getAttestations({ projectId: "1" });
+
+      const body = JSON.parse(fetch.mock.calls[0][1].body);
+      expect(Object.keys(body.variables.where)).not.toContain("energyType");
+    });
+  });
+
+  // -------------------------------------------------------------------------
+  // iterateDailySnapshots
+  // -------------------------------------------------------------------------
+
+  describe("iterateDailySnapshots", () => {
+    function makeSnapshot(id: string, date: string) {
+      return {
+        id,
+        date,
+        timestamp: "1700000000",
+        generatedWh: "1000",
+        consumedWh: "0",
+        attestationCount: 1,
+        project: { id: "1", name: "P1" },
+      };
+    }
+
+    it("yields all items when subgraph returns fewer than first", async () => {
+      const snapshots = [makeSnapshot("1-2024-01-01", "2024-01-01")];
+      vi.stubGlobal("fetch", mockFetch({ dailyEnergySnapshots: snapshots }));
+
+      const results = [];
+      for await (const snap of makeQuery().iterateDailySnapshots({ projectId: "1" })) {
+        results.push(snap);
+      }
+
+      expect(results).toHaveLength(1);
+      expect(results[0].date).toBe("2024-01-01");
+    });
+
+    it("paginates across multiple pages until no more results", async () => {
+      const page1 = Array.from({ length: 4 }, (_, i) =>
+        makeSnapshot(`1-2024-01-0${i + 1}`, `2024-01-0${i + 1}`),
+      );
+      // page1 has 4 items when first=3, meaning hasMore is true for the first call (3+1=4)
+      const page2 = [makeSnapshot("1-2024-01-04", "2024-01-04")];
+
+      let call = 0;
+      const fetchFn = vi.fn().mockImplementation(() => {
+        const data = call++ === 0 ? page1 : page2;
+        return Promise.resolve({
+          ok: true,
+          status: 200,
+          statusText: "OK",
+          json: vi.fn().mockResolvedValue({ data: { dailyEnergySnapshots: data } }),
+        });
+      });
+      vi.stubGlobal("fetch", fetchFn);
+
+      const results = [];
+      for await (const snap of makeQuery().iterateDailySnapshots({ projectId: "1", first: 3 })) {
+        results.push(snap);
+      }
+
+      // page1 returned 4 items (first+1=4), so hasMore=true; we yield first 3 then fetch page2
+      expect(results).toHaveLength(4); // 3 from page1 + 1 from page2
+      expect(fetchFn).toHaveBeenCalledTimes(2);
+    });
+
+    it("passes projectId and date filters through to each fetch", async () => {
+      const fetch = mockFetch({ dailyEnergySnapshots: [] });
+      vi.stubGlobal("fetch", fetch);
+
+      const gen = makeQuery().iterateDailySnapshots({
+        projectId: "5",
+        dateFrom: "2024-06-01",
+        dateTo: "2024-06-30",
+      });
+      await gen.next();
+
+      const body = JSON.parse(fetch.mock.calls[0][1].body);
+      expect(body.variables.where).toMatchObject({
+        project: "5",
+        date_gte: "2024-06-01",
+        date_lte: "2024-06-30",
+      });
+    });
+
+    it("uses default first=365 when not specified", async () => {
+      const fetch = mockFetch({ dailyEnergySnapshots: [] });
+      vi.stubGlobal("fetch", fetch);
+
+      const gen = makeQuery().iterateDailySnapshots({ projectId: "1" });
+      await gen.next();
+
+      const body = JSON.parse(fetch.mock.calls[0][1].body);
+      // internally requests first+1 = 366
+      expect(body.variables.first).toBe(366);
+    });
+
+    it("yields nothing when subgraph returns empty array", async () => {
+      vi.stubGlobal("fetch", mockFetch({ dailyEnergySnapshots: [] }));
+
+      const results = [];
+      for await (const snap of makeQuery().iterateDailySnapshots({ projectId: "1" })) {
+        results.push(snap);
+      }
+
+      expect(results).toHaveLength(0);
+    });
   });
 
   // -------------------------------------------------------------------------
